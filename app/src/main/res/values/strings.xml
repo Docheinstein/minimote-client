@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Minimote</string>
+    <string name="add_server">Add server</string>
+    <string name="add_server_failed_dialog_ipv4_title">Invalid IP</string>
+    <string name="add_server_failed_dialog_ipv4_message">Please provide a valid IPv4 address</string>
+    <string name="add_server_add">Add</string>
+    <string name="add_server_cancel">Cancel</string>
+    <string name="add_server_name_placeholder">Name (e.g. Debian 9)</string>
+    <string name="add_server_address_placeholder">Address (e.g. 192.168.1.102)</string>
+    <string name="server_list_title">Servers</string>
+    <string name="server_display_name">Display name</string>
+    <string name="server_hostname">Hostname</string>
+    <string name="server_address">IP</string>
+    <string name="delete_server">Delete</string>
+    <string name="save_server">Save</string>
+    <string name="ok">Ok</string>
+    <string name="cancel">Cancel</string>
+    <string name="discovering">Discovering…</string>
+    <string name="start_discovery_dialog_title">Start discovery?</string>
+    <string name="start_discovery_dialog_message">Do you really want to start server discovery?</string>
+</resources>
