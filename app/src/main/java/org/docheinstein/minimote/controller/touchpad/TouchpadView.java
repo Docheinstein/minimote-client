@@ -44,7 +44,7 @@ public class TouchpadView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        Log.v(TAG, "Touch event: (X: " + event.getX() + ", Y: " + event.getY());
+        Log.v(TAG, "Touch event : (X: " + event.getX() + ", Y: " + event.getY() + ")");
 
         if (mListener == null) {
             Log.w(TAG, "Null listener, nothing to notify");
@@ -53,18 +53,23 @@ public class TouchpadView extends View {
 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                Log.v(TAG, "-> ACTION_DOWN");
                 mListener.onTouchpadDown(event);
                 break;
             case MotionEvent.ACTION_UP:
+                Log.v(TAG, "-> ACTION_UP");
                 mListener.onTouchpadUp(event);
                 break;
             case MotionEvent.ACTION_MOVE:
+                Log.v(TAG, "-> ACTION_MOVE");
                 mListener.onTouchpadMovement(event);
                 break;
             case MotionEvent.ACTION_POINTER_UP:
+                Log.v(TAG, "-> ACTION_POINTER_UP");
                 mListener.onTouchpadPointerUp(event);
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
+                Log.v(TAG, "-> ACTION_POINTER_DOWN");
                 mListener.onTouchpadPointerDown(event);
                 break;
         }

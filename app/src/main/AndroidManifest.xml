@@ -7,9 +7,9 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/minimote_icon"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@mipmap/minimote_icon_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
@@ -19,9 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".edit.EditServerActivity" />
-        <activity android:name=".controller.MinimoteControllerActivity" />
+        <activity android:name=".edit.EditServerFragment" />
+        <activity android:name=".servers.ServersFragment" />
+        <activity
+            android:name=".controller.MinimoteControllerFragment"
+            />
         <!--        <activity android:name=".controller.ControllerActivity" />-->
+        <!--            android:windowSoftInputMode="adjustPan"-->
     </application>
 
 </manifest>

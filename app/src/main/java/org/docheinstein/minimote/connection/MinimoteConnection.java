@@ -15,7 +15,8 @@ public class MinimoteConnection {
 
     private static final String TAG = "MinimoteConnection";
 
-    private final Object mSocketLock = new Object();
+    private final Object mSocketConnectLock = new Object();
+    private final Object mSocketDisconnectLock = new Object();
 
     private String mAddress;
     private int mTcpPort;
@@ -37,11 +38,15 @@ public class MinimoteConnection {
     }
 
     public boolean connect() {
-        return connectTcp() && connectUdp();
+        synchronized (mSocketConnectLock) {
+            return connectTcp() && connectUdp();
+        }
     }
 
-    public void disconnect() {
-        synchronized (mSocketLock) {
+    public synchronized void disconnect() {
+        Log.v(TAG, "MinimoteConnection.disconnect() hanging on");
+        synchronized (mSocketDisconnectLock) {
+            Log.v(TAG, "MinimoteConnection.disconnect()");
             if (mTcpSocket != null) {
                 try {
                     mTcpSocket.close();
@@ -49,6 +54,7 @@ public class MinimoteConnection {
                     Log.w(TAG, "TCP Socket close failed", e);
                 }
             }
+
             if (mUdpSocket != null) {
                 mUdpSocket.close();
             }
@@ -93,7 +99,6 @@ public class MinimoteConnection {
         byte[] bs = packet.toData();
         DatagramPacket datagram;
         try {
-            Log.v(TAG, ">> Sending UDP packet >> \n" + packet + "\n");
             datagram = new DatagramPacket(bs, bs.length, InetAddress.getByName(mAddress), mUdpPort);
         } catch (UnknownHostException e) {
             Log.w(TAG, "Address resolution failed, cannot send UDP packet");
@@ -101,6 +106,7 @@ public class MinimoteConnection {
         }
 
         try {
+        Log.v(TAG, ">> Sending UDP packet >> \n" + packet + "\n");
             mUdpSocket.send(datagram);
             return true;
         } catch (IOException e) {
@@ -110,28 +116,24 @@ public class MinimoteConnection {
     }
 
     private boolean connectTcp() {
-        synchronized (mSocketLock) {
-            Log.d(TAG, "Going to establish a TCP connection with " + mAddress + ":" + mTcpPort);
-            try {
-                mTcpSocket = new Socket(mAddress, mTcpPort);
-                return true;
-            } catch (IOException e) {
-                Log.e(TAG, "Error occurred while trying to establish a TCP connection", e);
-                return false;
-            }
+        Log.d(TAG, "Going to establish a TCP connection with " + mAddress + ":" + mTcpPort);
+        try {
+            mTcpSocket = new Socket(mAddress, mTcpPort);
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Error occurred while trying to establish a TCP connection", e);
+            return false;
         }
     }
 
     private boolean connectUdp() {
-        synchronized (mSocketLock) {
-            Log.d(TAG, "Going to establish a UDP connection with " + mAddress + ":" + mUdpPort);
-            try {
-                mUdpSocket = new DatagramSocket();
-                return true;
-            } catch (IOException e) {
-                Log.e(TAG, "Error occurred while trying to establish an UDP connection", e);
-                return false;
-            }
+        Log.d(TAG, "Going to establish a UDP connection with " + mAddress + ":" + mUdpPort);
+        try {
+            mUdpSocket = new DatagramSocket();
+            return true;
+        } catch (IOException e) {
+            Log.e(TAG, "Error occurred while trying to establish an UDP connection", e);
+            return false;
         }
     }
 }

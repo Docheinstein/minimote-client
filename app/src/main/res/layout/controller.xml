@@ -2,9 +2,44 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 >
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uiKeyboardButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:tint="#E9E9E9"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabCustomSize="72dp"
+        app:fabSize="normal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:maxImageSize="34dp"
+        app:srcCompat="@drawable/keyboard" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/uiHotkeysButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:tint="#E9E9E9"
+        app:backgroundTint="@color/colorOrange"
+        app:fabCustomSize="72dp"
+        app:fabSize="normal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:maxImageSize="34dp"
+        app:srcCompat="@drawable/hotkeys" />
 
 
     <view
@@ -13,8 +48,117 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#424242"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/uiButtonsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <FrameLayout
+        android:id="@+id/uiHotkeysOverlay"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="110dp"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/hotkeys_overlay"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:clickable="true"
+        android:focusable="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <ImageView
+        android:id="@+id/uiSeparator1"
+        android:layout_width="0dp"
+        android:layout_height="2dp"
+        android:background="#AAAAAA"
+        app:layout_constraintBottom_toBottomOf="@+id/uiTouchpad"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:srcCompat="@android:color/darker_gray" />
+
+    <org.docheinstein.minimote.controller.keyboard.KeyboardEditText
+        android:id="@+id/uiKeyboardPreview"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:background="@drawable/keyboard_preview"
+        android:duplicateParentState="false"
+        android:ems="10"
+        android:gravity="center"
+        android:inputType="none"
+        android:textColor="#585858"
+        android:visibility="gone"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="Debian ..." />
+
+    <LinearLayout
+        android:id="@+id/uiButtonsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="#2C2A2A"
+        android:orientation="horizontal"
+        android:paddingStart="8dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@id/uiKeyboardPreview"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/uiLeftButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginEnd="6dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true" />
+
+        <ImageView
+            android:id="@+id/uiSeparator2"
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="#C5C5C5"/>
+
+        <ImageView
+            android:id="@+id/uiRightButton"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="6dp"
+            android:layout_weight="1"
+            android:clickable="true"
+            android:focusable="true"/>
+    </LinearLayout>
+
+    <View
+        android:id="@+id/uiConnectionOverlay"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#9F000000"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
+    <ProgressBar
+        android:id="@+id/uiConnectionLoader"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:indeterminate="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

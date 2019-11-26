@@ -8,6 +8,7 @@
     <string name="add_server_name_placeholder">Name (e.g. Debian 9)</string>
     <string name="add_server_address_placeholder">Address (e.g. 192.168.1.102)</string>
     <string name="server_list_title">Servers</string>
+<!--    <string name="edit_server_title">Edit server</string>-->
     <string name="server_display_name">Display name</string>
     <string name="server_hostname">Hostname</string>
     <string name="server_address">IP</string>
@@ -18,4 +19,10 @@
     <string name="discovering">Discovering…</string>
     <string name="start_discovery_dialog_title">Start discovery?</string>
     <string name="start_discovery_dialog_message">Do you really want to start server discovery?</string>
+    <string name="connection_with_server_failed_dialog_title">Connection failed</string>
+    <string name="connection_with_server_failed_dialog_message">Cannot establish the connection with the server</string>
+    <string name="settings_menu_item">Settings</string>
+    <string name="servers_menu_item">Servers</string>
+    <string name="hotkeys_menu_item">Hotkeys</string>
+
 </resources>

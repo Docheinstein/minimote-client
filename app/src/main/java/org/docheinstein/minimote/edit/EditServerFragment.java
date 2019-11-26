@@ -1,56 +1,65 @@
 package org.docheinstein.minimote.edit;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import org.docheinstein.minimote.R;
+import org.docheinstein.minimote.base.MinimoteFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.utils.StringUtils;
 
-public class EditServerActivity extends AppCompatActivity {
+public class EditServerFragment extends MinimoteFragment {
 
-    private static final String TAG = "EditServerActivity";
-
-    public static final String EXTRA_SERVER_ADDRESS = "server_address";
+    private static final String TAG = "EditServerFragment";
 
     private TextView uiDisplayName;
     private TextView uiAddress;
     private TextView uiHostname;
 
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_server);
+        setHasOptionsMenu(true);
+    }
 
-        Intent i = getIntent();
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.edit_server, container, false);
 
-        if (i == null) {
-            Log.e(TAG, "Invalid intent?");
-            finish();
-            return;
+        showBackButton();
+
+        Bundle args = getArguments();
+
+        if (args == null) {
+            Log.e(TAG, "Invalid args?");
+            return null;
         }
 
-        final String serverAddress = i.getStringExtra(EXTRA_SERVER_ADDRESS);
+        final String serverAddress = EditServerFragmentArgs.fromBundle(args).getServerAddress();
 
         if (!StringUtils.isValid(serverAddress)) {
-            Log.e(TAG, "Invalid server address provided to EditServerActivity");
-            finish();
-            return;
+            Log.e(TAG, "Invalid server address provided to EditServerFragment");
+            return null;
         }
 
-        uiDisplayName = findViewById(R.id.uiServerDisplayNameEdit);
-        uiAddress = findViewById(R.id.uiServerAddressView);
-        uiHostname = findViewById(R.id.uiServerHostnameView);
+        uiDisplayName = view.findViewById(R.id.uiServerDisplayNameEdit);
+        uiAddress = view.findViewById(R.id.uiServerAddressView);
+        uiHostname = view.findViewById(R.id.uiServerHostnameView);
 
 
         // Add server (if necessary)
@@ -65,7 +74,7 @@ public class EditServerActivity extends AppCompatActivity {
                     return;
                 }
 
-                runOnUiThread(new Runnable() {
+                ui(new Runnable() {
                     @Override
                     public void run() {
                         Log.d(TAG, "Retrieved server details, updating UI accordingly");
@@ -76,20 +85,20 @@ public class EditServerActivity extends AppCompatActivity {
                 });
             }
         });
+
+        setToolbarTitle("Edit " + serverAddress);
+
+        return view;
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
         inflater.inflate(R.menu.edit_server_menu, menu);
-        return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case android.R.id.home:
-                finish();
             case R.id.uiSaveServerMenuItem:
                 handleSaveButtonClick();
                 return true;
@@ -114,7 +123,13 @@ public class EditServerActivity extends AppCompatActivity {
                 Log.i(TAG, "Updating server info to: " + serverEntity);
 
                 DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
-                finish();
+
+                ui(new Runnable() {
+                    @Override
+                    public void run() {
+                        goBack();
+                    }
+                });
             }
         });
     }
@@ -132,7 +147,12 @@ public class EditServerActivity extends AppCompatActivity {
                     Log.w(TAG, "Failed deletion of server " + addr);
                 }
 
-                finish();
+                ui(new Runnable() {
+                    @Override
+                    public void run() {
+                        goBack();
+                    }
+                });
             }
         });
     }

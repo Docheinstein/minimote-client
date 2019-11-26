@@ -18,6 +18,7 @@ public enum MinimotePacketType {
     KeyDown(0x0E),
     KeyUp(0x0F),
     KeyClick(0x10),
+    Hotkey(0x11),
 
     DiscoverRequest(0xFE),
     DiscoverResponse(0xFF);
@@ -62,6 +63,8 @@ public enum MinimotePacketType {
                 return KeyUp;
             case 0x10:
                 return KeyClick;
+            case 0x11:
+                return Hotkey;
             case 0xFE:
                 return DiscoverRequest;
             case 0xFF:

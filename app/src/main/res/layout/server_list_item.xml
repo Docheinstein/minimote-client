@@ -32,8 +32,8 @@
             android:id="@+id/uiServerDisplayName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:textSize="24sp"
+            android:layout_marginBottom="8dp"
+            android:textSize="20sp"
             android:textStyle="bold"
             tools:text="Debian 9.0" />
 
@@ -41,7 +41,7 @@
             android:id="@+id/uiServerAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textSize="18sp"
+            android:textSize="16sp"
             tools:text="192.168.0.0" />
 
     </LinearLayout>

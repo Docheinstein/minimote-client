@@ -12,17 +12,21 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 public class MinimoteServerDiscoverer {
     private static final String TAG = "MinimoteServerDiscover";
 
     private static final int MAX_BUFFER_SIZE = 64;
+
+    private final Object mDiscoveryLock = new Object();
 
     private Future mDiscoveryTask;
     private ExecutorService mDiscoveryExecutor;
@@ -32,9 +36,9 @@ public class MinimoteServerDiscoverer {
     private MinimoteServerDiscovererListener mListener;
 
     public interface MinimoteServerDiscovererListener {
-        void onServerDiscovered(MinimoteDiscoveredServer server);
         void onDiscoveryStarted();
-        void onDiscoveryFinished();
+        void onDiscoveryFinished(boolean success);
+        void onServerDiscovered(MinimoteDiscoveredServer server);
     }
 
     public MinimoteServerDiscoverer(MinimoteServerDiscovererListener listener, int port) {
@@ -43,80 +47,95 @@ public class MinimoteServerDiscoverer {
 
         mListener = listener;
         mPort = port;
-
-        InetAddress inet;
-
-        try {
-            inet = InetAddress.getByName("0.0.0.0");
-        } catch (UnknownHostException e) {
-            Log.e(TAG, "Unable to perform InetAddress.getByName()", e);
-            return;
-        }
-
-        try {
-            mSocket = new DatagramSocket(Conf.UDP_PORT, inet);
-            mSocket.setReuseAddress(true);
-            mSocket.setBroadcast(true);
-        } catch (SocketException e) {
-            Log.e(TAG, "Unable to allocate UDP socket", e);
-            return;
-        }
-
         mDiscoveryExecutor = Executors.newSingleThreadExecutor();
 
         Log.d(TAG , "MinimoteServerDiscoverer initialized");
     }
 
-    public void discoverAndWait(int timeout) {
-        if (mSocket == null)
-            return;
-
-        Runnable discovery = new Runnable() {
-            @Override
-            public void run() {
-                startListeningDiscoverAnswers();
+    public void startDiscovery(int timeout) {
+        synchronized (mDiscoveryLock) {
+            Log.v(TAG, "Locked discovery lock on startDiscovery()");
+            if (!initSocket(timeout)) {
+                Log.e(TAG, "Failed to initialize socket, not starting discovery");
+                return;
             }
-        };
 
-        mDiscoveryTask = mDiscoveryExecutor.submit(discovery);
+            // First of all, listen to answer
+            mDiscoveryTask = mDiscoveryExecutor.submit(new Runnable() {
+                @Override
+                public void run() {
+                    startListeningDiscoverResponses();
+                }
+            });
 
-        if (!broadcastDiscover()) {
-            Log.w(TAG, "Broadcast failed, discovery cannot proceed");
-            cleanup();
-            return;
+            // Ensure that we are listening
+            // TODO: are we actually listening right now? Shall we introduce a sleep()?
+
+            // Now that we are listening, we can broadcast the request
+            if (!broadcastDiscoverRequest()) {
+                Log.w(TAG, "Broadcast failed, discovery cannot proceed");
+                cleanup();
+                return;
+            }
+
+            // Notify that the discovery is started
+            if (mListener != null)
+                mListener.onDiscoveryStarted();
+
+            Log.v(TAG, "Unlocked discovery lock on startDiscovery()");
         }
+    }
 
-        if (mListener != null)
-            mListener.onDiscoveryStarted();
+    public void stopDiscovery() {
+        synchronized (mDiscoveryLock) {
+            Log.v(TAG, "Discovery abort required");
+            Log.v(TAG, "Locked discovery lock on stopDiscovery()");
+            cleanup();
+            Log.v(TAG, "Discovery abort completed");
+            Log.v(TAG, "Unlocked discovery lock on stopDiscovery()");
+        }
+    }
+
+    private boolean initSocket(int timeout) {
+        boolean success = false;
+
+        cleanup();
 
         try {
-            mDiscoveryTask.get(timeout, TimeUnit.MILLISECONDS);
-        } catch (Exception ignored) {
-        } finally {
-            Log.v(TAG, "Timeout of " + timeout + "ms elapsed");
-            if (mDiscoveryTask != null)
-                mDiscoveryTask.cancel(true);
-            cleanup();
-        }
-    }
-
-    public void abortDiscovery() {
-        Log.v(TAG, "Discovery abort required");
-
-        if (mSocket == null)
-            return;
-
-        if (mDiscoveryTask == null) {
-            Log.w(TAG, "No discovery is going on, doing nothing");
-            return;
+            InetAddress inet = InetAddress.getByName("0.0.0.0");
+            // Create unbound socket
+            mSocket = new DatagramSocket(null /* unbound */);
+            mSocket.setReuseAddress(true);
+            // Bind it after setReuseAddr()
+            mSocket.bind(new InetSocketAddress(inet, Conf.UDP_PORT));
+            mSocket.setBroadcast(true);
+            mSocket.setSoTimeout(timeout);
+            success = true;
+        } catch (SocketException e) {
+            Log.e(TAG, "Unable to allocate UDP socket", e);
+        } catch (UnknownHostException e) {
+            Log.e(TAG, "Unable to perform InetAddress.getByName()", e);
         }
 
-        mDiscoveryTask.cancel(true);
-        cleanup();
+        return success;
     }
 
-    private void startListeningDiscoverAnswers() {
-        Log.d(TAG, "Discovery started on port " + mPort + ", waiting...");
+
+    private void cleanup() {
+        if (mSocket != null)
+            mSocket.close();
+        mSocket = null;
+
+        if (mDiscoveryTask != null)
+            mDiscoveryTask.cancel(true);
+        mDiscoveryTask = null;
+
+    }
+
+    private void startListeningDiscoverResponses() {
+        Log.d(TAG, "Discovery started on port " + mPort + ", waiting for responses...");
+
+        boolean success = false;
 
         while (!Thread.currentThread().isInterrupted()) {
             try {
@@ -127,16 +146,21 @@ public class MinimoteServerDiscoverer {
                 Log.d(TAG, "Received packet from " +
                         packet.getAddress().getHostAddress() + ":" + packet.getPort());
                 handleDiscoverResponse(packet);
+            } catch (SocketTimeoutException | SocketException ste) {
+                // Expected exception, when the timeout elapses
+                Log.d(TAG, "Socket timeout elapsed, stopping discovery");
+                success = true;
+                break;
             } catch (IOException e) {
-                if (!(e instanceof SocketException)) // SocketException is thrown when
-                                                     // the socket is fairly close (end of discovery)
-                    Log.e(TAG, "Error occurred while receiving UDP datagram", e);
+                break;
             }
         }
 
-        Log.d(TAG, "Exiting DISCOVER listening, thread has been interrupted");
+        Log.d(TAG, "Exiting discovery");
+
+        // Notify that the discovery is finished, with or without errors
         if (mListener != null)
-            mListener.onDiscoveryFinished();
+            mListener.onDiscoveryFinished(success);
     }
 
     private void handleDiscoverResponse(DatagramPacket rawDiscoverResponse) {
@@ -165,41 +189,29 @@ public class MinimoteServerDiscoverer {
         }
     }
 
-    private boolean broadcastDiscover() {
+    private boolean broadcastDiscoverRequest() {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
         MinimotePacket minimoteDiscoverPacket = MinimotePacketFactory.newDiscoverRequest();
         byte[] discoverPacketData = minimoteDiscoverPacket.toData();
 
-        InetAddress broadcastAddress;
-
         try {
-            broadcastAddress = InetAddress.getByName("255.255.255.255");
+            InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
+
+            DatagramPacket discoverPacket = new DatagramPacket(
+                    discoverPacketData, discoverPacketData.length, broadcastAddress, mPort);
+
+            Log.d(TAG, "Broadcasting DISCOVER message" + minimoteDiscoverPacket);
+            mSocket.send(discoverPacket);
         } catch (UnknownHostException e) {
             Log.e(TAG, "Unable to perform InetAddress.getByName()", e);
             return false;
-        }
-
-        DatagramPacket discoverPacket = new DatagramPacket(
-                discoverPacketData, discoverPacketData.length, broadcastAddress, mPort);
-
-        try {
-            Log.d(TAG, "Broadcasting DISCOVER message" + minimoteDiscoverPacket);
-            mSocket.send(discoverPacket);
         } catch (IOException e) {
             Log.e(TAG, "Unable to send broadcast packet", e);
             return false;
         }
 
-        Log.i(TAG, "Broadcasting discovery packet to " + broadcastAddress);
         return true;
-    }
-
-    private void cleanup() {
-        if (mSocket != null)
-            mSocket.close();
-        mSocket = null;
-        mDiscoveryTask = null;
     }
 }

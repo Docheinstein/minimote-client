@@ -77,4 +77,12 @@ public class ByteUtils {
         bytes[offset + 2] = (byte) ((value >>> 8) & 0xFF);
         bytes[offset + 3] = (byte) ((value) & 0xFF);
     }
+
+    public static void put8(int value, byte[] bytes) {
+        put8(value, bytes, 0);
+    }
+
+    public static void put8(int value, byte[] bytes, int offset) {
+        bytes[offset] =     (byte) ((value) & 0xFF);
+    }
 }
