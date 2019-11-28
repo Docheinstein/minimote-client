@@ -2,7 +2,6 @@ package org.docheinstein.minimote.hotkeys;
 
 import android.content.ClipData;
 import android.content.ClipDescription;
-import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
@@ -27,7 +26,7 @@ import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.base.MinimoteFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
-import org.docheinstein.minimote.settings.MinimoteSettings;
+import org.docheinstein.minimote.settings.SettingsManager;
 
 import java.util.List;
 
@@ -59,10 +58,8 @@ public class HotkeysFragment extends MinimoteFragment {
 
         View view = inflater.inflate(R.layout.hotkeys, container, false);
 
-        showBackButton();
-
         uiHotkeysContainer = view.findViewById(R.id.uiHotkeysContainer);
-        uiHotkeysContainer.setBackgroundColor(MinimoteSettings.hotkeysOverlayColor(getContext()));
+        uiHotkeysContainer.setBackgroundColor(SettingsManager.hotkeysOverlayColor(getContext()));
 
         DB.getInstance().hotkeyEntityDao().getAllObservable().observe(
                 this, new Observer<List<HotkeyEntity>>() {
@@ -220,14 +217,14 @@ public class HotkeysFragment extends MinimoteFragment {
         textView.setBackground(ContextCompat.getDrawable(getContext(), R.drawable.touchpad_button_selector));
 
         GradientDrawable hotkeyBackground = new GradientDrawable();
-        hotkeyBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+        hotkeyBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyBackground.setCornerRadius(10);
-        hotkeyBackground.setColor(MinimoteSettings.hotkeyBackgroundColor(getContext()));
+        hotkeyBackground.setColor(SettingsManager.hotkeyBackgroundColor(getContext()));
 
         GradientDrawable hotkeyPressedBackground = new GradientDrawable();
-        hotkeyPressedBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+        hotkeyPressedBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyPressedBackground.setCornerRadius(10);
-        hotkeyPressedBackground.setColor(MinimoteSettings.hotkeyPressedBackgroundColor(getContext()));
+        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedBackgroundColor(getContext()));
 
 
         StateListDrawable hotkeySelector = new StateListDrawable();
@@ -235,7 +232,7 @@ public class HotkeysFragment extends MinimoteFragment {
         hotkeySelector.addState(new int[] {}, hotkeyBackground);
 
         textView.setBackground(hotkeySelector);
-        textView.setTextColor(MinimoteSettings.hotkeyTextColor(getContext()));
+        textView.setTextColor(SettingsManager.hotkeyTextColor(getContext()));
 
         textView.setTag(id);
 

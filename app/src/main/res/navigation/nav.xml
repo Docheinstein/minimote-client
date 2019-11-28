@@ -26,6 +26,9 @@
         <argument
             android:name="serverAddress"
             app:argType="string" />
+        <argument
+            android:name="serverPort"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/naviController"
@@ -34,6 +37,9 @@
         <argument
             android:name="serverAddress"
             app:argType="string" />
+        <argument
+            android:name="serverPort"
+            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/naviHotkeys"

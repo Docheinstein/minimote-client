@@ -107,7 +107,7 @@ public class MinimoteServerDiscoverer {
             mSocket = new DatagramSocket(null /* unbound */);
             mSocket.setReuseAddress(true);
             // Bind it after setReuseAddr()
-            mSocket.bind(new InetSocketAddress(inet, Conf.UDP_PORT));
+            mSocket.bind(new InetSocketAddress(inet, mPort));
             mSocket.setBroadcast(true);
             mSocket.setSoTimeout(timeout);
             success = true;
@@ -183,6 +183,7 @@ public class MinimoteServerDiscoverer {
         if (mListener != null) {
             MinimoteDiscoveredServer s = new MinimoteDiscoveredServer(
                     rawDiscoverResponse.getAddress().getHostAddress(),
+                    rawDiscoverResponse.getPort(),
                     hostname
             );
             mListener.onServerDiscovered(s);

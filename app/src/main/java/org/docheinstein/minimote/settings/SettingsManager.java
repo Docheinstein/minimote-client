@@ -5,7 +5,7 @@ import android.content.Context;
 import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.utils.PrefUtils;
 
-public class MinimoteSettings {
+public class SettingsManager {
     public static boolean openKeyboard(Context ctx) {
         return PrefUtils.getBoolean(ctx,
                 R.string.pref_open_keyboard,

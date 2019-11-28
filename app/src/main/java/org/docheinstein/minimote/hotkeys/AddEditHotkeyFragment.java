@@ -29,7 +29,7 @@ import org.docheinstein.minimote.base.MinimoteFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.keys.MinimoteKeyType;
-import org.docheinstein.minimote.settings.MinimoteSettings;
+import org.docheinstein.minimote.settings.SettingsManager;
 import org.docheinstein.minimote.utils.StringUtils;
 
 public class AddEditHotkeyFragment extends MinimoteFragment {
@@ -68,8 +68,6 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.add_edit_hotkey, container, false);
 
-        showBackButton();
-
         uiHotkeyPreview = view.findViewById(R.id.uiHotkeyPreview);
         uiHotkeyName = view.findViewById(R.id.uiHotkeyName);
         uiModifierAlt = view.findViewById(R.id.uiModifierAlt);
@@ -90,14 +88,14 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         uiHotkeyPreview.setText(getCurrentHotkeyName());
 
         GradientDrawable hotkeyBackground = new GradientDrawable();
-        hotkeyBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+        hotkeyBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyBackground.setCornerRadius(10);
-        hotkeyBackground.setColor(MinimoteSettings.hotkeyBackgroundColor(getContext()));
+        hotkeyBackground.setColor(SettingsManager.hotkeyBackgroundColor(getContext()));
 
         GradientDrawable hotkeyPressedBackground = new GradientDrawable();
-        hotkeyPressedBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+        hotkeyPressedBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyPressedBackground.setCornerRadius(10);
-        hotkeyPressedBackground.setColor(MinimoteSettings.hotkeyPressedBackgroundColor(getContext()));
+        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedBackgroundColor(getContext()));
 
 
         StateListDrawable hotkeySelector = new StateListDrawable();
@@ -105,7 +103,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         hotkeySelector.addState(new int[] {}, hotkeyBackground);
 
         uiHotkeyPreview.setBackground(hotkeySelector);
-        uiHotkeyPreview.setTextColor(MinimoteSettings.hotkeyTextColor(getContext()));
+        uiHotkeyPreview.setTextColor(SettingsManager.hotkeyTextColor(getContext()));
 
         setModifierListener(uiModifierAlt);
         setModifierListener(uiModifierAltGr);
@@ -175,27 +173,29 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
 
         if (args != null) {
             mEditHotkeyId = AddEditHotkeyFragmentArgs.fromBundle(args).getHotkeyId();
+            if (mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID) {
+                DB.getInstance().execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        HotkeyEntity h = DB.getInstance().hotkeyEntityDao().getById(mEditHotkeyId);
+                        if (h == null)
+                            return;
+                        Log.d(TAG, "Editing of valid hotkey, updating UI");
+                        uiHotkeyName.setText(h.name);
+                        uiModifierAlt.setChecked(h.alt);
+                        uiModifierAltGr.setChecked(h.altgr);
+                        uiModifierCtrl.setChecked(h.ctrl);
+                        uiModifierMeta.setChecked(h.meta);
+                        uiModifierShift.setChecked(h.shift);
+                        uiKey.setSelection(((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(h.key));
+                        uiTextSize.setProgress(h.textSize / 2);
+                        uiPadding.setProgress(h.padding / 2);
+                        if (mDeleteHotkeyMenuButton != null)
+                            mDeleteHotkeyMenuButton.setVisible(true);
+                    }
+                });
+            }
 
-            DB.getInstance().execute(new Runnable() {
-                @Override
-                public void run() {
-                    HotkeyEntity h = DB.getInstance().hotkeyEntityDao().getById(mEditHotkeyId);
-                    if (h == null)
-                        return;
-                    Log.d(TAG, "Editing of valid hotkey, updating UI");
-                    uiHotkeyName.setText(h.name);
-                    uiModifierAlt.setChecked(h.alt);
-                    uiModifierAltGr.setChecked(h.altgr);
-                    uiModifierCtrl.setChecked(h.ctrl);
-                    uiModifierMeta.setChecked(h.meta);
-                    uiModifierShift.setChecked(h.shift);
-                    uiKey.setSelection(((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(h.key));
-                    uiTextSize.setProgress(h.textSize / 2);
-                    uiPadding.setProgress(h.padding / 2);
-                    if (mDeleteHotkeyMenuButton != null)
-                        mDeleteHotkeyMenuButton.setVisible(true);
-                }
-            });
         }
 
         setToolbarTitle(mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID ? "Edit hotkey" : "Add hotkey");
@@ -271,7 +271,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
             @Override
             public void run() {
                 HotkeyEntity hotkey = new HotkeyEntity(
-                        mEditHotkeyId != null ? mEditHotkeyId : 0,
+                        mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID ? mEditHotkeyId : 0,
                         name,
                         shift, ctrl, alt, altgr, meta,
                         key.toString(),

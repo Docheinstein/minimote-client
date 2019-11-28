@@ -7,10 +7,20 @@ import android.content.res.Resources;
 import androidx.annotation.BoolRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.IntegerRes;
 import androidx.annotation.StringRes;
 import androidx.preference.PreferenceManager;
 
+
 public class PrefUtils {
+
+    public static Integer getInteger(Context ctx, @StringRes int prefKey, @IntegerRes int defValueKey) {
+        SharedPreferences prefs = getPreferences(ctx);
+        Resources res = ctx.getResources();
+        if (prefs == null)
+            return res.getInteger(defValueKey);
+        return prefs.getInt(res.getString(prefKey), res.getInteger(defValueKey));
+    }
 
     public static boolean getBoolean(Context ctx, @StringRes int prefKey, @BoolRes int defValueKey) {
         SharedPreferences prefs = getPreferences(ctx);

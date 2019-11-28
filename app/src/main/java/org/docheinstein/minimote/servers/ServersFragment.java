@@ -31,7 +31,8 @@ import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.discovery.MinimoteDiscoveredServer;
 import org.docheinstein.minimote.discovery.MinimoteServerDiscoverer;
-import org.docheinstein.minimote.utils.IpUtils;
+import org.docheinstein.minimote.utils.IntUtils;
+import org.docheinstein.minimote.utils.NetUtils;
 import org.docheinstein.minimote.utils.StringUtils;
 
 import java.util.List;
@@ -39,6 +40,7 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServersFragment extends MinimoteFragment
         implements MinimoteServerDiscoverer.MinimoteServerDiscovererListener {
@@ -55,7 +57,6 @@ public class ServersFragment extends MinimoteFragment
     private final Object mDiscovererLock = new Object();
     private MinimoteServerDiscoverer mDiscoverer;
 
-
     public static class AddServerFragment extends DialogFragment {
         static final String FRAGMENT_TAG = "add_server_fragment";
 
@@ -64,7 +65,10 @@ public class ServersFragment extends MinimoteFragment
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.add_server, null);
-            final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddServerAddressInput);
+            final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddServerAddress);
+            final EditText uiServerPort = dialogView.findViewById(R.id.uiAddServerPort);
+
+            uiServerPort.setText(String.valueOf(Conf.DEFAULT_PORT));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             return builder
@@ -73,21 +77,20 @@ public class ServersFragment extends MinimoteFragment
                     .setPositiveButton(R.string.add_server_add, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            final String ipv4 = uiServerAddress.getText().toString();
-                            Log.d(TAG, "Trying to add server with IP: " + ipv4);
+                            final String serverAddress =
+                                    uiServerAddress.getText().toString();
+                            final Integer serverPort =
+                                    IntUtils.parseString(uiServerPort.getText().toString(), Conf.DEFAULT_PORT);
 
-                            if (!IpUtils.isValidIPv4(ipv4)) {
-                                Log.w(TAG, "Invalid IPv4 address");
-                                showInvalidAdditionAlert();
-                                return;
-                            }
+                            Log.d(TAG, "Trying to add server with address: " + serverAddress + ":" + serverPort);
 
                             // Add server
                             DB.getInstance().execute(new Runnable() {
                                 @Override
                                 public void run() {
                                     Log.i(TAG, "Valid IPv4, adding minimote server to DB");
-                                    MinimoteServerEntity serverEntity = new MinimoteServerEntity(ipv4, null, null);
+                                    MinimoteServerEntity serverEntity = new MinimoteServerEntity(
+                                            serverAddress, serverPort, null, null, false);
                                     DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
                                 }
                             });
@@ -152,7 +155,8 @@ public class ServersFragment extends MinimoteFragment
                 @Override
                 public void onClick(View v) {
                     Log.v(TAG, "Clicked on row");
-                    ServersFragmentDirections.ActionController action = ServersFragmentDirections.actionController(server.address);
+                    ServersFragmentDirections.ActionController action =
+                            ServersFragmentDirections.actionController(server.address, server.port);
                     Navigation.findNavController(v).navigate(action);
                 }
             };
@@ -164,7 +168,8 @@ public class ServersFragment extends MinimoteFragment
                 @Override
                 public void onClick(View v) {
                     Log.v(TAG, "Clicked on edit server button");
-                    ServersFragmentDirections.ActionEditServer action = ServersFragmentDirections.actionEditServer(server.address);
+                    ServersFragmentDirections.ActionEditServer action =
+                            ServersFragmentDirections.actionEditServer(server.address, server.port);
                     Navigation.findNavController(v).navigate(action);
                 }
             });
@@ -203,7 +208,7 @@ public class ServersFragment extends MinimoteFragment
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.servers, container, false);
+        final View view = inflater.inflate(R.layout.servers, container, false);
 
 
         // Add server
@@ -242,8 +247,6 @@ public class ServersFragment extends MinimoteFragment
 
         uiDiscoverProgressContainer = view.findViewById(R.id.uiDiscoverProgressContainer);
         uiDiscoverProgress = view.findViewById(R.id.uiDiscoverProgress);
-
-        DB.init(getContext());
 
         DB.getInstance().minimoteServerDao().getAllObservable().observe(
                 ServersFragment.this, new Observer<List<MinimoteServerEntity>>() {
@@ -293,14 +296,18 @@ public class ServersFragment extends MinimoteFragment
             @Override
             public void run() {
                 MinimoteServerEntity serverEntity =
-                        DB.getInstance().minimoteServerDao().getByAddress(server.getAddress());
+                        DB.getInstance().minimoteServerDao().get(server.getAddress(), server.getPort());
 
                 if (serverEntity != null) {
                     Log.d(TAG, "Discovered server already exists, updating it...");
                     serverEntity.hostname = server.getHostname();
                 } else {
                     Log.d(TAG, "Discovered server does not exists, adding it");
-                    serverEntity = new MinimoteServerEntity(server.getAddress(), server.getHostname(), null);
+                    serverEntity = new MinimoteServerEntity(
+                            server.getAddress(), server.getPort(),
+                            server.getHostname(), null,
+                            false
+                    );
                 }
 
                 DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
@@ -368,12 +375,20 @@ public class ServersFragment extends MinimoteFragment
 
         // Ask confirmation
 
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.discover_dialog, null);
+        final EditText uiDiscoverPort = dialogView.findViewById(R.id.uiDiscoverPort);
+        uiDiscoverPort.setText(String.valueOf(Conf.DEFAULT_PORT));
+
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
                 Log.v(TAG, "User confirmed discovery, starting it...");
-                startDiscovery();
+                startDiscovery(IntUtils.parseString(
+                        uiDiscoverPort.getText().toString(),
+                        Conf.DEFAULT_PORT)
+                );
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -381,6 +396,10 @@ public class ServersFragment extends MinimoteFragment
                 Log.w(TAG, "Not performing discovery, cancelled by the user");
             }
         });
+
+
+        builder.setView(dialogView);
+
         builder.setTitle(R.string.start_discovery_dialog_title);
 //        builder.setMessage(R.string.start_discovery_dialog_message);
 
@@ -392,10 +411,10 @@ public class ServersFragment extends MinimoteFragment
         stopDiscovery();
     }
 
-    private void startDiscovery() {
+    private void startDiscovery(int port) {
         synchronized (mDiscovererLock) {
             Log.v(TAG, "ServersFragment.startDiscovery()");
-            mDiscoverer = new MinimoteServerDiscoverer(this, Conf.UDP_PORT);
+            mDiscoverer = new MinimoteServerDiscoverer(this, port);
             mDiscoverer.startDiscovery(Conf.DISCOVERY_TIMEOUT_MS);
         }
     }

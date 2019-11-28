@@ -9,30 +9,15 @@
         android:id="@+id/textView11"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/address"
-        android:textColor="#1A1A1A"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/uiAddServerAddress"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="192.168.1.108"
-        android:inputType="number|phone" />
-
-    <TextView
-        android:id="@+id/textView12"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
         android:text="@string/port"
         android:textColor="#1A1A1A"
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/uiAddServerPort"
+        android:id="@+id/uiDiscoverPort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="50500"
         android:inputType="number|phone" />
+
 </LinearLayout>

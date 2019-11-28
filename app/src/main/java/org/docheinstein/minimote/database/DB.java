@@ -22,7 +22,7 @@ import java.util.concurrent.Future;
                 MinimoteServerEntity.class,
                 HotkeyEntity.class
         },
-        version = 12)
+        version = 14)
 public abstract class DB extends RoomDatabase {
 
     private static final String TAG = "DB";

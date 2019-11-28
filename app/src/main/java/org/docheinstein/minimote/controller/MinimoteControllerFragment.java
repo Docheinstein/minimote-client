@@ -1,15 +1,9 @@
 package org.docheinstein.minimote.controller;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.ColorFilter;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -22,7 +16,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -31,7 +24,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
-import androidx.navigation.fragment.NavHostFragment;
 
 import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.base.MinimoteFragment;
@@ -42,16 +34,13 @@ import org.docheinstein.minimote.controller.touchpad.TouchpadView;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
-import org.docheinstein.minimote.edit.EditServerFragment;
 import org.docheinstein.minimote.edit.EditServerFragmentArgs;
 import org.docheinstein.minimote.keys.MinimoteKeyType;
 import org.docheinstein.minimote.packet.MinimotePacket;
 import org.docheinstein.minimote.packet.MinimotePacketFactory;
-import org.docheinstein.minimote.settings.MinimoteSettings;
+import org.docheinstein.minimote.settings.SettingsManager;
 import org.docheinstein.minimote.utils.StringUtils;
-import org.docheinstein.minimote.utils.ThreadUtils;
 import org.docheinstein.minimote.utils.ViewUtils;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +57,6 @@ public class MinimoteControllerFragment extends MinimoteFragment
     public static final int RESULT_CONNECTIVITY_OK = 0;
     public static final int RESULT_CONNECTIVITY_ERROR = -1;
 
-    public static final String EXTRA_SERVER_ADDRESS = "server_address";
 
     private static final String TAG = "ControllerActivity";
 
@@ -89,6 +77,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
     private static final int MAX_MOVEMENT_ID = 256;
 
     private String mServerAddress;
+    private Integer mServerPort;
 
     private ExecutorService mConnectionHandler;
     private MinimoteConnection mConnection;
@@ -124,8 +113,6 @@ public class MinimoteControllerFragment extends MinimoteFragment
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.controller, container, false);
 
-        showBackButton();
-
         Bundle args = getArguments();
 
         if (args == null) {
@@ -134,6 +121,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
         }
 
         mServerAddress = EditServerFragmentArgs.fromBundle(args).getServerAddress();
+        mServerPort = EditServerFragmentArgs.fromBundle(args).getServerPort();
 
         if (!StringUtils.isValid(mServerAddress)) {
             Log.e(TAG, "Invalid server address provided to MinimoteControllerFragment");
@@ -154,8 +142,8 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         uiTouchpad.setTouchpadListener(this);
 
-        uiHotkeysButton.setBackgroundTintList(ColorStateList.valueOf(MinimoteSettings.buttonHotkeyColor(getContext())));
-        uiKeyboardButton.setBackgroundTintList(ColorStateList.valueOf(MinimoteSettings.buttonKeyboardColor(getContext())));
+        uiHotkeysButton.setBackgroundTintList(ColorStateList.valueOf(SettingsManager.buttonHotkeyColor(getContext())));
+        uiKeyboardButton.setBackgroundTintList(ColorStateList.valueOf(SettingsManager.buttonKeyboardColor(getContext())));
 
         uiLeftButton.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -325,10 +313,11 @@ public class MinimoteControllerFragment extends MinimoteFragment
             @Override
             public void run() {
                 // Retrieve the entity
-                final MinimoteServerEntity server = DB.getInstance().minimoteServerDao().getByAddress(mServerAddress);
+                final MinimoteServerEntity server =
+                        DB.getInstance().minimoteServerDao().get(mServerAddress, mServerPort);
 
                 if (server == null) {
-                    Log.w(TAG, "Cannot retrieve server entity with address: " + mServerAddress);
+                    Log.w(TAG, "Cannot retrieve server entity with address: " + mServerAddress + ":" + mServerPort);
 //                    finishWithResultOnUiThread(false);
                     return;
                 }
@@ -382,7 +371,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         if (mConnection == null) {
             Log.v(TAG, "Initializing MinimoteConnection");
-            mConnection = new MinimoteConnection(mServerAddress, Conf.TCP_PORT, Conf.UDP_PORT);
+            mConnection = new MinimoteConnection(mServerAddress, mServerPort, mServerPort);
         }
 
         if (!mConnection.isConnected()) {
@@ -540,7 +529,11 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
                         Log.d(TAG, "There are " + hotkeys.size() + " hotkeys");
 
-                        final int hotkeysContainerWidth = uiHotkeysOverlay.getWidth();
+                        final int hotkeysContainerWidth = uiHotkeysOverlay.getMeasuredWidth();
+                        final int hotkeysContainerMeasureWidth = uiHotkeysOverlay.getMeasuredWidth();
+
+                        Log.d(TAG, "Container width: " + hotkeysContainerWidth);
+                        Log.d(TAG, "Container measured width: " + uiHotkeysOverlay);
 
                         for (final HotkeyEntity hotkey : hotkeys) {
                             Log.v(TAG, "Hotkey: " + hotkey);
@@ -549,7 +542,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
                             final TextView hotkeyView = new TextView(getContext());
                             hotkeyView.setText(hotkey.name);
                             hotkeyView.setTextSize(hotkey.textSize);
-                            hotkeyView.setTextColor(MinimoteSettings.hotkeyTextColor(getContext()));
+                            hotkeyView.setTextColor(SettingsManager.hotkeyTextColor(getContext()));
 //                            hotkeyView.setBackgroundColor(hotkey.backgroundColor);
                             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
                                     FrameLayout.LayoutParams.WRAP_CONTENT,
@@ -596,14 +589,14 @@ public class MinimoteControllerFragment extends MinimoteFragment
                             });
 
                             GradientDrawable hotkeyBackground = new GradientDrawable();
-                            hotkeyBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+                            hotkeyBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
                             hotkeyBackground.setCornerRadius(10);
-                            hotkeyBackground.setColor(MinimoteSettings.hotkeyBackgroundColor(getContext()));
+                            hotkeyBackground.setColor(SettingsManager.hotkeyBackgroundColor(getContext()));
 
                             GradientDrawable hotkeyPressedBackground = new GradientDrawable();
-                            hotkeyPressedBackground.setStroke(3, MinimoteSettings.hotkeyBorderColor(getContext()));
+                            hotkeyPressedBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
                             hotkeyPressedBackground.setCornerRadius(10);
-                            hotkeyPressedBackground.setColor(MinimoteSettings.hotkeyPressedBackgroundColor(getContext()));
+                            hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedBackgroundColor(getContext()));
 
 
                             StateListDrawable hotkeySelector = new StateListDrawable();
@@ -648,36 +641,36 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         // Update UI accordingly to prefs too
 
-        ViewUtils.show(uiHotkeysOverlay, MinimoteSettings.openHotkeys(getContext()));
+        ViewUtils.show(uiHotkeysOverlay, SettingsManager.openHotkeys(getContext()), View.INVISIBLE);
 
-        if (MinimoteSettings.openKeyboard(getContext())) {
+        if (SettingsManager.openKeyboard(getContext())) {
             showSoftKeyboard();
         }
 
-        ViewUtils.show(uiButtonsContainer, MinimoteSettings.showTouchpadButtons(getContext()));
+        ViewUtils.show(uiButtonsContainer, SettingsManager.showTouchpadButtons(getContext()));
 
-        uiTouchpad.setBackgroundColor(MinimoteSettings.touchpadColor(getContext()));
+        uiTouchpad.setBackgroundColor(SettingsManager.touchpadColor(getContext()));
 
         // Touchpad
         GradientDrawable overlayBackground = new GradientDrawable();
-        overlayBackground.setStroke(3, MinimoteSettings.hotkeysOverlayBorderColor(getContext()));
+        overlayBackground.setStroke(3, SettingsManager.hotkeysOverlayBorderColor(getContext()));
         overlayBackground.setCornerRadius(10);
-        overlayBackground.setColor(MinimoteSettings.hotkeysOverlayColor(getContext()));
+        overlayBackground.setColor(SettingsManager.hotkeysOverlayColor(getContext()));
         uiHotkeysOverlay.setBackground(overlayBackground);
 
         // Touchpad buttons container
-        uiButtonsContainer.setBackgroundColor(MinimoteSettings.touchpadButtonsContainerColor(getContext()));
+        uiButtonsContainer.setBackgroundColor(SettingsManager.touchpadButtonsContainerColor(getContext()));
 
         // Touchpad buttons
         GradientDrawable touchpadButtonBackground = new GradientDrawable();
-        touchpadButtonBackground.setStroke(3, MinimoteSettings.touchpadButtonsBorderColor(getContext()));
+        touchpadButtonBackground.setStroke(3, SettingsManager.touchpadButtonsBorderColor(getContext()));
         touchpadButtonBackground.setCornerRadius(10);
-        touchpadButtonBackground.setColor(MinimoteSettings.touchpadButtonsColor(getContext()));
+        touchpadButtonBackground.setColor(SettingsManager.touchpadButtonsColor(getContext()));
 
         GradientDrawable touchpadButtonPressedBackground = new GradientDrawable();
-        touchpadButtonPressedBackground.setStroke(3, MinimoteSettings.touchpadButtonsBorderColor(getContext()));
+        touchpadButtonPressedBackground.setStroke(3, SettingsManager.touchpadButtonsBorderColor(getContext()));
         touchpadButtonPressedBackground.setCornerRadius(10);
-        touchpadButtonPressedBackground.setColor(MinimoteSettings.touchpadButtonsPressedColor(getContext()));
+        touchpadButtonPressedBackground.setColor(SettingsManager.touchpadButtonsPressedColor(getContext()));
 
 
         StateListDrawable touchpadButtonSelectorL = new StateListDrawable();

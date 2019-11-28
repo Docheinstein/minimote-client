@@ -4,15 +4,21 @@ import androidx.annotation.NonNull;
 
 public class MinimoteDiscoveredServer {
     private String mAddress;
+    private int mPort;
     private String mHostname;
 
-    MinimoteDiscoveredServer(String address, String hostname) {
+    MinimoteDiscoveredServer(String address, int port, String hostname) {
         mAddress = address;
+        mPort = port;
         mHostname = hostname;
     }
 
     public String getAddress() {
         return mAddress;
+    }
+
+    public int getPort() {
+        return mPort;
     }
 
     public String getHostname() {
@@ -22,6 +28,6 @@ public class MinimoteDiscoveredServer {
     @NonNull
     @Override
     public String toString() {
-        return mAddress + " (" + mHostname + ")";
+        return mAddress + ":" + mPort + " (" + mHostname + ")";
     }
 }
