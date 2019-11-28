@@ -1,9 +1,7 @@
 package org.docheinstein.minimote.servers;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,15 +22,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.docheinstein.minimote.R;
-import org.docheinstein.minimote.base.MinimoteFragment;
-import org.docheinstein.minimote.commons.conf.Conf;
-import org.docheinstein.minimote.controller.MinimoteControllerFragment;
+import org.docheinstein.minimote.ui.base.MinimoteFragment;
+import org.docheinstein.minimote.commons.Conf;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.discovery.MinimoteDiscoveredServer;
 import org.docheinstein.minimote.discovery.MinimoteServerDiscoverer;
 import org.docheinstein.minimote.utils.IntUtils;
-import org.docheinstein.minimote.utils.NetUtils;
 import org.docheinstein.minimote.utils.StringUtils;
 
 import java.util.List;
@@ -40,7 +36,6 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServersFragment extends MinimoteFragment
         implements MinimoteServerDiscoverer.MinimoteServerDiscovererListener {
@@ -64,11 +59,11 @@ public class ServersFragment extends MinimoteFragment
         @Override
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
             LayoutInflater inflater = getActivity().getLayoutInflater();
-            View dialogView = inflater.inflate(R.layout.add_server, null);
+            View dialogView = inflater.inflate(R.layout.add_server_dialog, null);
             final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddServerAddress);
             final EditText uiServerPort = dialogView.findViewById(R.id.uiAddServerPort);
 
-            uiServerPort.setText(String.valueOf(Conf.DEFAULT_PORT));
+            uiServerPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             return builder
@@ -80,7 +75,7 @@ public class ServersFragment extends MinimoteFragment
                             final String serverAddress =
                                     uiServerAddress.getText().toString();
                             final Integer serverPort =
-                                    IntUtils.parseString(uiServerPort.getText().toString(), Conf.DEFAULT_PORT);
+                                    IntUtils.parseString(uiServerPort.getText().toString(), Conf.Connection.DEFAULT_PORT);
 
                             Log.d(TAG, "Trying to add server with address: " + serverAddress + ":" + serverPort);
 
@@ -91,7 +86,7 @@ public class ServersFragment extends MinimoteFragment
                                     Log.i(TAG, "Valid IPv4, adding minimote server to DB");
                                     MinimoteServerEntity serverEntity = new MinimoteServerEntity(
                                             serverAddress, serverPort, null, null, false);
-                                    DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
+                                    DB.getInstance().servers().addOrReplace(serverEntity);
                                 }
                             });
                         }
@@ -248,7 +243,7 @@ public class ServersFragment extends MinimoteFragment
         uiDiscoverProgressContainer = view.findViewById(R.id.uiDiscoverProgressContainer);
         uiDiscoverProgress = view.findViewById(R.id.uiDiscoverProgress);
 
-        DB.getInstance().minimoteServerDao().getAllObservable().observe(
+        DB.getInstance().servers().getAllObservable().observe(
                 ServersFragment.this, new Observer<List<MinimoteServerEntity>>() {
                     @Override
                     public void onChanged(List<MinimoteServerEntity> servers) {
@@ -273,21 +268,6 @@ public class ServersFragment extends MinimoteFragment
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        Log.v(TAG, "onActivityResult: requestCode: " + requestCode + " - resultCode: " + resultCode);
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MinimoteControllerFragment.RESULT_CONNECTIVITY) {
-            if (resultCode == MinimoteControllerFragment.RESULT_CONNECTIVITY_ERROR) {
-                Log.v(TAG, "MinimoteControllerFragment reported a connectivity error");
-                Log.w(TAG, "Cannot establish connection with the server");
-                showConnectionWithServerFailedAlert();
-            } else {
-                Log.v(TAG, "MinimoteControllerFragment finished gracefully");
-            }
-        }
-    }
-
-    @Override
     public void onServerDiscovered(final MinimoteDiscoveredServer server) {
         Log.i(TAG, "Discovered server: " + server);
 
@@ -296,7 +276,7 @@ public class ServersFragment extends MinimoteFragment
             @Override
             public void run() {
                 MinimoteServerEntity serverEntity =
-                        DB.getInstance().minimoteServerDao().get(server.getAddress(), server.getPort());
+                        DB.getInstance().servers().get(server.getAddress(), server.getPort());
 
                 if (serverEntity != null) {
                     Log.d(TAG, "Discovered server already exists, updating it...");
@@ -310,7 +290,7 @@ public class ServersFragment extends MinimoteFragment
                     );
                 }
 
-                DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
+                DB.getInstance().servers().addOrReplace(serverEntity);
             }
         });
     }
@@ -332,7 +312,7 @@ public class ServersFragment extends MinimoteFragment
             mDiscoveryProgressUpdater.cancel(true);
         }
 
-        long percentagePeriod = Conf.DISCOVERY_TIMEOUT_MS / 100;
+        long percentagePeriod = Conf.Discovery.TIMEOUT / 100;
 
         mDiscoveryProgressUpdater = Executors.newSingleThreadScheduledExecutor().scheduleAtFixedRate(new Runnable() {
             @Override
@@ -378,7 +358,7 @@ public class ServersFragment extends MinimoteFragment
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.discover_dialog, null);
         final EditText uiDiscoverPort = dialogView.findViewById(R.id.uiDiscoverPort);
-        uiDiscoverPort.setText(String.valueOf(Conf.DEFAULT_PORT));
+        uiDiscoverPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -387,7 +367,7 @@ public class ServersFragment extends MinimoteFragment
                 Log.v(TAG, "User confirmed discovery, starting it...");
                 startDiscovery(IntUtils.parseString(
                         uiDiscoverPort.getText().toString(),
-                        Conf.DEFAULT_PORT)
+                        Conf.Connection.DEFAULT_PORT)
                 );
             }
         });
@@ -415,7 +395,7 @@ public class ServersFragment extends MinimoteFragment
         synchronized (mDiscovererLock) {
             Log.v(TAG, "ServersFragment.startDiscovery()");
             mDiscoverer = new MinimoteServerDiscoverer(this, port);
-            mDiscoverer.startDiscovery(Conf.DISCOVERY_TIMEOUT_MS);
+            mDiscoverer.startDiscovery(Conf.Discovery.TIMEOUT);
         }
     }
 
@@ -425,17 +405,5 @@ public class ServersFragment extends MinimoteFragment
             if (mDiscoverer != null)
                 mDiscoverer.stopDiscovery();
         }
-    }
-
-    private void showConnectionWithServerFailedAlert() {
-        Context ctx = getContext();
-        if (ctx == null)
-            return;
-
-        new AlertDialog.Builder(ctx)
-                .setTitle(R.string.connection_with_server_failed_dialog_title)
-                .setMessage(R.string.connection_with_server_failed_dialog_message)
-                .setPositiveButton(R.string.ok, null)
-                .show();
     }
 }

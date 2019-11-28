@@ -1,10 +1,9 @@
 package org.docheinstein.minimote.settings;
 
 import android.os.Bundle;
-import android.text.InputType;
 
 import org.docheinstein.minimote.R;
-import org.docheinstein.minimote.base.MinimotePreferenceFragment;
+import org.docheinstein.minimote.ui.base.MinimotePreferenceFragment;
 
 public class SettingsFragment extends MinimotePreferenceFragment {
     @Override

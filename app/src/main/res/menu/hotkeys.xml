@@ -11,7 +11,7 @@
         android:id="@+id/uiSaveHotkeysMenuItem"
         android:checkable="true"
         android:enabled="false"
-        android:icon="@drawable/savew"
+        android:icon="@drawable/save"
         android:title="@string/save_server"
         app:showAsAction="ifRoom" />
 

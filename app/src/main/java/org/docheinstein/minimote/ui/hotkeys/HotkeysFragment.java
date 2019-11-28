@@ -61,7 +61,7 @@ public class HotkeysFragment extends MinimoteFragment {
         uiHotkeysContainer = view.findViewById(R.id.uiHotkeysContainer);
         uiHotkeysContainer.setBackgroundColor(SettingsManager.hotkeysOverlayColor(getContext()));
 
-        DB.getInstance().hotkeyEntityDao().getAllObservable().observe(
+        DB.getInstance().hotkeys().getAllObservable().observe(
                 this, new Observer<List<HotkeyEntity>>() {
                     @Override
                     public void onChanged(List<HotkeyEntity> hotkeys) {
@@ -166,7 +166,7 @@ public class HotkeysFragment extends MinimoteFragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.hotkeys_menu, menu);
+        inflater.inflate(R.menu.hotkeys, menu);
         mSaveButton = menu.findItem(R.id.uiSaveHotkeysMenuItem);
         mSaveButton.getIcon().mutate();
         mSaveButton.setEnabled(false);
@@ -366,7 +366,7 @@ public class HotkeysFragment extends MinimoteFragment {
                 @Override
                 public void run() {
                     Log.v(TAG, "Updating view [" + id + "] with pos X: " + xRel + ", Y: " + yAbs);
-                    DB.getInstance().hotkeyEntityDao().updatePosition(id, xRel, yAbs);
+                    DB.getInstance().hotkeys().updatePosition(id, xRel, yAbs);
                 }
             });
         }

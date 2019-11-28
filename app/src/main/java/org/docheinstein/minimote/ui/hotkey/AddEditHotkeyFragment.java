@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.hotkeys;
+package org.docheinstein.minimote.ui.hotkeys;
 
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -25,7 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.docheinstein.minimote.R;
-import org.docheinstein.minimote.base.MinimoteFragment;
+import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.keys.MinimoteKeyType;
@@ -177,7 +177,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                 DB.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
-                        HotkeyEntity h = DB.getInstance().hotkeyEntityDao().getById(mEditHotkeyId);
+                        HotkeyEntity h = DB.getInstance().hotkeys().getById(mEditHotkeyId);
                         if (h == null)
                             return;
                         Log.d(TAG, "Editing of valid hotkey, updating UI");
@@ -205,7 +205,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.add_edit_hotkey_menu, menu);
+        inflater.inflate(R.menu.add_edit_hotkey, menu);
         mDeleteHotkeyMenuButton = menu.findItem(R.id.uiDeleteHotkeyMenuItem);
 
         if (mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID && mDeleteHotkeyMenuButton != null) {
@@ -239,7 +239,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                     return;
                 }
 
-                DB.getInstance().hotkeyEntityDao().deleteById(mEditHotkeyId);
+                DB.getInstance().hotkeys().deleteById(mEditHotkeyId);
             }
         });
 
@@ -284,7 +284,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                 );
                 Log.v(TAG, "Pushing hotkey to DB\n" + hotkey);
 
-                DB.getInstance().hotkeyEntityDao().addOrReplace(hotkey);
+                DB.getInstance().hotkeys().addOrReplace(hotkey);
             }
         });
 

@@ -32,7 +32,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -42,13 +41,12 @@
             android:textStyle="bold" />
 
         <EditText
-            android:id="@+id/uiServerDisplayNameEdit"
+            android:id="@+id/uiDisplayName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:hint="@string/add_server_name_placeholder"
             android:inputType="textPersonName"
-            tools:text="@string/add_server_name_placeholder" />
+            tools:text="@string/edit_server_display_name_placeholder" />
     </LinearLayout>
 
     <LinearLayout
@@ -58,7 +56,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView3"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -68,12 +65,12 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/uiServerAddressView"
+            android:id="@+id/uiAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:textSize="18sp"
-            tools:text="192.168.1.0" />
+            tools:text="@string/edit_server_address_placeholder" />
 
     </LinearLayout>
     <LinearLayout
@@ -83,7 +80,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView5"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -93,12 +89,12 @@
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/uiServerPortView"
+            android:id="@+id/uiPort"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
             android:textSize="18sp"
-            tools:text="50500" />
+            tools:text="@string/edit_server_port_placeholder" />
 
     </LinearLayout>
 
@@ -109,7 +105,6 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textView2"
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
@@ -124,32 +119,20 @@
             android:layout_height="wrap_content"
             android:ems="10"
             android:textSize="18sp"
-            tools:text="arch-linux" />
+            tools:text="@string/edit_server_hostname_placeholder" />
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/imageView4"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginTop="12dp"
         app:srcCompat="@android:color/darker_gray" />
 
-    <LinearLayout
+    <Switch
+        android:id="@+id/uiAutoConnect"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="12dp"
-        android:layout_marginBottom="12dp"
-        android:orientation="horizontal">
-
-        <Switch
-            android:id="@+id/uiAutoConnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/server_auto_connect"
-            android:textOff="NO"
-            android:textOn="SI" />
-
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="@string/edit_server_connect_automatically" />
 
 </LinearLayout>

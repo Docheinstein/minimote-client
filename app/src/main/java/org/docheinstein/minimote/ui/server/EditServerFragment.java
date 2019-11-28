@@ -13,16 +13,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.appcompat.widget.Toolbar;
 
 import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.base.MinimoteFragment;
-import org.docheinstein.minimote.commons.conf.Conf;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.utils.IntUtils;
-import org.docheinstein.minimote.utils.NetUtils;
 import org.docheinstein.minimote.utils.StringUtils;
 
 public class EditServerFragment extends MinimoteFragment {
@@ -76,7 +72,7 @@ public class EditServerFragment extends MinimoteFragment {
             @Override
             public void run() {
                 final MinimoteServerEntity serverEntity =
-                        DB.getInstance().minimoteServerDao().get(serverAddress, serverPort);
+                        DB.getInstance().servers().get(serverAddress, serverPort);
 
                 if (serverEntity == null) {
                     Log.e(TAG, "Cannot find server with address: " + serverAddress + ":" + serverPort);
@@ -104,7 +100,7 @@ public class EditServerFragment extends MinimoteFragment {
 
     @Override
     public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
-        inflater.inflate(R.menu.edit_server_menu, menu);
+        inflater.inflate(R.menu.edit_server, menu);
     }
 
     @Override
@@ -136,7 +132,7 @@ public class EditServerFragment extends MinimoteFragment {
                 );
                 Log.i(TAG, "Updating server info to: " + serverEntity);
 
-                DB.getInstance().minimoteServerDao().addOrReplace(serverEntity);
+                DB.getInstance().servers().addOrReplace(serverEntity);
 
                 ui(new Runnable() {
                     @Override
@@ -154,9 +150,10 @@ public class EditServerFragment extends MinimoteFragment {
             @Override
             public void run() {
                 String addr = uiAddress.getText().toString();
-                if (DB.getInstance().minimoteServerDao()
-                        .delete(uiAddress.getText().toString(),
-                                IntUtils.parseString(uiPort.getText().toString(), Conf.DEFAULT_PORT)) > 0) {
+                if (DB.getInstance().servers().delete(
+                        uiAddress.getText().toString(),
+                        IntUtils.parseString(uiPort.getText().toString())
+                ) > 0) {
                     Log.i(TAG, "Server " + addr + " has been deleted");
                 } else {
                     Log.w(TAG, "Failed deletion of server " + addr);
