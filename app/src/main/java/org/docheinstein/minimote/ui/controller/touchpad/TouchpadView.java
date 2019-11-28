@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.controller.touchpad;
+package org.docheinstein.minimote.ui.controller.touchpad;
 
 import android.content.Context;
 import android.util.AttributeSet;

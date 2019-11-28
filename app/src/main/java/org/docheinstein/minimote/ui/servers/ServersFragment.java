@@ -1,5 +1,6 @@
-package org.docheinstein.minimote.servers;
+package org.docheinstein.minimote.ui.servers;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,7 +31,9 @@ import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.discovery.MinimoteDiscoveredServer;
 import org.docheinstein.minimote.discovery.MinimoteServerDiscoverer;
 import org.docheinstein.minimote.utils.IntUtils;
+import org.docheinstein.minimote.utils.NetUtils;
 import org.docheinstein.minimote.utils.StringUtils;
+import org.docheinstein.minimote.utils.ViewUtils;
 
 import java.util.List;
 import java.util.Objects;
@@ -42,11 +46,11 @@ public class ServersFragment extends MinimoteFragment
     private static final String TAG = "ServersFragment";
 
     private ServerListAdapter uiServerListAdapter;
-    private RecyclerView.LayoutManager uiServerListManager;
+    private RecyclerView.LayoutManager uiServerListLayoutManager;
     private RecyclerView uiServerList;
 
-    private View uiDiscoverProgressContainer;
-    private ProgressBar uiDiscoverProgress;
+    private View uiDiscoveryContainer;
+    private ProgressBar uiDiscoveryProgress;
     private ScheduledFuture mDiscoveryProgressUpdater;
 
     private final Object mDiscovererLock = new Object();
@@ -58,24 +62,39 @@ public class ServersFragment extends MinimoteFragment
         @NonNull
         @Override
         public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-            LayoutInflater inflater = getActivity().getLayoutInflater();
+            Activity activity = getActivity();
+
+            if (activity == null) {
+                return null;
+            }
+
+            LayoutInflater inflater = activity.getLayoutInflater();
             View dialogView = inflater.inflate(R.layout.add_server_dialog, null);
-            final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddServerAddress);
-            final EditText uiServerPort = dialogView.findViewById(R.id.uiAddServerPort);
+
+            final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddress);
+            final EditText uiServerPort = dialogView.findViewById(R.id.uiPort);
 
             uiServerPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             return builder
-                    .setTitle(R.string.add_server)
+                    .setTitle(R.string.add_server_dialog_title)
                     .setView(dialogView)
-                    .setPositiveButton(R.string.add_server_add, new DialogInterface.OnClickListener() {
+                    .setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             final String serverAddress =
                                     uiServerAddress.getText().toString();
                             final Integer serverPort =
-                                    IntUtils.parseString(uiServerPort.getText().toString(), Conf.Connection.DEFAULT_PORT);
+                                    IntUtils.parseString(
+                                            uiServerPort.getText().toString(),
+                                            Conf.Connection.DEFAULT_PORT
+                                    );
+
+                            if (!(new NetUtils.AddressPort(serverAddress, serverPort).isValid())) {
+                                showInvalidAdditionAlert();
+                                return;
+                            }
 
                             Log.d(TAG, "Trying to add server with address: " + serverAddress + ":" + serverPort);
 
@@ -91,7 +110,7 @@ public class ServersFragment extends MinimoteFragment
                             });
                         }
                     })
-                    .setNegativeButton(R.string.add_server_cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             Log.v(TAG, "Aborting server addition");
@@ -159,7 +178,7 @@ public class ServersFragment extends MinimoteFragment
                     server.address);
             holder.uiServerDisplayName.setText(
                     StringUtils.firstValid(server.displayName, server.hostname, server.address));
-            holder.uiServerEdit.setOnClickListener(new View.OnClickListener() {
+            holder.uiServerEditButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Log.v(TAG, "Clicked on edit server button");
@@ -177,16 +196,16 @@ public class ServersFragment extends MinimoteFragment
         }
 
         private class ServerViewHolder extends RecyclerView.ViewHolder{
-            ImageView uiServerEdit;
+            ImageView uiServerEditButton;
             TextView uiServerDisplayName;
             TextView uiServerAddress;
             View.OnClickListener mRowClickListener;
 
             ServerViewHolder(@NonNull View itemView) {
                 super(itemView);
-                uiServerEdit = itemView.findViewById(R.id.uiServerEdit);
-                uiServerDisplayName = itemView.findViewById(R.id.uiServerDisplayName);
-                uiServerAddress = itemView.findViewById(R.id.uiServerAddress);
+                uiServerEditButton = itemView.findViewById(R.id.uiEditButton);
+                uiServerDisplayName = itemView.findViewById(R.id.uiDisplayName);
+                uiServerAddress = itemView.findViewById(R.id.uiAddress);
 
                 itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -215,7 +234,7 @@ public class ServersFragment extends MinimoteFragment
         });
 
         // Start discovery
-        view.findViewById(R.id.uiDiscoverServerButton).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.uiDiscoverServersButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 handleStartDiscoveryButtonClick();
@@ -223,7 +242,7 @@ public class ServersFragment extends MinimoteFragment
         });
 
         // Stop discovery
-        view.findViewById(R.id.uiDiscoverStop).setOnClickListener(new View.OnClickListener() {
+        view.findViewById(R.id.uiDiscoveryStopButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.v(TAG, "Stop discovery required by the user");
@@ -234,14 +253,14 @@ public class ServersFragment extends MinimoteFragment
         uiServerList = view.findViewById(R.id.uiServerList);
         uiServerList.setHasFixedSize(true);
 
-        uiServerListManager = new LinearLayoutManager(getContext());
-        uiServerList.setLayoutManager(uiServerListManager);
+        uiServerListLayoutManager = new LinearLayoutManager(getContext());
+        uiServerList.setLayoutManager(uiServerListLayoutManager);
 
         uiServerListAdapter = new ServerListAdapter();
         uiServerList.setAdapter(uiServerListAdapter);
 
-        uiDiscoverProgressContainer = view.findViewById(R.id.uiDiscoverProgressContainer);
-        uiDiscoverProgress = view.findViewById(R.id.uiDiscoverProgress);
+        uiDiscoveryContainer = view.findViewById(R.id.uiDiscoveryContainer);
+        uiDiscoveryProgress = view.findViewById(R.id.uiDiscoveryProgress);
 
         DB.getInstance().servers().getAllObservable().observe(
                 ServersFragment.this, new Observer<List<MinimoteServerEntity>>() {
@@ -302,8 +321,8 @@ public class ServersFragment extends MinimoteFragment
         ui(new Runnable() {
             @Override
             public void run() {
-                uiDiscoverProgress.setProgress(0);
-                uiDiscoverProgressContainer.setVisibility(View.VISIBLE);
+                uiDiscoveryProgress.setProgress(0);
+                ViewUtils.show(uiDiscoveryContainer);
             }
         });
 
@@ -320,7 +339,7 @@ public class ServersFragment extends MinimoteFragment
                 ui(new Runnable() {
                     @Override
                     public void run() {
-                        uiDiscoverProgress.incrementProgressBy(1);
+                        uiDiscoveryProgress.incrementProgressBy(1);
                     }
                 });
             }
@@ -334,7 +353,7 @@ public class ServersFragment extends MinimoteFragment
         ui(new Runnable() {
             @Override
             public void run() {
-                uiDiscoverProgressContainer.setVisibility(View.GONE);
+                ViewUtils.hide(uiDiscoveryContainer);
             }
         });
 
@@ -345,46 +364,54 @@ public class ServersFragment extends MinimoteFragment
     }
 
     private void handleAddServerButtonClick() {
+        FragmentActivity activity = getActivity();
+
+        if (activity == null) {
+            Log.w(TAG, "Null activity!?");
+            return;
+        }
+
         Log.v(TAG, "Clicked add server button");
         AddServerFragment addServerFragment = new AddServerFragment();
-        addServerFragment.show(getActivity().getSupportFragmentManager(), AddServerFragment.FRAGMENT_TAG);
+        addServerFragment.show(activity.getSupportFragmentManager(), AddServerFragment.FRAGMENT_TAG);
     }
 
     private void handleStartDiscoveryButtonClick() {
+        FragmentActivity activity = getActivity();
+
+        if (activity == null) {
+            Log.w(TAG, "Null activity!?");
+            return;
+        }
+
         Log.v(TAG, "Clicked discoverAndWait server button");
 
         // Ask confirmation
 
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.discover_dialog, null);
         final EditText uiDiscoverPort = dialogView.findViewById(R.id.uiDiscoverPort);
         uiDiscoverPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Log.v(TAG, "User confirmed discovery, starting it...");
-                startDiscovery(IntUtils.parseString(
-                        uiDiscoverPort.getText().toString(),
-                        Conf.Connection.DEFAULT_PORT)
-                );
-            }
-        });
-        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                Log.w(TAG, "Not performing discovery, cancelled by the user");
-            }
-        });
-
-
-        builder.setView(dialogView);
-
-        builder.setTitle(R.string.start_discovery_dialog_title);
-//        builder.setMessage(R.string.start_discovery_dialog_message);
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        new AlertDialog.Builder(activity)
+            .setView(dialogView)
+            .setTitle(R.string.start_discovery_dialog_title)
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    Log.v(TAG, "User confirmed discovery, starting it...");
+                    startDiscovery(IntUtils.parseString(
+                            uiDiscoverPort.getText().toString(),
+                            Conf.Connection.DEFAULT_PORT)
+                    );
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    Log.w(TAG, "Not performing discovery, cancelled by the user");
+                }
+            })
+            .create()
+            .show();
     }
 
     private void handleStopDiscoveryButtonClick() {

@@ -19,10 +19,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".edit.EditServerFragment" />
-        <activity android:name=".servers.ServersFragment" />
+        <activity android:name=".ui.server.EditServerFragment" />
+        <activity android:name=".ui.servers.ServersFragment" />
         <activity
-            android:name=".controller.MinimoteControllerFragment"
+            android:name=".ui.controller.MinimoteControllerFragment"
             />
         <!--        <activity android:name=".controller.ControllerActivity" />-->
         <!--            android:windowSoftInputMode="adjustPan"-->

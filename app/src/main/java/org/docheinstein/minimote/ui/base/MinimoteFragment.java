@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.base;
+package org.docheinstein.minimote.ui.base;
 
 import android.app.Activity;
 import android.content.Context;
@@ -18,6 +18,10 @@ import org.docheinstein.minimote.utils.ViewUtils;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public abstract class MinimoteFragment extends Fragment {
+
+    public interface ResultListener {
+        void onFragmentResult(Fragment from, Bundle args);
+    }
 
     private static final String TAG = "MinimoteFragment";
 
@@ -44,9 +48,9 @@ public abstract class MinimoteFragment extends Fragment {
 
         if (args != null) {
             Activity parentActivity = requireActivity();
-            if (parentActivity instanceof FragmentResultListener) {
+            if (parentActivity instanceof ResultListener) {
                 Log.v(TAG, "Providing fragment result to nav controller");
-                ((FragmentResultListener) parentActivity).onFragmentResult(this, args);
+                ((ResultListener) parentActivity).onFragmentResult(this, args);
             }
         }
 

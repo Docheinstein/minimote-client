@@ -5,18 +5,18 @@
     <item
         android:id="@+id/uiServersMenuItem"
         android:icon="@drawable/servers"
-        android:title="@string/servers_menu_item"
+        android:title="@string/servers"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/uiHotkeysMenuItem"
         android:icon="@drawable/hotkeys"
-        android:title="@string/hotkeys_menu_item"
+        android:title="@string/hotkeys"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/uiSettingsMenuItem"
         android:icon="@drawable/settings"
-        android:title="@string/settings_menu_item"
+        android:title="@string/settings"
         app:showAsAction="ifRoom" />
 </menu>

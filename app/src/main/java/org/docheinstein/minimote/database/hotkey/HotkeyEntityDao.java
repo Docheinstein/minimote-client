@@ -16,6 +16,8 @@ import static org.docheinstein.minimote.database.hotkey.HotkeyEntity.TABLE_NAME;
 @Dao
 public interface HotkeyEntityDao {
 
+    // SELECT
+
     @Query( "SELECT * FROM " + TABLE_NAME +
             " WHERE " + COLUMN_ID + " = :id")
     HotkeyEntity getById(int id);
@@ -23,13 +25,19 @@ public interface HotkeyEntityDao {
     @Query("SELECT * FROM " + TABLE_NAME)
     LiveData<List<HotkeyEntity>> getAllObservable();
 
+    // INSERT
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void addOrReplace(HotkeyEntity hotkey);
+
+    // UPDATE
 
     @Query("UPDATE " + TABLE_NAME +
             " SET " + COLUMN_X_REL + " = :xRel, " + COLUMN_Y_ABS + " = :yAbs " +
             "WHERE " + COLUMN_ID + " = :id")
     void updatePosition(int id, double xRel, int yAbs);
+
+    // DELETE
 
     @Query("DELETE FROM " + TABLE_NAME + " WHERE " + COLUMN_ID + " = :id")
     int deleteById(int id);

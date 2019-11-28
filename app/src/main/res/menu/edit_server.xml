@@ -5,12 +5,12 @@
     <item
         android:id="@+id/uiDeleteServerMenuItem"
         android:icon="@drawable/delete"
-        android:title="@string/delete_server"
+        android:title="@string/delete"
         app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/uiSaveServerMenuItem"
         android:icon="@drawable/save"
-        android:title="@string/save_server"
+        android:title="@string/save"
         app:showAsAction="ifRoom" />
 </menu>

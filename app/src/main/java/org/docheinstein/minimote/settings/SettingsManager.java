@@ -6,17 +6,17 @@ import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.utils.PrefUtils;
 
 public class SettingsManager {
-    public static boolean openKeyboard(Context ctx) {
+    public static boolean automaticallyOpenKeyboard(Context ctx) {
         return PrefUtils.getBoolean(ctx,
-                R.string.pref_open_keyboard,
-                R.bool.pref_open_keyboard_default
+                R.string.pref_automatically_open_keyboard,
+                R.bool.pref_automatically_open_keyboard_default
         );
     }
 
-    public static boolean openHotkeys(Context ctx) {
+    public static boolean automaticallyOpenHotkeys(Context ctx) {
         return PrefUtils.getBoolean(ctx,
-                R.string.pref_open_hotkeys,
-                R.bool.pref_open_hotkeys_default
+                R.string.pref_automatically_open_hotkeys,
+                R.bool.pref_automatically_open_hotkeys_default
         );
     }
 
@@ -41,25 +41,25 @@ public class SettingsManager {
         );
     }
 
-    public static int touchpadButtonsColor(Context ctx) {
+    public static int touchpadButtonUnpressedColor(Context ctx) {
         return PrefUtils.getColor(ctx,
-                R.string.pref_touchpad_buttons_color,
-                R.color.pref_touchpad_buttons_color_default
+                R.string.pref_touchpad_button_unpressed_color,
+                R.color.pref_touchpad_button_unpressed_color_default
         );
     }
 
-    public static int touchpadButtonsPressedColor(Context ctx) {
+    public static int touchpadButtonPressedColor(Context ctx) {
         return PrefUtils.getColor(ctx,
-                R.string.pref_touchpad_buttons_pressed_color,
-                R.color.pref_touchpad_buttons_pressed_color_default
+                R.string.pref_touchpad_button_pressed_color,
+                R.color.pref_touchpad_button_pressed_color_default
         );
     }
 
 
-    public static int touchpadButtonsBorderColor(Context ctx) {
+    public static int touchpadButtonBorderColor(Context ctx) {
         return PrefUtils.getColor(ctx,
-                R.string.pref_touchpad_buttons_border_color,
-                R.color.pref_touchpad_buttons_border_color_default
+                R.string.pref_touchpad_button_border_color,
+                R.color.pref_touchpad_button_border_color_default
         );
     }
 
@@ -77,17 +77,17 @@ public class SettingsManager {
         );
     }
 
-    public static int hotkeyBackgroundColor(Context ctx) {
+    public static int hotkeyUnpressedColor(Context ctx) {
         return PrefUtils.getColor(ctx,
-                R.string.pref_hotkey_backgrond_color,
-                R.color.pref_hotkey_backgrond_color_default
+                R.string.pref_hotkey_unpressed_color,
+                R.color.pref_hotkey_unpressed_color_default
         );
     }
 
-    public static int hotkeyPressedBackgroundColor(Context ctx) {
+    public static int hotkeyPressedColor(Context ctx) {
         return PrefUtils.getColor(ctx,
-                R.string.pref_hotkey_pressed_backgrond_color,
-                R.color.pref_hotkey_pressed_backgrond_color_default
+                R.string.pref_hotkey_pressed_color,
+                R.color.pref_hotkey_pressed_color_default
         );
     }
 
@@ -105,14 +105,14 @@ public class SettingsManager {
         );
     }
 
-    public static int buttonHotkeyColor(Context ctx) {
+    public static int buttonOpenHotkeysColor(Context ctx) {
         return PrefUtils.getColor(ctx,
                 R.string.pref_button_hotkeys_color,
                 R.color.pref_button_hotkeys_color_default
         );
     }
 
-    public static int buttonKeyboardColor(Context ctx) {
+    public static int buttonOpenKeyboardColor(Context ctx) {
         return PrefUtils.getColor(ctx,
                 R.string.pref_button_keyboard_color,
                 R.color.pref_button_keyboard_color_default

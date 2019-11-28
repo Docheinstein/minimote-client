@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.controller.keyboard;
+package org.docheinstein.minimote.ui.controller.keyboard;
 
 import android.content.Context;
 import android.util.AttributeSet;

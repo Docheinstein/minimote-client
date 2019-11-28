@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.base;
+package org.docheinstein.minimote.ui.base;
 
 import android.widget.EditText;
 

@@ -6,7 +6,6 @@
     android:padding="18dp">
 
     <TextView
-        android:id="@+id/textView11"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/port"
@@ -17,7 +16,7 @@
         android:id="@+id/uiDiscoverPort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="50500"
+        android:hint="@string/discover_port_placeholder"
         android:inputType="number|phone" />
 
 </LinearLayout>

@@ -22,7 +22,9 @@ import java.util.concurrent.Future;
                 MinimoteServerEntity.class,
                 HotkeyEntity.class
         },
-        version = 14)
+        version = 15,
+        exportSchema = false
+)
 public abstract class DB extends RoomDatabase {
 
     private static final String TAG = "DB";
@@ -37,9 +39,7 @@ public abstract class DB extends RoomDatabase {
             Log.w(TAG, "Database already initialized, skipping init()");
             return;
         }
-        sInstance = Room.databaseBuilder(
-                context.getApplicationContext(), DB.class, DATABASE_NAME
-        )
+        sInstance = Room.databaseBuilder(context.getApplicationContext(), DB.class, DATABASE_NAME)
                 .fallbackToDestructiveMigration()
                 .build();
         sInstance.mExecutor = Executors.newSingleThreadExecutor();
@@ -51,6 +51,7 @@ public abstract class DB extends RoomDatabase {
         return sInstance;
     }
 
+
     public Executor getExecutor() {
         return mExecutor;
     }
@@ -59,6 +60,6 @@ public abstract class DB extends RoomDatabase {
         return mExecutor.submit(runnable);
     }
 
-    public abstract MinimoteServerEntityDao minimoteServerDao();
-    public abstract HotkeyEntityDao hotkeyEntityDao();
+    public abstract MinimoteServerEntityDao servers();
+    public abstract HotkeyEntityDao hotkeys();
 }

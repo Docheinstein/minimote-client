@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.settings;
+package org.docheinstein.minimote.ui.settings;
 
 import android.os.Bundle;
 

@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="12dp">
 
     <TextView
-        android:id="@+id/textView12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Preview"
+        android:text="@string/edit_hotkey_preview"
         android:textSize="26sp"
         android:textStyle="bold" />
 
@@ -21,128 +22,169 @@
         android:layout_gravity="center"
         android:layout_marginTop="8dp"
         android:background="@drawable/touchpad_button_selector"
-        android:text="TextView" />
+        tools:text="CTRL + A" />
 
-    <TextView
-        android:id="@+id/textView5"
+    <ImageView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Modifiers"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+        android:layout_height="1dp"
+        android:layout_marginTop="20dp"
+        app:srcCompat="@android:color/darker_gray" />
 
-    <CheckBox
-        android:id="@+id/uiModifierCtrl"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="CTRL"
-        android:textSize="18sp" />
+        android:layout_height="match_parent"
+        android:layout_marginTop="12dp">
 
-    <CheckBox
-        android:id="@+id/uiModifierAlt"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ALT"
-        android:textSize="18sp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-    <CheckBox
-        android:id="@+id/uiModifierAltGr"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="ALT GR"
-        android:textSize="18sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/edit_hotkey_modifiers"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-    <CheckBox
-        android:id="@+id/uiModifierMeta"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="META"
-        android:textSize="18sp" />
+            <CheckBox
+                android:id="@+id/uiModifierCtrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_ctrl"
+                android:textSize="18sp" />
 
-    <CheckBox
-        android:id="@+id/uiModifierShift"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="SHIFT"
-        android:textSize="18sp" />
+            <CheckBox
+                android:id="@+id/uiModifierAlt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_alt"
+                android:textSize="18sp" />
 
-    <TextView
-        android:id="@+id/textView8"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Key"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+            <CheckBox
+                android:id="@+id/uiModifierAltGr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_altgr"
+                android:textSize="18sp" />
 
-    <Spinner
-        android:id="@+id/uiKey"
-        style="@android:style/Widget.DeviceDefault.Light.Spinner"
-        android:layout_width="match_parent"
+            <CheckBox
+                android:id="@+id/uiModifierShift"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_shift"
+                android:textSize="18sp" />
 
-        android:layout_height="wrap_content"
-        android:entries="@array/keys" />
+            <CheckBox
+                android:id="@+id/uiModifierMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_meta"
+                android:textSize="18sp" />
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/edit_hotkey_key"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textView9"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="Style"
-        android:textSize="26sp"
-        android:textStyle="bold" />
+            <Spinner
+                android:id="@+id/uiKey"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                android:layout_width="match_parent"
 
-    <TextView
-        android:id="@+id/textView13"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Display name"
-        android:textSize="18sp" />
+                android:layout_height="wrap_content"
+                android:entries="@array/keys" />
 
-    <EditText
-        android:id="@+id/uiHotkeyName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/edit_hotkey_style"
+                android:textSize="26sp"
+                android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/textView6"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Text size"
-        android:textSize="18sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/edit_hotkey_hotkey_name"
+                android:textSize="18sp" />
 
-    <SeekBar
-        android:id="@+id/uiTextSize"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="24"
-        android:progress="9" />
+            <EditText
+                android:id="@+id/uiDisplayName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ems="10"
+                android:inputType="text" />
 
-    <TextView
-        android:id="@+id/textView10"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:text="Padding"
-        android:textSize="18sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/edit_hotkey_text_size"
+                android:textSize="18sp" />
 
-    <SeekBar
-        android:id="@+id/uiPadding"
-        style="@style/Widget.AppCompat.SeekBar.Discrete"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:max="24"
-        android:progress="13" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <SeekBar
+                    android:id="@+id/uiTextSize"
+                    style="@style/Widget.AppCompat.SeekBar.Discrete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:max="24"
+                    android:progress="9" />
+
+                <TextView
+                    android:id="@+id/uiTextSizeCurrentValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    tools:text="12" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="@string/edit_hotkey_padding"
+                android:textSize="18sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <SeekBar
+                    android:id="@+id/uiPadding"
+                    style="@style/Widget.AppCompat.SeekBar.Discrete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    android:max="24"
+                    android:progress="13" />
+
+                <TextView
+                    android:id="@+id/uiPaddingCurrentValue"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    tools:text="12" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
 
 
 </LinearLayout>

@@ -2,7 +2,10 @@ package org.docheinstein.minimote.discovery;
 
 import androidx.annotation.NonNull;
 
+import org.docheinstein.minimote.utils.NetUtils;
+
 public class MinimoteDiscoveredServer {
+
     private String mAddress;
     private int mPort;
     private String mHostname;
@@ -28,6 +31,6 @@ public class MinimoteDiscoveredServer {
     @NonNull
     @Override
     public String toString() {
-        return mAddress + ":" + mPort + " (" + mHostname + ")";
+        return NetUtils.fullAddress(mAddress, mPort) + " (" + mHostname + ")";
     }
 }

@@ -5,14 +5,14 @@
     <item
         android:id="@+id/uiAddHotkeyMenuItem"
         android:icon="@drawable/add_hotkey"
-        android:title="@string/add_server_add"
+        android:title="@string/add"
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/uiSaveHotkeysMenuItem"
         android:checkable="true"
         android:enabled="false"
         android:icon="@drawable/save"
-        android:title="@string/save_server"
+        android:title="@string/save"
         app:showAsAction="ifRoom" />
 
 </menu>

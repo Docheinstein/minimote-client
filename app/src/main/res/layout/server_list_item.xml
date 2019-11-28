@@ -13,7 +13,6 @@
     android:padding="6dp">
 
     <ImageView
-        android:id="@+id/imageView"
         android:layout_width="70dp"
         android:layout_height="wrap_content"
         android:paddingStart="12dp"
@@ -29,25 +28,24 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/uiServerDisplayName"
+            android:id="@+id/uiDisplayName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:textSize="20sp"
             android:textStyle="bold"
-            tools:text="Debian 9.0" />
+            tools:text="@string/server_list_item_display_name_placeholder" />
 
         <TextView
-            android:id="@+id/uiServerAddress"
+            android:id="@+id/uiAddress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="16sp"
-            tools:text="192.168.0.0" />
+            tools:text="@string/server_list_item_address_placeholder" />
 
     </LinearLayout>
 
     <ImageView
-        android:id="@+id/imageView4"
         android:layout_width="1dp"
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
@@ -57,12 +55,12 @@
 
     <ImageView
         android:foreground="?android:attr/selectableItemBackground"
-        android:id="@+id/uiServerEdit"
+        android:id="@+id/uiEditButton"
         android:layout_width="66dp"
         android:layout_height="wrap_content"
         android:paddingStart="16dp"
         android:paddingEnd="12dp"
-        android:tint="@color/colorPrimary"
+        android:tint="@color/primary"
         android:clickable="true"
         android:focusable="true"
         app:srcCompat="@drawable/edit" />

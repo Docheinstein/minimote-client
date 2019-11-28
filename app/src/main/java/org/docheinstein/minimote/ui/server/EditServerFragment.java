@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.edit;
+package org.docheinstein.minimote.ui.server;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import org.docheinstein.minimote.R;
-import org.docheinstein.minimote.base.MinimoteFragment;
+import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.utils.IntUtils;
@@ -60,10 +60,10 @@ public class EditServerFragment extends MinimoteFragment {
 
         final int serverPort = EditServerFragmentArgs.fromBundle(args).getServerPort();
 
-        uiDisplayName = view.findViewById(R.id.uiServerDisplayNameEdit);
-        uiAddress = view.findViewById(R.id.uiServerAddressView);
-        uiPort = view.findViewById(R.id.uiServerPortView);
-        uiHostname = view.findViewById(R.id.uiServerHostnameView);
+        uiDisplayName = view.findViewById(R.id.uiDisplayName);
+        uiAddress = view.findViewById(R.id.uiAddress);
+        uiPort = view.findViewById(R.id.uiPort);
+        uiHostname = view.findViewById(R.id.uiHostname);
         uiAutoConnect = view.findViewById(R.id.uiAutoConnect);
 
 

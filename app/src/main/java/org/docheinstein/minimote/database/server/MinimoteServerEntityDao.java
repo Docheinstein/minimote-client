@@ -16,6 +16,8 @@ import static org.docheinstein.minimote.database.server.MinimoteServerEntity.TAB
 @Dao
 public interface MinimoteServerEntityDao {
 
+    // SELECT
+
     @Query( "SELECT * FROM " + TABLE_NAME +
             " WHERE " + COLUMN_ADDRESS + " = :address " +
             "AND " + COLUMN_PORT + " = :port")
@@ -31,8 +33,12 @@ public interface MinimoteServerEntityDao {
     @Query("SELECT * FROM " + TABLE_NAME)
     LiveData<List<MinimoteServerEntity>> getAllObservable();
 
+    // INSERT
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void addOrReplace(MinimoteServerEntity server);
+
+    // DELETE
 
     @Query("DELETE FROM " + TABLE_NAME +
             " WHERE " + COLUMN_ADDRESS + " = :address " +

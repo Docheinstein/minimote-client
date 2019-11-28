@@ -5,17 +5,15 @@
         <CheckBoxPreference
             android:defaultValue="@bool/pref_show_touchpad_buttons_default"
             android:key="@string/pref_show_touchpad_buttons"
-            android:title="Show touchpad buttons" />
+            android:title="@string/settings_show_touchpad_buttons" />
         <CheckBoxPreference
-            android:defaultValue="@bool/pref_open_hotkeys_default"
-            android:key="@string/pref_open_hotkeys"
-            android:summary="Show hotkey overlay on controller startup"
-            android:title="Open hotkey automatically" />
+            android:defaultValue="@bool/pref_automatically_open_hotkeys_default"
+            android:key="@string/pref_automatically_open_hotkeys"
+            android:title="@string/settings_automatically_open_hotkeys" />
         <CheckBoxPreference
-            android:defaultValue="@bool/pref_open_keyboard_default"
-            android:key="@string/pref_open_keyboard"
-            android:summary="Show keyboard on controller startup"
-            android:title="Open keyboard automatically" />
+            android:defaultValue="@bool/pref_automatically_open_keyboard_default"
+            android:key="@string/pref_automatically_open_keyboard"
+            android:title="@string/settings_automatically_open_keyboard" />
 
     </PreferenceCategory>
 
@@ -24,67 +22,68 @@
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_touchpad_color_default"
             android:key="@string/pref_touchpad_color"
-            android:title="Touchpad color" />
+            android:title="@string/settings_touchpad_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_touchpad_buttons_container_color_default"
             android:key="@string/pref_touchpad_buttons_container_color"
-            android:title="Touchpad buttons container color" />
+            android:title="@string/settings_buttons_container_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/pref_touchpad_buttons_color_default"
-            android:key="@string/pref_touchpad_buttons_color"
-            android:title="Touchpad buttons color" />
+            android:defaultValue="@color/pref_touchpad_button_unpressed_color_default"
+            android:key="@string/pref_touchpad_button_unpressed_color"
+            android:title="@string/settings_touchpad_button_unpressed_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/pref_touchpad_buttons_pressed_color_default"
-            android:key="@string/pref_touchpad_buttons_pressed_color"
-            android:title="Touchpad buttons pressed color" />
+            android:defaultValue="@color/pref_touchpad_button_pressed_color_default"
+            android:key="@string/pref_touchpad_button_pressed_color"
+            android:title="@string/settings_touchpad_button_pressed_color" />
 
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/pref_touchpad_buttons_border_color_default"
-            android:key="@string/pref_touchpad_buttons_border_color"
-            android:title="Touchpad buttons border color" />
+            android:defaultValue="@color/pref_touchpad_button_border_color_default"
+            android:key="@string/pref_touchpad_button_border_color"
+            android:title="@string/settings_touchpad_button_border_color" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Hotkeys overlay style">
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_hotkeys_overlay_color_default"
             android:key="@string/pref_hotkeys_overlay_color"
-            android:title="Hotkeys overlay color" />
+            android:title="@string/settings_hotkeys_overlay_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_hotkeys_overlay_border_color_default"
             android:key="@string/pref_hotkeys_overlay_border_color"
-            android:title="Hotkeys overlay border color" />
+            android:title="@string/settings_hotkeys_overlay_border_color" />
     </PreferenceCategory>
+
     <PreferenceCategory android:title="Hotkeys style">
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/pref_hotkey_backgrond_color_default"
-            android:key="@string/pref_hotkey_backgrond_color"
-            android:title="Hotkey background color" />
+            android:defaultValue="@color/pref_hotkey_unpressed_color_default"
+            android:key="@string/pref_hotkey_unpressed_color"
+            android:title="@string/settings_hotkey_unpressed_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
-            android:defaultValue="@color/pref_hotkey_pressed_backgrond_color_default"
-            android:key="@string/pref_hotkey_pressed_backgrond_color"
-            android:title="Hotkey pressed background color" />
+            android:defaultValue="@color/pref_hotkey_pressed_color_default"
+            android:key="@string/pref_hotkey_pressed_color"
+            android:title="@string/settings_hotkey_pressed_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_hotkey_border_color_default"
             android:key="@string/pref_hotkey_border_color"
-            android:title="Hotkey border color" />
+            android:title="@string/settings_hotkey_border_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_hotkey_text_color_default"
             android:key="@string/pref_hotkey_text_color"
-            android:title="Hotkey text color" />
+            android:title="@string/settings_hotkey_text_color" />
     </PreferenceCategory>
 
     <PreferenceCategory android:title="Buttons style">
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_button_hotkeys_color_default"
             android:key="@string/pref_button_hotkeys_color"
-            android:title="Hotkey button color" />
+            android:title="@string/settings_button_hotkeys_color" />
         <com.jaredrummler.android.colorpicker.ColorPreferenceCompat
             android:defaultValue="@color/pref_button_keyboard_color_default"
             android:key="@string/pref_button_keyboard_color"
-            android:title="Keyboard button color" />
+            android:title="@string/settings_button_keyboard_color" />
     </PreferenceCategory>
 
 </PreferenceScreen>

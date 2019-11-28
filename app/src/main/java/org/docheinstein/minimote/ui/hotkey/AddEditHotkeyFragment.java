@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.ui.hotkeys;
+package org.docheinstein.minimote.ui.hotkey;
 
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.StateListDrawable;
@@ -30,26 +30,42 @@ import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.keys.MinimoteKeyType;
 import org.docheinstein.minimote.settings.SettingsManager;
+import org.docheinstein.minimote.utils.ResUtils;
 import org.docheinstein.minimote.utils.StringUtils;
 
 public class AddEditHotkeyFragment extends MinimoteFragment {
+
+    private enum FragmentMode {
+        Add,
+        Edit
+    }
+
+    public static final int ADD_HOTKEY_MAGIC_ACTION_ID = -1;
+
     private static final String TAG = "HotkeysFragment";
+    private static final int TEXT_SIZE_SLIDER_FACTOR = 2;
+    private static final int PADDING_SLIDER_FACTOR = 2;
 
-    public static final int ADD_HOTKEY_MAGIC_ACTIOPN_ID = -1;
+    private static final double DEFAULT_X_REL = 0.1;
+    private static final int DEFAULT_Y_ABS = 10;
 
-    TextView uiHotkeyPreview;
-    EditText uiHotkeyName;
 
-    CheckBox uiModifierAlt;
-    CheckBox uiModifierAltGr;
-    CheckBox uiModifierCtrl;
-    CheckBox uiModifierMeta;
-    CheckBox uiModifierShift;
+    private TextView uiHotkeyPreview;
+    private EditText uiHotkeyName;
 
-    Spinner uiKey;
+    private CheckBox uiModifierAlt;
+    private CheckBox uiModifierAltGr;
+    private CheckBox uiModifierCtrl;
+    private CheckBox uiModifierMeta;
+    private CheckBox uiModifierShift;
 
-    SeekBar uiTextSize;
-    SeekBar uiPadding;
+    private Spinner uiKey;
+
+    private SeekBar uiTextSize;
+    private SeekBar uiPadding;
+
+    private TextView uiTextSizeCurrentValue;
+    private TextView uiPaddingCurrentValue;
 
     private Integer mEditHotkeyId = null;
     private MenuItem mDeleteHotkeyMenuButton;
@@ -69,7 +85,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         View view = inflater.inflate(R.layout.add_edit_hotkey, container, false);
 
         uiHotkeyPreview = view.findViewById(R.id.uiHotkeyPreview);
-        uiHotkeyName = view.findViewById(R.id.uiHotkeyName);
+        uiHotkeyName = view.findViewById(R.id.uiDisplayName);
         uiModifierAlt = view.findViewById(R.id.uiModifierAlt);
         uiModifierAltGr = view.findViewById(R.id.uiModifierAltGr);
         uiModifierCtrl = view.findViewById(R.id.uiModifierCtrl);
@@ -78,32 +94,32 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         uiKey = view.findViewById(R.id.uiKey);
         uiTextSize = view.findViewById(R.id.uiTextSize);
         uiPadding = view.findViewById(R.id.uiPadding);
+        uiTextSizeCurrentValue = view.findViewById(R.id.uiTextSizeCurrentValue);
+        uiPaddingCurrentValue = view.findViewById(R.id.uiPaddingCurrentValue);
 
-        int initialTextSize = uiTextSize.getProgress() * 2;
-        uiHotkeyPreview.setTextSize(initialTextSize);
+        // Style hotkey preview
 
-        int initialPadding = uiPadding.getProgress() * 2;
-        uiHotkeyPreview.setPadding(initialPadding, initialPadding, initialPadding, initialPadding);
+        updateHotkeyTextSize(uiTextSize.getProgress() * TEXT_SIZE_SLIDER_FACTOR);
+        updateHotkeyPadding(uiPadding.getProgress() * PADDING_SLIDER_FACTOR);
 
         uiHotkeyPreview.setText(getCurrentHotkeyName());
+        uiHotkeyPreview.setTextColor(SettingsManager.hotkeyTextColor(getContext()));
 
         GradientDrawable hotkeyBackground = new GradientDrawable();
         hotkeyBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyBackground.setCornerRadius(10);
-        hotkeyBackground.setColor(SettingsManager.hotkeyBackgroundColor(getContext()));
+        hotkeyBackground.setColor(SettingsManager.hotkeyUnpressedColor(getContext()));
 
         GradientDrawable hotkeyPressedBackground = new GradientDrawable();
         hotkeyPressedBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
         hotkeyPressedBackground.setCornerRadius(10);
-        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedBackgroundColor(getContext()));
-
+        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedColor(getContext()));
 
         StateListDrawable hotkeySelector = new StateListDrawable();
         hotkeySelector.addState(new int[] {android.R.attr.state_pressed}, hotkeyPressedBackground);
         hotkeySelector.addState(new int[] {}, hotkeyBackground);
 
         uiHotkeyPreview.setBackground(hotkeySelector);
-        uiHotkeyPreview.setTextColor(SettingsManager.hotkeyTextColor(getContext()));
 
         setModifierListener(uiModifierAlt);
         setModifierListener(uiModifierAltGr);
@@ -111,34 +127,26 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         setModifierListener(uiModifierMeta);
         setModifierListener(uiModifierShift);
 
-        uiPadding.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.v(TAG, "Padding change, updating preview");
-                progress = progress * 2;
-                uiHotkeyPreview.setPadding(progress, progress, progress, progress);
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
-        });
-
         uiTextSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                Log.v(TAG, "Padding change, updating preview");
-                progress = progress * 2;
-                uiHotkeyPreview.setTextSize(progress);
+                Log.v(TAG, "Text size slider value is changed, updating preview");
+                updateHotkeyTextSize(progress * TEXT_SIZE_SLIDER_FACTOR);
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
 
+        uiPadding.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onStopTrackingTouch(SeekBar seekBar) { }
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                Log.v(TAG, "Padding slider value is changed, updating preview");
+                updateHotkeyPadding(progress * PADDING_SLIDER_FACTOR);
+            }
+
+            @Override public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override public void onStopTrackingTouch(SeekBar seekBar) { }
         });
 
         uiHotkeyName.addTextChangedListener(new TextWatcher() {
@@ -147,11 +155,8 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                 uiHotkeyPreview.setText(getCurrentHotkeyName());
             }
 
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-
-            @Override
-            public void afterTextChanged(Editable s) {}
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void afterTextChanged(Editable s) {}
         });
 
         uiKey.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -160,27 +165,24 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                 uiHotkeyPreview.setText(getCurrentHotkeyName());
             }
 
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            @Override public void onNothingSelected(AdapterView<?> parent) { }
         });
 
 
-        // Check if add/edit
+        // Check if in add or edit mode
 
         Bundle args = getArguments();
 
         if (args != null) {
             mEditHotkeyId = AddEditHotkeyFragmentArgs.fromBundle(args).getHotkeyId();
-            if (mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID) {
+            if (getCurrentFragmentMode() == FragmentMode.Edit) {
                 DB.getInstance().execute(new Runnable() {
                     @Override
                     public void run() {
                         HotkeyEntity h = DB.getInstance().hotkeys().getById(mEditHotkeyId);
                         if (h == null)
                             return;
-                        Log.d(TAG, "Editing of valid hotkey, updating UI");
+                        Log.d(TAG, "Editing valid hotkey, updating UI");
                         uiHotkeyName.setText(h.name);
                         uiModifierAlt.setChecked(h.alt);
                         uiModifierAltGr.setChecked(h.altgr);
@@ -188,17 +190,19 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                         uiModifierMeta.setChecked(h.meta);
                         uiModifierShift.setChecked(h.shift);
                         uiKey.setSelection(((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(h.key));
-                        uiTextSize.setProgress(h.textSize / 2);
-                        uiPadding.setProgress(h.padding / 2);
+                        uiTextSize.setProgress(h.textSize / TEXT_SIZE_SLIDER_FACTOR);
+                        uiPadding.setProgress(h.padding / PADDING_SLIDER_FACTOR);
                         if (mDeleteHotkeyMenuButton != null)
                             mDeleteHotkeyMenuButton.setVisible(true);
                     }
                 });
             }
-
         }
 
-        setToolbarTitle(mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID ? "Edit hotkey" : "Add hotkey");
+        setToolbarTitle(
+                getCurrentFragmentMode() == FragmentMode.Edit ?
+                        "Edit hotkey" :
+                        "Add hotkey");
 
         return view;
     }
@@ -208,7 +212,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         inflater.inflate(R.menu.add_edit_hotkey, menu);
         mDeleteHotkeyMenuButton = menu.findItem(R.id.uiDeleteHotkeyMenuItem);
 
-        if (mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID && mDeleteHotkeyMenuButton != null) {
+        if (getCurrentFragmentMode() == FragmentMode.Edit && mDeleteHotkeyMenuButton != null) {
             mDeleteHotkeyMenuButton.setVisible(true);
         }
     }
@@ -234,7 +238,7 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         DB.getInstance().execute(new Runnable() {
             @Override
             public void run() {
-                if (mEditHotkeyId == ADD_HOTKEY_MAGIC_ACTIOPN_ID) {
+                if (mEditHotkeyId == null || getCurrentFragmentMode() == FragmentMode.Add) {
                     Log.w(TAG, "Hotkey id should not be null if delete button is enabled");
                     return;
                 }
@@ -271,16 +275,17 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
             @Override
             public void run() {
                 HotkeyEntity hotkey = new HotkeyEntity(
-                        mEditHotkeyId != ADD_HOTKEY_MAGIC_ACTIOPN_ID ? mEditHotkeyId : 0,
+                        getCurrentFragmentMode() == FragmentMode.Add ? 0 : mEditHotkeyId,
                         name,
                         shift, ctrl, alt, altgr, meta,
                         key.toString(),
-                        uiTextSize.getProgress() * 2,
+                        uiTextSize.getProgress() * TEXT_SIZE_SLIDER_FACTOR,
 //                        0xff32a852,
 //                        0xffcfd0e3,
 //                        3, 0xffd18b28,
-                        uiPadding.getProgress() * 2,
-                        0.1, 10
+                        uiPadding.getProgress() * PADDING_SLIDER_FACTOR,
+                        DEFAULT_X_REL,
+                        DEFAULT_Y_ABS
                 );
                 Log.v(TAG, "Pushing hotkey to DB\n" + hotkey);
 
@@ -298,30 +303,30 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
 
         StringBuilder sb = new StringBuilder();
         if (uiModifierCtrl.isChecked())
-            sb.append("CTRL");
+            sb.append(ResUtils.getString(R.string.edit_hotkey_ctrl, getContext()));
 
         if (uiModifierAlt.isChecked()) {
             if (sb.length() > 0)
                 sb.append("+");
-            sb.append("ALT");
+            sb.append(ResUtils.getString(R.string.edit_hotkey_alt, getContext()));
         }
 
         if (uiModifierAltGr.isChecked()) {
             if (sb.length() > 0)
                 sb.append("+");
-            sb.append("ALT GR");
+            sb.append(ResUtils.getString(R.string.edit_hotkey_altgr, getContext()));
         }
 
         if (uiModifierMeta.isChecked()) {
             if (sb.length() > 0)
                 sb.append("+");
-            sb.append("META");
+            sb.append(ResUtils.getString(R.string.edit_hotkey_meta, getContext()));
         }
 
         if (uiModifierShift.isChecked()) {
             if (sb.length() > 0)
                 sb.append("+");
-            sb.append("SHIFT");
+            sb.append(ResUtils.getString(R.string.edit_hotkey_shift, getContext()));
         }
 
         String key = uiKey.getSelectedItem().toString();
@@ -330,6 +335,20 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
         sb.append(key);
 
         return sb.toString();
+    }
+
+    private void updateHotkeyTextSize(int textSize) {
+        uiHotkeyPreview.setTextSize(textSize);
+        uiTextSizeCurrentValue.setText(String.valueOf(textSize));
+    }
+
+    private void updateHotkeyPadding(int padding) {
+        uiHotkeyPreview.setPadding(padding, padding, padding, padding);
+        uiPaddingCurrentValue.setText(String.valueOf(padding));
+    }
+
+    private FragmentMode getCurrentFragmentMode() {
+        return mEditHotkeyId == ADD_HOTKEY_MAGIC_ACTION_ID ? FragmentMode.Add : FragmentMode.Edit;
     }
 
     private void setModifierListener(CheckBox checkBox) {

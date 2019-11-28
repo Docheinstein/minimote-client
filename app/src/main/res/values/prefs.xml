@@ -1,29 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Controller -->
     <string name="pref_show_touchpad_buttons">pref_show_touchpad_buttons</string>
     <bool name="pref_show_touchpad_buttons_default">true</bool>
 
-    <string name="pref_open_hotkeys">pref_open_hotkeys</string>
-    <bool name="pref_open_hotkeys_default">false</bool>
+    <string name="pref_automatically_open_hotkeys">pref_automatically_open_hotkeys</string>
+    <bool name="pref_automatically_open_hotkeys_default">false</bool>
 
-    <string name="pref_open_keyboard">pref_open_keyboard</string>
-    <bool name="pref_open_keyboard_default">false</bool>
+    <string name="pref_automatically_open_keyboard">pref_automatically_open_keyboard</string>
+    <bool name="pref_automatically_open_keyboard_default">false</bool>
 
+    <!-- Touchpad style -->
     <string name="pref_touchpad_color">pref_touchpad_color</string>
     <color name="pref_touchpad_color_default">#3D3D3D</color>
 
     <string name="pref_touchpad_buttons_container_color">pref_touchpad_buttons_container_color</string>
     <color name="pref_touchpad_buttons_container_color_default">#29292B</color>
 
-    <string name="pref_touchpad_buttons_color">pref_touchpad_buttons_color</string>
-    <color name="pref_touchpad_buttons_color_default">#989899</color>
+    <string name="pref_touchpad_button_unpressed_color">pref_touchpad_button_unpressed_color</string>
+    <color name="pref_touchpad_button_unpressed_color_default">#989899</color>
 
-    <string name="pref_touchpad_buttons_pressed_color">pref_touchpad_buttons_pressed_color</string>
-    <color name="pref_touchpad_buttons_pressed_color_default">#767694</color>
+    <string name="pref_touchpad_button_pressed_color">pref_touchpad_button_pressed_color</string>
+    <color name="pref_touchpad_button_pressed_color_default">#767694</color>
 
-    <string name="pref_touchpad_buttons_border_color">pref_touchpad_buttons_border_color</string>
-    <color name="pref_touchpad_buttons_border_color_default">#283593</color>
+    <string name="pref_touchpad_button_border_color">pref_touchpad_button_border_color</string>
+    <color name="pref_touchpad_button_border_color_default">#283593</color>
 
+    <!-- Hotkeys overlay -->
     <string name="pref_hotkeys_overlay_color">pref_hotkeys_overlay_color</string>
     <color name="pref_hotkeys_overlay_color_default">#AE2F2F30</color>
 
@@ -31,12 +34,11 @@
     <color name="pref_hotkeys_overlay_border_color_default">#98989B</color>
 
     <!-- Hotkey -->
+    <string name="pref_hotkey_unpressed_color">pref_hotkey_unpressed_color</string>
+    <color name="pref_hotkey_unpressed_color_default">#98989B</color>
 
-    <string name="pref_hotkey_backgrond_color">pref_hotkey_backgrond_color</string>
-    <color name="pref_hotkey_backgrond_color_default">#98989B</color>
-
-    <string name="pref_hotkey_pressed_backgrond_color">pref_hotkey_pressed_backgrond_color</string>
-    <color name="pref_hotkey_pressed_backgrond_color_default">#767694</color>
+    <string name="pref_hotkey_pressed_color">pref_hotkey_pressed_color</string>
+    <color name="pref_hotkey_pressed_color_default">#767694</color>
 
     <string name="pref_hotkey_border_color">pref_hotkey_border_color</string>
     <color name="pref_hotkey_border_color_default">#283593</color>
@@ -50,7 +52,4 @@
 
     <string name="pref_button_keyboard_color">pref_button_keyboard_color</string>
     <color name="pref_button_keyboard_color_default">#1565C0</color>
-
-
-
 </resources>

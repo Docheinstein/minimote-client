@@ -3,7 +3,6 @@ package org.docheinstein.minimote.discovery;
 import android.os.StrictMode;
 import android.util.Log;
 
-import org.docheinstein.minimote.commons.conf.Conf;
 import org.docheinstein.minimote.packet.MinimotePacket;
 import org.docheinstein.minimote.packet.MinimotePacketFactory;
 import org.docheinstein.minimote.packet.MinimotePacketType;
@@ -13,7 +12,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;

@@ -19,14 +19,13 @@
             android:background="?attr/colorPrimary"
             android:minHeight="?attr/actionBarSize"
             app:theme="@style/ThemeOverlay.AppCompat.Dark"
-            app:titleTextColor="@color/toolbar_title" />
+            app:titleTextColor="#FFFFFF" />
 
         <fragment
             android:id="@+id/uiNavigationFragment"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:defaultNavHost="true"
             app:navGraph="@navigation/nav" />
 
     </LinearLayout>
@@ -37,7 +36,7 @@
         android:layout_height="match_parent"
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
-        app:headerLayout="@layout/drawer_layout"
-        app:menu="@menu/drawer_menu" />
+        app:headerLayout="@layout/drawer_header"
+        app:menu="@menu/drawer" />
 
 </androidx.drawerlayout.widget.DrawerLayout>

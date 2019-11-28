@@ -6,7 +6,7 @@
     app:startDestination="@id/naviServers">
     <fragment
         android:id="@+id/naviServers"
-        android:name="org.docheinstein.minimote.servers.ServersFragment"
+        android:name="org.docheinstein.minimote.ui.servers.ServersFragment"
         tools:layout="@layout/servers">
         <action
             android:id="@+id/actionEditServer"
@@ -21,7 +21,7 @@
     </fragment>
     <fragment
         android:id="@+id/naviEditServer"
-        android:name="org.docheinstein.minimote.edit.EditServerFragment"
+        android:name="org.docheinstein.minimote.ui.server.EditServerFragment"
         tools:layout="@layout/edit_server">
         <argument
             android:name="serverAddress"
@@ -32,7 +32,7 @@
     </fragment>
     <fragment
         android:id="@+id/naviController"
-        android:name="org.docheinstein.minimote.controller.MinimoteControllerFragment"
+        android:name="org.docheinstein.minimote.ui.controller.MinimoteControllerFragment"
         tools:layout="@layout/controller">
         <argument
             android:name="serverAddress"
@@ -43,7 +43,7 @@
     </fragment>
     <fragment
         android:id="@+id/naviHotkeys"
-        android:name="org.docheinstein.minimote.hotkeys.HotkeysFragment"
+        android:name="org.docheinstein.minimote.ui.hotkeys.HotkeysFragment"
         android:label="Hotkeys">
         <action
             android:id="@+id/actionAddEditHotkey"
@@ -52,7 +52,7 @@
 
     <fragment
         android:id="@+id/naviHotkey"
-        android:name="org.docheinstein.minimote.hotkeys.AddEditHotkeyFragment"
+        android:name="org.docheinstein.minimote.ui.hotkey.AddEditHotkeyFragment"
         android:label="Hotkey">
         <argument
             android:name="hotkeyId"
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/naviSettings"
-        android:name="org.docheinstein.minimote.settings.SettingsFragment"
+        android:name="org.docheinstein.minimote.ui.settings.SettingsFragment"
         android:label="Settings" />
     <action
         android:id="@+id/actionSettings"

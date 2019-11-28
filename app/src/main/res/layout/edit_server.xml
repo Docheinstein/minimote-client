@@ -10,7 +10,6 @@
     android:padding="20dp">
 
     <ImageView
-        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -19,7 +18,6 @@
         app:srcCompat="@drawable/host" />
 
     <ImageView
-        android:id="@+id/imageView3"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginBottom="12dp"
@@ -35,7 +33,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@string/server_display_name"
+            android:text="@string/edit_server_display_name"
             android:textColor="#3C3C3C"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -59,7 +57,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@string/server_address"
+            android:text="@string/edit_server_address"
             android:textColor="#3C3C3C"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -83,7 +81,7 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@string/server_port"
+            android:text="@string/edit_server_port"
             android:textColor="#3C3C3C"
             android:textSize="18sp"
             android:textStyle="bold" />
@@ -108,13 +106,13 @@
             android:layout_width="120dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
-            android:text="@string/server_hostname"
+            android:text="@string/edit_server_hostname"
             android:textColor="#3C3C3C"
             android:textSize="18sp"
             android:textStyle="bold" />
 
         <TextView
-            android:id="@+id/uiServerHostnameView"
+            android:id="@+id/uiHostname"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:ems="10"
@@ -131,7 +129,8 @@
     <Switch
         android:id="@+id/uiAutoConnect"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginTop="12dp"
         android:layout_weight="1"
         android:text="@string/edit_server_connect_automatically" />
 

@@ -13,6 +13,8 @@ import java.net.UnknownHostException;
 
 public class MinimoteConnection {
 
+    private static final int SOCKET_TIMEOUT = 5000;
+
     private static final String TAG = "MinimoteConnection";
 
     private final Object mSocketConnectLock = new Object();
@@ -39,14 +41,15 @@ public class MinimoteConnection {
 
     public boolean connect() {
         synchronized (mSocketConnectLock) {
+            Log.v(TAG, "MinimoteConnection.connect()");
             return connectTcp() && connectUdp();
         }
     }
 
     public synchronized void disconnect() {
-        Log.v(TAG, "MinimoteConnection.disconnect() hanging on");
         synchronized (mSocketDisconnectLock) {
             Log.v(TAG, "MinimoteConnection.disconnect()");
+
             if (mTcpSocket != null) {
                 try {
                     mTcpSocket.close();
@@ -119,6 +122,8 @@ public class MinimoteConnection {
         Log.d(TAG, "Going to establish a TCP connection with " + mAddress + ":" + mTcpPort);
         try {
             mTcpSocket = new Socket(mAddress, mTcpPort);
+            mTcpSocket.setSoTimeout(SOCKET_TIMEOUT);
+            mTcpSocket.setReuseAddress(true);
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Error occurred while trying to establish a TCP connection", e);
@@ -130,6 +135,8 @@ public class MinimoteConnection {
         Log.d(TAG, "Going to establish a UDP connection with " + mAddress + ":" + mUdpPort);
         try {
             mUdpSocket = new DatagramSocket();
+            mUdpSocket.setSoTimeout(SOCKET_TIMEOUT);
+            mUdpSocket.setReuseAddress(true);
             return true;
         } catch (IOException e) {
             Log.e(TAG, "Error occurred while trying to establish an UDP connection", e);

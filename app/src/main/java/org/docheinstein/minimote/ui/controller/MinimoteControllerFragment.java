@@ -1,4 +1,4 @@
-package org.docheinstein.minimote.controller;
+package org.docheinstein.minimote.ui.controller;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,14 +24,14 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
 import org.docheinstein.minimote.R;
-import org.docheinstein.minimote.base.MinimoteFragment;
+import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.connection.MinimoteConnection;
-import org.docheinstein.minimote.controller.keyboard.AutoHideEditText;
-import org.docheinstein.minimote.controller.touchpad.TouchpadView;
+import org.docheinstein.minimote.ui.controller.keyboard.AutoHideEditText;
+import org.docheinstein.minimote.ui.controller.touchpad.TouchpadView;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
-import org.docheinstein.minimote.edit.EditServerFragmentArgs;
+import org.docheinstein.minimote.ui.server.EditServerFragmentArgs;
 import org.docheinstein.minimote.keys.MinimoteKeyType;
 import org.docheinstein.minimote.packet.MinimotePacket;
 import org.docheinstein.minimote.packet.MinimotePacketFactory;
@@ -144,9 +144,9 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         // FABs
         uiHotkeysButton.setBackgroundTintList(
-                ColorStateList.valueOf(SettingsManager.buttonHotkeyColor(getContext())));
+                ColorStateList.valueOf(SettingsManager.buttonOpenHotkeysColor(getContext())));
         uiKeyboardButton.setBackgroundTintList(
-                ColorStateList.valueOf(SettingsManager.buttonKeyboardColor(getContext())));
+                ColorStateList.valueOf(SettingsManager.buttonOpenKeyboardColor(getContext())));
 
         uiHotkeysButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -509,12 +509,12 @@ public class MinimoteControllerFragment extends MinimoteFragment
                         GradientDrawable hotkeyBackground = new GradientDrawable();
                         hotkeyBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
                         hotkeyBackground.setCornerRadius(10);
-                        hotkeyBackground.setColor(SettingsManager.hotkeyBackgroundColor(getContext()));
+                        hotkeyBackground.setColor(SettingsManager.hotkeyUnpressedColor(getContext()));
 
                         GradientDrawable hotkeyPressedBackground = new GradientDrawable();
                         hotkeyPressedBackground.setStroke(3, SettingsManager.hotkeyBorderColor(getContext()));
                         hotkeyPressedBackground.setCornerRadius(10);
-                        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedBackgroundColor(getContext()));
+                        hotkeyPressedBackground.setColor(SettingsManager.hotkeyPressedColor(getContext()));
 
 
                         StateListDrawable hotkeySelector = new StateListDrawable();
@@ -552,9 +552,9 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         // Use View.INVISIBILE instead of View.GONE in order to be able to measeure the width
         // of the container, for compute the absolute x coordinate of the hotkeys
-        ViewUtils.setVisibility(uiHotkeysOverlay, SettingsManager.openHotkeys(getContext()), View.INVISIBLE);
+        ViewUtils.setVisibility(uiHotkeysOverlay, SettingsManager.automaticallyOpenHotkeys(getContext()), View.INVISIBLE);
 
-        if (SettingsManager.openKeyboard(getContext())) {
+        if (SettingsManager.automaticallyOpenKeyboard(getContext())) {
             showSoftKeyboard(uiKeyboardPreview);
         }
 
@@ -578,14 +578,14 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
         // Touchpad buttons
         GradientDrawable touchpadButtonBackground = new GradientDrawable();
-        touchpadButtonBackground.setStroke(3, SettingsManager.touchpadButtonsBorderColor(getContext()));
+        touchpadButtonBackground.setStroke(3, SettingsManager.touchpadButtonBorderColor(getContext()));
         touchpadButtonBackground.setCornerRadius(10);
-        touchpadButtonBackground.setColor(SettingsManager.touchpadButtonsColor(getContext()));
+        touchpadButtonBackground.setColor(SettingsManager.touchpadButtonUnpressedColor(getContext()));
 
         GradientDrawable touchpadButtonPressedBackground = new GradientDrawable();
-        touchpadButtonPressedBackground.setStroke(3, SettingsManager.touchpadButtonsBorderColor(getContext()));
+        touchpadButtonPressedBackground.setStroke(3, SettingsManager.touchpadButtonBorderColor(getContext()));
         touchpadButtonPressedBackground.setCornerRadius(10);
-        touchpadButtonPressedBackground.setColor(SettingsManager.touchpadButtonsPressedColor(getContext()));
+        touchpadButtonPressedBackground.setColor(SettingsManager.touchpadButtonPressedColor(getContext()));
 
 
         StateListDrawable touchpadButtonSelectorL = new StateListDrawable();

@@ -16,7 +16,7 @@
         android:clickable="true"
         android:focusable="true"
         android:tint="#E9E9E9"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/primary"
         app:fabCustomSize="72dp"
         app:fabSize="normal"
         app:layout_constraintEnd_toEndOf="parent"
@@ -33,7 +33,7 @@
         android:clickable="true"
         android:focusable="true"
         android:tint="#E9E9E9"
-        app:backgroundTint="@color/colorOrange"
+        app:backgroundTint="@color/orange"
         app:fabCustomSize="72dp"
         app:fabSize="normal"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,11 +44,11 @@
 
     <view
         android:id="@+id/uiTouchpad"
-        class="org.docheinstein.minimote.controller.touchpad.TouchpadView"
+        class="org.docheinstein.minimote.ui.controller.touchpad.TouchpadView"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#424242"
-        app:layout_constraintBottom_toTopOf="@id/uiButtonsContainer"
+        app:layout_constraintBottom_toTopOf="@id/uiTouchpadButtonsContainer"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -79,7 +79,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:srcCompat="@android:color/darker_gray" />
 
-    <org.docheinstein.minimote.controller.keyboard.KeyboardEditText
+    <org.docheinstein.minimote.ui.controller.keyboard.AutoHideEditText
         android:id="@+id/uiKeyboardPreview"
         style="@style/Widget.AppCompat.EditText"
         android:layout_width="0dp"
@@ -98,7 +98,7 @@
         tools:text="Debian ..." />
 
     <LinearLayout
-        android:id="@+id/uiButtonsContainer"
+        android:id="@+id/uiTouchpadButtonsContainer"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:background="#2C2A2A"
@@ -112,7 +112,7 @@
         app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
-            android:id="@+id/uiLeftButton"
+            android:id="@+id/uiTouchpadLeftButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginEnd="6dp"
@@ -129,7 +129,7 @@
             android:background="#C5C5C5"/>
 
         <ImageView
-            android:id="@+id/uiRightButton"
+            android:id="@+id/uiTouchpadRightButton"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginStart="6dp"

@@ -6,7 +6,6 @@
     android:padding="18dp">
 
     <TextView
-        android:id="@+id/textView11"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/address"
@@ -14,14 +13,13 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/uiAddServerAddress"
+        android:id="@+id/uiAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="192.168.1.108"
+        android:hint="@string/add_server_address_placeholder"
         android:inputType="number|phone" />
 
     <TextView
-        android:id="@+id/textView12"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="12dp"
@@ -30,9 +28,9 @@
         android:textSize="20sp" />
 
     <EditText
-        android:id="@+id/uiAddServerPort"
+        android:id="@+id/uiPort"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="50500"
+        android:hint="@string/add_server_port_placeholder"
         android:inputType="number|phone" />
 </LinearLayout>
