@@ -17,10 +17,7 @@ So that I can use the Minimote Client for perform basic actions from my bed.
 ### What it looks like
 
 
-![Servers](img/servers.png)
-
-![Touchpad](img/touchpad.png)
-
-![Keyboard](img/keyboard.png)
-
-![Hotkeys](img/hotkeys.png)
+<img src="img/servers.png" width="400">
+<img src="img/touchpad.png" width="400">
+<img src="img/keyboard.png" width="400">
+<img src="img/hotkeys.png" width="400">
