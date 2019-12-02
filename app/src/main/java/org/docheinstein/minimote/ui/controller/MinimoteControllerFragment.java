@@ -364,7 +364,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
                 @Override
                 public void run() {
                     mConnection.sendTcp(
-                            MinimotePacketFactory.newType(c));
+                            MinimotePacketFactory.newWrite(c));
                 }
             });
         } else if (before > count) {

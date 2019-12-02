@@ -14,7 +14,7 @@ public enum MinimotePacketType {
     ScrollDown(0x0A),
     ScrollUp(0x0B),
     Move(0x0C),
-    Type(0x0D),
+    Write(0x0D),
     KeyDown(0x0E),
     KeyUp(0x0F),
     KeyClick(0x10),
@@ -56,7 +56,7 @@ public enum MinimotePacketType {
             case 0x0C:
                 return Move;
             case 0x0D:
-                return Type;
+                return Write;
             case 0x0E:
                 return KeyDown;
             case 0x0F:

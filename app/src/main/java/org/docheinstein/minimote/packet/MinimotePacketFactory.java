@@ -19,7 +19,7 @@ public class MinimotePacketFactory {
         ScrollDown(0x0A),
         ScrollUp(0x0B),
         Move(0x0C),
-        Type(0x0D),
+        Write(0x0D),
         KeyDown(0x0E),
         KeyUp(0x0F),
         KeyClick(0x10),
@@ -90,7 +90,7 @@ public class MinimotePacketFactory {
         );
     }
 
-    public static MinimotePacket newType(char ch) {
+    public static MinimotePacket newWrite(char ch) {
         final int PAYLOAD_SIZE = 1;
 
         // | CHAR (8 bit) |
@@ -101,7 +101,7 @@ public class MinimotePacketFactory {
 
         return new MinimotePacket(
                 MinimotePacket.HEADER_SIZE + PAYLOAD_SIZE,
-                MinimotePacketType.Type,
+                MinimotePacketType.Write,
                 payload
         );
     }
