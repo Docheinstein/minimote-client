@@ -19,7 +19,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
+import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -40,10 +42,15 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServersFragment extends MinimoteFragment
         implements MinimoteServerDiscoverer.MinimoteServerDiscovererListener {
     private static final String TAG = "ServersFragment";
+
+    public static final String AUTO_CONNECT_EXTRA = "auto_connect";
+    public static final boolean AUTO_CONNECT_EXTRA_DEFAULT_VALUE = false;
+
 
     private ServerListAdapter uiServerListAdapter;
     private RecyclerView.LayoutManager uiServerListLayoutManager;
@@ -55,6 +62,8 @@ public class ServersFragment extends MinimoteFragment
 
     private final Object mDiscovererLock = new Object();
     private MinimoteServerDiscoverer mDiscoverer;
+
+    private static final AtomicBoolean sAutoConnectTried = new AtomicBoolean(false);
 
     public static class AddServerFragment extends DialogFragment {
         static final String FRAGMENT_TAG = "add_server_fragment";
@@ -220,9 +229,12 @@ public class ServersFragment extends MinimoteFragment
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         final View view = inflater.inflate(R.layout.servers, container, false);
+
+        Log.v(TAG, "ServersFragment.onCreateView() [" + hashCode() + "]");
 
 
         // Add server
@@ -283,6 +295,16 @@ public class ServersFragment extends MinimoteFragment
                 });
 
         setToolbarTitle("Servers");
+
+
+        Bundle extras = getArguments();
+        if (extras != null) {
+            boolean autoConnect = extras.getBoolean(AUTO_CONNECT_EXTRA, AUTO_CONNECT_EXTRA_DEFAULT_VALUE);
+            if (autoConnect) {
+                autoConnectIfNeeded();
+            }
+        }
+
         return view;
     }
 
@@ -360,6 +382,40 @@ public class ServersFragment extends MinimoteFragment
         if (mDiscoveryProgressUpdater != null) {
             mDiscoveryProgressUpdater.cancel(true);
             mDiscoveryProgressUpdater = null;
+        }
+    }
+
+    private void autoConnectIfNeeded() {
+        if (sAutoConnectTried.compareAndSet(false, true)) {
+            Log.d(TAG, "Auto connect required, " +
+                    "checking if there is a server with the auto-connect flag... [" + hashCode() + "], lock is: [" + sAutoConnectTried.hashCode() + "]");
+            DB.getInstance().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final MinimoteServerEntity autoConnectServer =
+                            DB.getInstance().servers().getAutoConnectionRequired();
+
+                    if (autoConnectServer == null)  {
+                        Log.d(TAG, "No servers with the auto connection flag, doing nothing");
+                        return;
+                    }
+
+                    // Attempt connection
+                    Log.d(TAG, "Auto connection required for server " + autoConnectServer + ", attempting so");
+
+                    ui(new Runnable() {
+                        @Override
+                        public void run() {
+                            ServersFragmentDirections.ActionController action =
+                                    ServersFragmentDirections.actionController(
+                                            autoConnectServer.address,
+                                            autoConnectServer.port);
+                            NavHostFragment.findNavController(ServersFragment.this).navigate(action);
+                        }
+                    });
+
+                }
+            });
         }
     }
 

@@ -12,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
+import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -21,9 +22,10 @@ import com.google.android.material.navigation.NavigationView;
 import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.ui.controller.MinimoteControllerFragment;
 import org.docheinstein.minimote.database.DB;
-import org.docheinstein.minimote.database.server.MinimoteServerEntity;
-import org.docheinstein.minimote.ui.servers.ServersFragmentDirections;
+import org.docheinstein.minimote.ui.servers.ServersFragment;
 import org.docheinstein.minimote.utils.ResUtils;
+
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class MainActivity
@@ -36,13 +38,24 @@ public class MainActivity
     private DrawerLayout uiDrawer;
     private NavigationView uiNavigationView;
 
+    private AtomicBoolean attemptAutoConnect = new AtomicBoolean(true);
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        Log.v(TAG, "MainActivity.onCreate");
 
+        Bundle extras = new Bundle();
+        // auto connect just the first time (on app start up)
+        extras.putBoolean(
+                ServersFragment.AUTO_CONNECT_EXTRA,
+                attemptAutoConnect.getAndSet(false));
 
         uiNavigationFragment = Navigation.findNavController(this, R.id.uiNavigationFragment);
+        NavGraph g = uiNavigationFragment.getGraph();
+        uiNavigationFragment.setGraph(g, extras);
+
         uiDrawer = findViewById(R.id.uiDrawer);
         uiNavigationView = findViewById(R.id.uiNavigationView);
 
@@ -78,38 +91,8 @@ public class MainActivity
         });
 
         DB.init(this);
-        autoConnectIfNeeded();
     }
 
-    private void autoConnectIfNeeded() {
-        DB.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                final MinimoteServerEntity autoConnectServer =
-                        DB.getInstance().servers().getAutoConnectionRequired();
-
-                if (autoConnectServer == null)  {
-                    Log.d(TAG, "No servers with the auto connection flag, doing nothing");
-                    return;
-                }
-
-                // Attempt connection
-                Log.d(TAG, "Auto connection required for server " + autoConnectServer + ", attempting so");
-
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        ServersFragmentDirections.ActionController action =
-                                ServersFragmentDirections.actionController(
-                                        autoConnectServer.address,
-                                        autoConnectServer.port);
-                        uiNavigationFragment.navigate(action);
-                    }
-                });
-
-            }
-        });
-    }
 
     @Override
     public void onFragmentResult(Fragment from, Bundle args) {
