@@ -11,21 +11,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ProcessLifecycleOwner;
 import androidx.navigation.NavController;
 import androidx.navigation.NavGraph;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
-
 import com.google.android.material.navigation.NavigationView;
 
+import org.docheinstein.minimote.lifecycle.AppLifecycleManager;
 import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.ui.controller.MinimoteControllerFragment;
 import org.docheinstein.minimote.database.DB;
-import org.docheinstein.minimote.ui.servers.ServersFragment;
 import org.docheinstein.minimote.utils.ResUtils;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class MainActivity
@@ -38,19 +36,20 @@ public class MainActivity
     private DrawerLayout uiDrawer;
     private NavigationView uiNavigationView;
 
-    private AtomicBoolean attemptAutoConnect = new AtomicBoolean(true);
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         Log.v(TAG, "MainActivity.onCreate");
 
+        ProcessLifecycleOwner.get().getLifecycle().addObserver(AppLifecycleManager.getInstance());
+
         Bundle extras = new Bundle();
+
         // auto connect just the first time (on app start up)
-        extras.putBoolean(
-                ServersFragment.AUTO_CONNECT_EXTRA,
-                attemptAutoConnect.getAndSet(false));
+//        extras.putBoolean(
+//                ServersFragment.AUTO_CONNECT_EXTRA,
+//                attemptAutoConnect.getAndSet(false));
 
         uiNavigationFragment = Navigation.findNavController(this, R.id.uiNavigationFragment);
         NavGraph g = uiNavigationFragment.getGraph();

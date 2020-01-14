@@ -53,6 +53,8 @@ public abstract class MinimoteFragment extends Fragment {
                 ((ResultListener) parentActivity).onFragmentResult(this, args);
             }
         }
+
+        navController.navigateUp();
     }
 
     protected void setToolbarTitle(String title) {

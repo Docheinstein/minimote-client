@@ -193,7 +193,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
             }
         });
 
-        finishWithResult(true);
+//        finishWithResult(true);
     }
 
     @Override

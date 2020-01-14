@@ -19,13 +19,13 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
-import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.docheinstein.minimote.R;
+import org.docheinstein.minimote.lifecycle.AppLifecycleManager;
 import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.commons.Conf;
 import org.docheinstein.minimote.database.DB;
@@ -44,13 +44,11 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class ServersFragment extends MinimoteFragment
+public class ServersFragment
+        extends MinimoteFragment
         implements MinimoteServerDiscoverer.MinimoteServerDiscovererListener {
+
     private static final String TAG = "ServersFragment";
-
-    public static final String AUTO_CONNECT_EXTRA = "auto_connect";
-    public static final boolean AUTO_CONNECT_EXTRA_DEFAULT_VALUE = false;
-
 
     private ServerListAdapter uiServerListAdapter;
     private RecyclerView.LayoutManager uiServerListLayoutManager;
@@ -63,7 +61,29 @@ public class ServersFragment extends MinimoteFragment
     private final Object mDiscovererLock = new Object();
     private MinimoteServerDiscoverer mDiscoverer;
 
-    private static final AtomicBoolean sAutoConnectTried = new AtomicBoolean(false);
+    private static AutoConnectTracker sAutoConnectTracker = new AutoConnectTracker();
+
+    private static class AutoConnectTracker implements AppLifecycleManager.AppLifecycleListener {
+        private static final String TAG = "AutoConnectTracker";
+
+        private final AtomicBoolean mAutoConnectTried = new AtomicBoolean(false);
+
+        @Override
+        public void onAppStart() {
+        }
+
+        @Override
+        public void onAppStop() {
+            // Reset auto connect flag so that the next time
+            // the auto connection will be tried again
+            Log.v(TAG, "Resetting auto connect flag since app has been stopped");
+            mAutoConnectTried.set(false);
+        }
+
+        boolean useAutoConnect() {
+            return mAutoConnectTried.compareAndSet(false, true);
+        }
+    }
 
     public static class AddServerFragment extends DialogFragment {
         static final String FRAGMENT_TAG = "add_server_fragment";
@@ -296,15 +316,18 @@ public class ServersFragment extends MinimoteFragment
 
         setToolbarTitle("Servers");
 
+        autoConnectIfNeeded();
+//        Bundle extras = getArguments();
+//        if (extras != null) {
+//            Log.v(TAG, "There are arguments");
+//            boolean autoConnect = extras.getBoolean(AUTO_CONNECT_EXTRA, AUTO_CONNECT_EXTRA_DEFAULT_VALUE);
+//            Log.v(TAG, "Auto connect in args: " + autoConnect);
+//            if (autoConnect) {
+//                autoConnectIfNeeded();
+//            }
+//        }
 
-        Bundle extras = getArguments();
-        if (extras != null) {
-            boolean autoConnect = extras.getBoolean(AUTO_CONNECT_EXTRA, AUTO_CONNECT_EXTRA_DEFAULT_VALUE);
-            if (autoConnect) {
-                autoConnectIfNeeded();
-            }
-        }
-
+        AppLifecycleManager.getInstance().addListener(sAutoConnectTracker);
         return view;
     }
 
@@ -386,9 +409,9 @@ public class ServersFragment extends MinimoteFragment
     }
 
     private void autoConnectIfNeeded() {
-        if (sAutoConnectTried.compareAndSet(false, true)) {
+        if (sAutoConnectTracker.useAutoConnect()) {
             Log.d(TAG, "Auto connect required, " +
-                    "checking if there is a server with the auto-connect flag... [" + hashCode() + "], lock is: [" + sAutoConnectTried.hashCode() + "]");
+                    "checking if there is a server with the auto-connect flag... [" + hashCode() + "]");
             DB.getInstance().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -416,6 +439,8 @@ public class ServersFragment extends MinimoteFragment
 
                 }
             });
+        } else {
+            Log.v(TAG, "Auto connect already tried");
         }
     }
 
