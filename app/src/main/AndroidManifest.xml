@@ -21,9 +21,7 @@
         </activity>
         <activity android:name=".ui.server.EditServerFragment" />
         <activity android:name=".ui.servers.ServersFragment" />
-        <activity
-            android:name=".ui.controller.MinimoteControllerFragment"
-            />
+        <activity android:name=".ui.controller.MinimoteControllerFragment" />
         <!--        <activity android:name=".controller.ControllerActivity" />-->
         <!--            android:windowSoftInputMode="adjustPan"-->
     </application>

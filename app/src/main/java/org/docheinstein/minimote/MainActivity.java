@@ -2,6 +2,7 @@ package org.docheinstein.minimote;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 
 import androidx.annotation.NonNull;
@@ -28,13 +29,15 @@ import org.docheinstein.minimote.utils.ResUtils;
 
 public class MainActivity
         extends AppCompatActivity
-        implements MinimoteFragment.ResultListener {
+        implements MinimoteFragment.MinimoteFragmentOwner {
 
     private static final String TAG = "MainActivity";
 
     private NavController uiNavigationFragment;
     private DrawerLayout uiDrawer;
     private NavigationView uiNavigationView;
+
+    private Fragment mTopFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +83,9 @@ public class MainActivity
                     case R.id.uiHotkeysMenuItem:
                         navigateFromDrawerTo(NavDirections.actionHotkeys());
                         break;
+                    case R.id.uiHwHotkeysMenuItem:
+                        navigateFromDrawerTo(NavDirections.actionHwHotkeys());
+                        break;
                     case R.id.uiSettingsMenuItem:
                         navigateFromDrawerTo(NavDirections.actionSettings());
                         break;
@@ -89,9 +95,22 @@ public class MainActivity
             }
         });
 
+
         DB.init(this);
     }
 
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+//        super.onKeyDown(keyCode, event);
+        Log.d(TAG, "Key down: " + keyCode);
+
+        if (mTopFragment instanceof MinimoteControllerFragment) {
+            return ((MinimoteControllerFragment) mTopFragment).onMediaButton(keyCode, event);
+        }
+
+        return false;
+    }
 
     @Override
     public void onFragmentResult(Fragment from, Bundle args) {
@@ -103,6 +122,13 @@ public class MainActivity
                 showConnectionWithServerFailedAlert(args.getString(MinimoteControllerFragment.RESULT_KEY_SERVER_ADDRESS));
             }
         }
+    }
+
+    @Override
+    public void onFragmentResumed(Fragment f) {
+        Log.d(TAG, "Fragment resumed: " + f);
+
+        mTopFragment = f;
     }
 
     private void showConnectionWithServerFailedAlert(String serverAddress) {

@@ -201,8 +201,8 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
 
         setToolbarTitle(
                 getCurrentFragmentMode() == FragmentMode.Edit ?
-                        "Edit hotkey" :
-                        "Add hotkey");
+                        "Edit graphical hotkey" :
+                        "Add graphical hotkey");
 
         return view;
     }

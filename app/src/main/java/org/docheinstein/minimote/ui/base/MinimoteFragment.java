@@ -9,6 +9,7 @@ import android.view.inputmethod.InputMethodManager;
 
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 
@@ -19,11 +20,20 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public abstract class MinimoteFragment extends Fragment {
 
-    public interface ResultListener {
+    public interface MinimoteFragmentOwner {
         void onFragmentResult(Fragment from, Bundle args);
+        void onFragmentResumed(Fragment f);
     }
 
     private static final String TAG = "MinimoteFragment";
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        FragmentActivity a = requireActivity();
+        if (a instanceof MinimoteFragmentOwner)
+            ((MinimoteFragmentOwner) a).onFragmentResumed(this);
+    }
 
     @Override
     public void onDestroyView() {
@@ -48,9 +58,9 @@ public abstract class MinimoteFragment extends Fragment {
 
         if (args != null) {
             Activity parentActivity = requireActivity();
-            if (parentActivity instanceof ResultListener) {
+            if (parentActivity instanceof MinimoteFragmentOwner) {
                 Log.v(TAG, "Providing fragment result to nav controller");
-                ((ResultListener) parentActivity).onFragmentResult(this, args);
+                ((MinimoteFragmentOwner) parentActivity).onFragmentResult(this, args);
             }
         }
 

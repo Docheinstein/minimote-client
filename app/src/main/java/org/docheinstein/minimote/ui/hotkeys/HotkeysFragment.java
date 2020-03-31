@@ -63,7 +63,7 @@ public class HotkeysFragment extends MinimoteFragment {
         uiHotkeysContainer.setBackgroundColor(SettingsManager.hotkeysOverlayColor(getContext()));
 
         DB.getInstance().hotkeys().getAllObservable().observe(
-                this, new Observer<List<HotkeyEntity>>() {
+                getViewLifecycleOwner(), new Observer<List<HotkeyEntity>>() {
                     @Override
                     public void onChanged(List<HotkeyEntity> hotkeys) {
                         Log.v(TAG, "onChanged() for hotkeys");

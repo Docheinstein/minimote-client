@@ -9,6 +9,8 @@ import androidx.room.RoomDatabase;
 
 import org.docheinstein.minimote.database.hotkey.HotkeyEntity;
 import org.docheinstein.minimote.database.hotkey.HotkeyEntityDao;
+import org.docheinstein.minimote.database.hwhotkey.HwHotkeyEntity;
+import org.docheinstein.minimote.database.hwhotkey.HwHotkeyEntityDao;
 import org.docheinstein.minimote.database.server.MinimoteServerEntity;
 import org.docheinstein.minimote.database.server.MinimoteServerEntityDao;
 
@@ -20,9 +22,10 @@ import java.util.concurrent.Future;
 @Database(
         entities = {
                 MinimoteServerEntity.class,
-                HotkeyEntity.class
+                HotkeyEntity.class,
+                HwHotkeyEntity.class
         },
-        version = 15,
+        version = 17,
         exportSchema = false
 )
 public abstract class DB extends RoomDatabase {
@@ -62,4 +65,5 @@ public abstract class DB extends RoomDatabase {
 
     public abstract MinimoteServerEntityDao servers();
     public abstract HotkeyEntityDao hotkeys();
+    public abstract HwHotkeyEntityDao hwhotkeys();
 }

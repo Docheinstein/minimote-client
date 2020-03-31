@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="12dp">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="12dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/edit_hwhotkey_button"
+                    android:textSize="26sp"
+                    android:textStyle="bold" />
+
+            <Spinner
+                    android:id="@+id/uiButton"
+                    style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                    android:layout_width="match_parent"
+
+                    android:layout_height="wrap_content"
+                    android:entries="@array/buttons" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/edit_hwhotkey_modifiers"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <CheckBox
+                android:id="@+id/uiModifierCtrl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_ctrl"
+                android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/uiModifierAlt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_alt"
+                android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/uiModifierAltGr"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_altgr"
+                android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/uiModifierShift"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_shift"
+                android:textSize="18sp" />
+
+            <CheckBox
+                android:id="@+id/uiModifierMeta"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/edit_hotkey_meta"
+                android:textSize="18sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="@string/edit_hotkey_key"
+                android:textSize="26sp"
+                android:textStyle="bold" />
+
+            <Spinner
+                android:id="@+id/uiKey"
+                style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                android:layout_width="match_parent"
+
+                android:layout_height="wrap_content"
+                android:entries="@array/keys" />
+
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

@@ -15,6 +15,12 @@
         app:showAsAction="ifRoom" />
 
     <item
+        android:id="@+id/uiHwHotkeysMenuItem"
+        android:icon="@drawable/hwhotkeys"
+        android:title="@string/hwhotkeys"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/uiSettingsMenuItem"
         android:icon="@drawable/settings"
         android:title="@string/settings"

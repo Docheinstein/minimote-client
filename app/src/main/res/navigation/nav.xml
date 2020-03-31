@@ -42,9 +42,18 @@
             app:argType="integer" />
     </fragment>
     <fragment
+        android:id="@+id/naviHwHotkeys"
+        android:name="org.docheinstein.minimote.ui.hwhotkeys.HwHotkeysFragment"
+        android:label="Physical hotkeys">
+        <action
+            android:id="@+id/actionAddEditHwHotkey"
+            app:destination="@id/naviHwHotkey" />
+    </fragment>
+
+    <fragment
         android:id="@+id/naviHotkeys"
         android:name="org.docheinstein.minimote.ui.hotkeys.HotkeysFragment"
-        android:label="Hotkeys">
+        android:label="Graphical hotkeys">
         <action
             android:id="@+id/actionAddEditHotkey"
             app:destination="@id/naviHotkey" />
@@ -53,11 +62,21 @@
     <fragment
         android:id="@+id/naviHotkey"
         android:name="org.docheinstein.minimote.ui.hotkey.AddEditHotkeyFragment"
-        android:label="Hotkey">
+        android:label="Graphical hotkey">
         <argument
             android:name="hotkeyId"
             app:argType="integer" />
     </fragment>
+
+    <fragment
+        android:id="@+id/naviHwHotkey"
+        android:name="org.docheinstein.minimote.ui.hwhotkey.AddEditHwHotkeyFragment"
+        android:label="Physical hotkey">
+        <argument
+            android:name="hwhotkeyId"
+            app:argType="integer" />
+    </fragment>
+
     <fragment
         android:id="@+id/naviSettings"
         android:name="org.docheinstein.minimote.ui.settings.SettingsFragment"
@@ -75,6 +94,11 @@
     <action
         android:id="@+id/actionHotkeys"
         app:destination="@id/naviHotkeys"
+        app:enterAnim="@anim/nav_default_enter_anim"
+        app:exitAnim="@anim/nav_default_exit_anim" />
+    <action
+        android:id="@+id/actionHwHotkeys"
+        app:destination="@id/naviHwHotkeys"
         app:enterAnim="@anim/nav_default_enter_anim"
         app:exitAnim="@anim/nav_default_exit_anim" />
 </navigation>

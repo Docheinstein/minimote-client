@@ -24,6 +24,8 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
 import org.docheinstein.minimote.R;
+import org.docheinstein.minimote.buttons.ButtonType;
+import org.docheinstein.minimote.database.hwhotkey.HwHotkeyEntity;
 import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.connection.MinimoteConnection;
 import org.docheinstein.minimote.ui.controller.keyboard.AutoHideEditText;
@@ -421,9 +423,69 @@ public class MinimoteControllerFragment extends MinimoteFragment
         return true;
     }
 
+    // Really bad design
+    public boolean onMediaButton(int keycode, KeyEvent event) {
+        Log.v(TAG, "onMediaButton(): " + keycode);
+
+        if (event == null) {
+            Log.w(TAG, "Null event?");
+            return false;
+        }
+
+        final ButtonType bt = ButtonType.fromAndroidKeyCode(keycode);
+
+        if (bt == null) {
+            Log.w(TAG, "Unknown button type");
+            return false;
+        }
+
+        DB.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                HwHotkeyEntity hwhotkey = DB.getInstance().hwhotkeys().getByButton(bt.toString());
+
+                if (hwhotkey == null) {
+                    Log.d(TAG, "Nothing bound to this media button");
+                    return;
+                }
+
+                MinimoteKeyType baseKey = MinimoteKeyType.fromString(hwhotkey.key);
+                if (baseKey == null)
+                    return;
+
+
+                List<MinimoteKeyType> keys = new ArrayList<>();
+                if (hwhotkey.shift)
+                    keys.add(MinimoteKeyType.ShiftLeft);
+                if (hwhotkey.ctrl)
+                    keys.add(MinimoteKeyType.CtrlLeft);
+                if (hwhotkey.alt)
+                    keys.add(MinimoteKeyType.AltLeft);
+                if (hwhotkey.altgr)
+                    keys.add(MinimoteKeyType.AltGr);
+                if (hwhotkey.meta)
+                    keys.add(MinimoteKeyType.MetaLeft);
+
+                keys.add(baseKey);
+
+                final MinimotePacket packet = MinimotePacketFactory.newHotkey(keys);
+                doNetworkOperation(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "Handling bound media button: sending packet");
+                        mConnection.sendTcp(packet);
+                    }
+                });
+
+            }
+        });
+
+        return true;
+    }
+
     private void fillHotkeysOverlay() {
         DB.getInstance().hotkeys().getAllObservable().observe(
-            this,
+            getViewLifecycleOwner(),
             new Observer<List<HotkeyEntity>>() {
                 @Override
                 public void onChanged(List<HotkeyEntity> hotkeys) {

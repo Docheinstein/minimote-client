@@ -30,6 +30,13 @@
     <string name="edit_hotkey_text_size">Text size</string>
     <string name="edit_hotkey_padding">Padding</string>
 
+    <!-- Hw hotkey -->
+    <string name="edit_hwhotkey_button">Button</string>
+    <string name="edit_hwhotkey_modifiers">Modifiers</string>
+    <string name="edit_hwhotkey_key">Key</string>
+
+    <string name="hwhotkey_item_label_placeholder">UP</string>
+
     <!-- Add server -->
     <string name="add_server_address_placeholder">192.168.1.102</string>
     <string name="add_server_port_placeholder">50500</string>
@@ -74,7 +81,8 @@
     <!-- Drawer -->
     <string name="settings">Settings</string>
     <string name="servers">Servers</string>
-    <string name="hotkeys">Hotkeys</string>
+    <string name="hotkeys">Graphical hotkeys</string>
+    <string name="hwhotkeys">Physical hotkeys</string>
 
     <!-- Settings -->
     <string name="settings_show_touchpad_buttons">Show touchpad buttons</string>
