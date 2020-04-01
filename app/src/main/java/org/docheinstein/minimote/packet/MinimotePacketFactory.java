@@ -177,7 +177,17 @@ public class MinimotePacketFactory {
         return new MinimotePacket(MinimotePacketType.DiscoverRequest);
     }
 
-    public static MinimotePacket newPing() {
-        return new MinimotePacket(MinimotePacketType.Ping);
+    public static MinimotePacket newPing(int port) {
+        final int PAYLOAD_SIZE = 2;
+
+        // | PORT (16 bit) |
+        byte[] payload = new byte[PAYLOAD_SIZE];
+        ByteUtils.put16(port, payload);
+
+        return new MinimotePacket(
+                MinimotePacket.HEADER_SIZE + PAYLOAD_SIZE,
+                MinimotePacketType.Ping,
+                payload
+        );
     }
 }

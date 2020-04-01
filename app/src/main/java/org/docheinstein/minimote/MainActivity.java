@@ -130,9 +130,13 @@ public class MainActivity
         Log.d(TAG, "Received fragment result");
         if (from instanceof MinimoteControllerFragment) {
             int connectivityResult = args.getInt(MinimoteControllerFragment.RESULT_KEY_CONNECTIVITY);
-            if (connectivityResult == MinimoteControllerFragment.RESULT_VALUE_CONNECTIVITY_ERROR) {
+
+            if (connectivityResult < MinimoteControllerFragment.RESULT_VALUE_CONNECTIVITY_OK) {
                 Log.w(TAG, "Connection error occurred");
-                showConnectionWithServerFailedAlert(args.getString(MinimoteControllerFragment.RESULT_KEY_SERVER_ADDRESS));
+
+                if (connectivityResult == MinimoteControllerFragment.RESULT_VALUE_CONNECTIVITY_ERROR) {
+                    showConnectionWithServerFailedAlert(args.getString(MinimoteControllerFragment.RESULT_KEY_SERVER_ADDRESS));
+                }
             }
         }
     }

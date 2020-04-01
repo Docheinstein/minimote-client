@@ -1,22 +1,32 @@
 package org.docheinstein.minimote.packet;
 
+import android.util.Log;
+
 import org.docheinstein.minimote.utils.ByteUtils;
 
 public class MinimotePacket {
 
+    private static final String TAG = "MinimotePacket";
+
     public static final int HEADER_SIZE = 8;
 
     public static MinimotePacket fromData(byte[] data) {
-        if (data == null)
+        if (data == null) {
+            Log.e(TAG, "fromData(): invalid data");
             return null;
+        }
 
-        if (data.length < HEADER_SIZE)
+        if (data.length < HEADER_SIZE) {
+            Log.e(TAG, "fromData(): data.length < HEADER_SIZE");
             return null;
+        }
 
         Long header = ByteUtils.toLong(data);
 
-        if (header == null)
+        if (header == null) {
+            Log.e(TAG, "fromData(): header == null");
             return null;
+        }
 
         int packetLength = (int) ((header >>> 56) & 0xFF);
         MinimotePacketType packetType = MinimotePacketType.fromValue((int) ((header >>> 48) & 0xFF));

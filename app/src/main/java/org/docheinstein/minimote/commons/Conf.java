@@ -2,7 +2,7 @@ package org.docheinstein.minimote.commons;
 
 public class Conf {
     public static class Connection {
-        public static int DEFAULT_PORT = 50500;
+        public static int DEFAULT_DISCOVER_PORT = 50500;
     }
 
     public static class Discovery {

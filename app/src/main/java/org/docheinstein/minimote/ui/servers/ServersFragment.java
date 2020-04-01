@@ -108,7 +108,7 @@ public class ServersFragment
             final EditText uiServerAddress = dialogView.findViewById(R.id.uiAddress);
             final EditText uiServerPort = dialogView.findViewById(R.id.uiPort);
 
-            uiServerPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
+            uiServerPort.setText(String.valueOf(Conf.Connection.DEFAULT_DISCOVER_PORT));
 
             AlertDialog.Builder builder = new AlertDialog.Builder(Objects.requireNonNull(getActivity()));
             return builder
@@ -122,7 +122,7 @@ public class ServersFragment
                             final Integer serverPort =
                                     IntUtils.parseString(
                                             uiServerPort.getText().toString(),
-                                            Conf.Connection.DEFAULT_PORT
+                                            Conf.Connection.DEFAULT_DISCOVER_PORT
                                     );
 
                             if (!(new NetUtils.AddressPort(serverAddress, serverPort).isValid())) {
@@ -477,7 +477,7 @@ public class ServersFragment
         LayoutInflater inflater = activity.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.discover_dialog, null);
         final EditText uiDiscoverPort = dialogView.findViewById(R.id.uiDiscoverPort);
-        uiDiscoverPort.setText(String.valueOf(Conf.Connection.DEFAULT_PORT));
+        uiDiscoverPort.setText(String.valueOf(Conf.Connection.DEFAULT_DISCOVER_PORT));
 
         new AlertDialog.Builder(activity)
             .setView(dialogView)
@@ -487,7 +487,7 @@ public class ServersFragment
                     Log.v(TAG, "User confirmed discovery, starting it...");
                     startDiscovery(IntUtils.parseString(
                             uiDiscoverPort.getText().toString(),
-                            Conf.Connection.DEFAULT_PORT)
+                            Conf.Connection.DEFAULT_DISCOVER_PORT)
                     );
                 }
             })

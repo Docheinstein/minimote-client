@@ -24,7 +24,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
-import org.docheinstein.minimote.MainActivity;
 import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.buttons.ButtonType;
 import org.docheinstein.minimote.buttons.ButtonsCatcher;
@@ -70,6 +69,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
 
     public static final int RESULT_VALUE_CONNECTIVITY_OK = 1;
     public static final int RESULT_VALUE_CONNECTIVITY_ERROR = -1;
+    public static final int RESULT_VALUE_CONNECTIVITY_ERROR_SILENT = -2;
 
     private static final String TAG = "ControllerActivity";
 
@@ -226,7 +226,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
             mConnection = new MinimoteConnection(mServerAddress, mServerPort, mServerPort);
         }
 
-        if (!mConnection.isConnected()) {
+        if (!mConnection.shouldBeConnected()) {
             Log.d(TAG, "Minimote connection is not connected yet, doing so");
 
             doNetworkOperation(new Runnable() {
@@ -252,10 +252,19 @@ public class MinimoteControllerFragment extends MinimoteFragment
             // Ensure that connection is really established
             Log.d(TAG, "Minimote connection should be connected, checking so");
 
+
             doNetworkOperation(new Runnable() {
                 @Override
                 public void run() {
-                    mConnection.sendTcp(MinimotePacketFactory.newPing());
+                    if (mConnection.ensureConnected(1000)) {
+                        Log.d(TAG, "Connection is really up");
+                    } else {
+                        Log.w(TAG, "Connection is down, quitting here");
+                        // Quit silent for avoid alert in case the auto-reconnect is already started
+                        // (which leads to the alert while the connection is already established)
+                        finishWithResultOnUiThread(RESULT_VALUE_CONNECTIVITY_ERROR_SILENT);
+
+                    }
                 }
             });
         }
@@ -572,7 +581,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
     }
 
     private void updateUI() {
-        boolean isConnected = mConnection != null && mConnection.isConnected();
+        boolean isConnected = mConnection != null && mConnection.shouldBeConnected();
 
         ViewUtils.setVisibility(uiConnectionLoader, !isConnected);
         ViewUtils.setVisibility(uiConnectionOverlay, !isConnected);
@@ -659,12 +668,24 @@ public class MinimoteControllerFragment extends MinimoteFragment
         });
     }
 
+    private void finishWithResultOnUiThread(final int value) {
+        ui(new Runnable() {
+            @Override
+            public void run() {
+                finishWithResult(value);
+            }
+        });
+    }
+
     private void finishWithResult(boolean success) {
+        finishWithResult(success ?
+                RESULT_VALUE_CONNECTIVITY_OK :
+                RESULT_VALUE_CONNECTIVITY_ERROR);
+    }
+
+    private void finishWithResult(int value) {
         Bundle args = new Bundle();
-        args.putInt(RESULT_KEY_CONNECTIVITY,
-                success ?
-                        RESULT_VALUE_CONNECTIVITY_OK :
-                        RESULT_VALUE_CONNECTIVITY_ERROR);
+        args.putInt(RESULT_KEY_CONNECTIVITY, value);
         args.putString(RESULT_KEY_SERVER_ADDRESS, mServerAddress);
         goBack(args);
     }

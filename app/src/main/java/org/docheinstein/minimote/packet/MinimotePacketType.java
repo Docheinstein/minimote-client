@@ -67,6 +67,10 @@ public enum MinimotePacketType {
                 return KeyClick;
             case 0x11:
                 return Hotkey;
+            case 0xFC:
+                return Ping;
+            case 0xFD:
+                return Pong;
             case 0xFE:
                 return DiscoverRequest;
             case 0xFF:
