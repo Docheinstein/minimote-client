@@ -2,82 +2,84 @@ package org.docheinstein.minimote.keys;
 
 import android.view.KeyEvent;
 
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
 public enum MinimoteKeyType {
-    Up(0x00),
-    Down(0x01),
-    Left(0x02),
-    Right(0x03),
-    VolumeUp(0x04),
-    VolumeDown(0x05),
-    VolumeMute(0x06),
-    AltLeft(0x07),
-    AltRight(0x08),
-    ShiftLeft(0x09),
-    ShiftRight(0x0A),
-    CtrlLeft(0x0B),
-    CtrlRight(0x0C),
-    MetaLeft(0x0D),
-    MetaRight(0x0E),
-    AltGr(0x0F),
-    CapsLock(0x10),
-    Esc(0x11),
-    Tab(0x12),
-    Space(0x13),
-    Enter(0x14),
-    Backspace(0x15),
-    Canc(0x16),
-    Print(0x17),
-    F1(0x18),
-    F2(0x19),
-    F3(0x1A),
-    F4(0x1B),
-    F5(0x1C),
-    F6(0x1D),
-    F7(0x1E),
-    F8(0x1F),
-    F9(0x20),
-    F10(0x21),
-    F11(0x22),
-    F12(0x23),
-    Zero(0x24),
-    One(0x25),
-    Two(0x26),
-    Three(0x27),
-    Four(0x28),
-    Five(0x29),
-    Six(0x2A),
-    Seven(0x2B),
-    Eight(0x2C),
-    Nine(0x2D),
-    A(0x2E),
-    B(0x2F),
-    C(0x30),
-    D(0x31),
-    E(0x32),
-    F(0x33),
-    G(0x34),
-    H(0x35),
-    I(0x36),
-    J(0x37),
-    K(0x38),
-    L(0x39),
-    M(0x3A),
-    N(0x3B),
-    O(0x3C),
-    P(0x3D),
-    Q(0x3E),
-    R(0x3F),
-    S(0x40),
-    T(0x41),
-    U(0x42),
-    V(0x43),
-    W(0x44),
-    X(0x45),
-    Y(0x46),
-    Z(0x47),
+    Up(0x00, "0"),
+    Down(0x01, "Down"),
+    Left(0x02, "Left"),
+    Right(0x03, "Right"),
+    VolumeUp(0x04, "VolumeUp"),
+    VolumeDown(0x05, "VolumeDown"),
+    VolumeMute(0x06, "VolumeMute"),
+    AltLeft(0x07, "AltLeft"),
+    AltRight(0x08, "AltRight"),
+    ShiftLeft(0x09, "ShiftLeft"),
+    ShiftRight(0x0A, "ShiftRight"),
+    CtrlLeft(0x0B, "CtrlLeft"),
+    CtrlRight(0x0C, "CtrlRight"),
+    MetaLeft(0x0D, "MetaLeft"),
+    MetaRight(0x0E, "MetaRight"),
+    AltGr(0x0F, "AltGr"),
+    CapsLock(0x10, "CapsLock"),
+    Esc(0x11, "Esc"),
+    Tab(0x12, "Tab"),
+    Space(0x13, "Space"),
+    Enter(0x14, "Enter"),
+    Backspace(0x15, "Backspace"),
+    Canc(0x16, "Canc"),
+    Print(0x17, "Print"),
+    F1(0x18, "F1"),
+    F2(0x19, "F2"),
+    F3(0x1A, "F3"),
+    F4(0x1B, "F4"),
+    F5(0x1C, "F5"),
+    F6(0x1D, "F6"),
+    F7(0x1E, "F7"),
+    F8(0x1F, "F8"),
+    F9(0x20, "F9"),
+    F10(0x21, "F10"),
+    F11(0x22, "F11"),
+    F12(0x23, "F12"),
+    Zero(0x24, "0"),
+    One(0x25, "1"),
+    Two(0x26, "2"),
+    Three(0x27, "3"),
+    Four(0x28, "4"),
+    Five(0x29, "5"),
+    Six(0x2A, "6"),
+    Seven(0x2B, "7"),
+    Eight(0x2C, "8"),
+    Nine(0x2D, "9"),
+    A(0x2E, "A"),
+    B(0x2F, "B"),
+    C(0x30, "C"),
+    D(0x31, "D"),
+    E(0x32, "E"),
+    F(0x33, "F"),
+    G(0x34, "G"),
+    H(0x35, "H"),
+    I(0x36, "I"),
+    J(0x37, "J"),
+    K(0x38, "K"),
+    L(0x39, "L"),
+    M(0x3A, "M"),
+    N(0x3B, "N"),
+    O(0x3C, "O"),
+    P(0x3D, "P"),
+    Q(0x3E, "Q"),
+    R(0x3F, "R"),
+    S(0x40, "S"),
+    T(0x41, "T"),
+    U(0x42, "U"),
+    V(0x43, "V"),
+    W(0x44, "W"),
+    X(0x45, "X"),
+    Y(0x46, "Y"),
+    Z(0x47, "Z"),
     ;
 
     private static Map<String, MinimoteKeyType> STRING_TO_KEYTYPE = new HashMap<>();
@@ -251,13 +253,20 @@ public enum MinimoteKeyType {
     }
 
     private int mValue;
-    
-    MinimoteKeyType(int value) {
+    private String mStrValue;
+
+    MinimoteKeyType(int value, String strValue) {
         mValue = value;
+        mStrValue = strValue;
     }
 
     public int getValue() {
         return mValue;
     }
 
+    @NonNull
+    @Override
+    public String toString() {
+        return mStrValue;
+    }
 }

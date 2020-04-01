@@ -22,18 +22,9 @@ public abstract class MinimoteFragment extends Fragment {
 
     public interface MinimoteFragmentOwner {
         void onFragmentResult(Fragment from, Bundle args);
-        void onFragmentResumed(Fragment f);
     }
 
     private static final String TAG = "MinimoteFragment";
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        FragmentActivity a = requireActivity();
-        if (a instanceof MinimoteFragmentOwner)
-            ((MinimoteFragmentOwner) a).onFragmentResumed(this);
-    }
 
     @Override
     public void onDestroyView() {

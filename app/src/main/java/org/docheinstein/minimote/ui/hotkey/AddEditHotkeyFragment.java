@@ -182,14 +182,19 @@ public class AddEditHotkeyFragment extends MinimoteFragment {
                         HotkeyEntity h = DB.getInstance().hotkeys().getById(mEditHotkeyId);
                         if (h == null)
                             return;
-                        Log.d(TAG, "Editing valid hotkey, updating UI");
+                        Log.d(TAG, "Editing valid hotkey, updating UI\n" + h);
                         uiHotkeyName.setText(h.name);
                         uiModifierAlt.setChecked(h.alt);
                         uiModifierAltGr.setChecked(h.altgr);
                         uiModifierCtrl.setChecked(h.ctrl);
                         uiModifierMeta.setChecked(h.meta);
                         uiModifierShift.setChecked(h.shift);
-                        uiKey.setSelection(((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(h.key));
+
+                        MinimoteKeyType keyType = MinimoteKeyType.fromString(h.key);
+                        int pos = ((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(keyType.toString());
+                        Log.d(TAG, "Key pos:" + pos);
+                        uiKey.setSelection(pos);
+
                         uiTextSize.setProgress(h.textSize / TEXT_SIZE_SLIDER_FACTOR);
                         uiPadding.setProgress(h.padding / PADDING_SLIDER_FACTOR);
                         if (mDeleteHotkeyMenuButton != null)

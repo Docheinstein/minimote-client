@@ -177,4 +177,7 @@ public class MinimotePacketFactory {
         return new MinimotePacket(MinimotePacketType.DiscoverRequest);
     }
 
+    public static MinimotePacket newPing() {
+        return new MinimotePacket(MinimotePacketType.Ping);
+    }
 }

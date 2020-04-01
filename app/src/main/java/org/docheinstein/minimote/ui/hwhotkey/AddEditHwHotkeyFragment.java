@@ -93,8 +93,16 @@ public class AddEditHwHotkeyFragment extends MinimoteFragment {
                         uiModifierCtrl.setChecked(h.ctrl);
                         uiModifierMeta.setChecked(h.meta);
                         uiModifierShift.setChecked(h.shift);
-                        uiKey.setSelection(((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(h.key));
-                        uiButton.setSelection(((ArrayAdapter<String>) uiButton.getAdapter()).getPosition(h.button));
+
+                        MinimoteKeyType keyType = MinimoteKeyType.fromString(h.key);
+                        int keyPos = ((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(keyType.toString());
+                        Log.d(TAG, "Key pos:" + keyPos);
+                        uiKey.setSelection(keyPos);
+
+                        ButtonType buttonType = ButtonType.fromString(h.button);
+                        int buttonPos = ((ArrayAdapter<String>) uiKey.getAdapter()).getPosition(buttonType.toString());
+                        uiButton.setSelection(buttonPos);
+
                         if (mDeleteHwHotkeyMenuButton != null)
                             mDeleteHwHotkeyMenuButton.setVisible(true);
                     }

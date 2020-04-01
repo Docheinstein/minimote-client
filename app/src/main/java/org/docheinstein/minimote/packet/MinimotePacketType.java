@@ -20,6 +20,8 @@ public enum MinimotePacketType {
     KeyClick(0x10),
     Hotkey(0x11),
 
+    Ping(0xFC),
+    Pong(0xFD),
     DiscoverRequest(0xFE),
     DiscoverResponse(0xFF);
 

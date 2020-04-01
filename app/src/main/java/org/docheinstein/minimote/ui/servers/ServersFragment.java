@@ -76,8 +76,13 @@ public class ServersFragment
         public void onAppStop() {
             // Reset auto connect flag so that the next time
             // the auto connection will be tried again
-            Log.v(TAG, "Resetting auto connect flag since app has been stopped");
+            Log.v(TAG, "Resetting auto connect flag since app has been destroyed");
             mAutoConnectTried.set(false);
+        }
+
+        @Override
+        public void onAppDestroy() {
+            Log.v(TAG, "onAppDestroy: doing nothing");
         }
 
         boolean useAutoConnect() {

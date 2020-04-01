@@ -1,6 +1,7 @@
 package org.docheinstein.minimote.ui.controller;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.GradientDrawable;
@@ -23,8 +24,11 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 
+import org.docheinstein.minimote.MainActivity;
 import org.docheinstein.minimote.R;
 import org.docheinstein.minimote.buttons.ButtonType;
+import org.docheinstein.minimote.buttons.ButtonsCatcher;
+import org.docheinstein.minimote.buttons.ButtonsListener;
 import org.docheinstein.minimote.database.hwhotkey.HwHotkeyEntity;
 import org.docheinstein.minimote.ui.base.MinimoteFragment;
 import org.docheinstein.minimote.connection.MinimoteConnection;
@@ -56,7 +60,7 @@ import static org.docheinstein.minimote.commons.Conf.Controller.MIN_SCROLL_POS_D
 
 public class MinimoteControllerFragment extends MinimoteFragment
         implements
-        TouchpadView.TouchpadListener, TextWatcher, View.OnKeyListener {
+        TouchpadView.TouchpadListener, TextWatcher, View.OnKeyListener, ButtonsListener {
 
     public static final String RESULT_KEY_CONNECTIVITY =
             "minimote_controller_fragment_result_connectivity";
@@ -100,6 +104,7 @@ public class MinimoteControllerFragment extends MinimoteFragment
     // Scroll handling
     private long mLastScrollTime = 0;
     private int mLastScrollY = 0;
+
 
     @SuppressLint("ClickableViewAccessibility")
     @Nullable
@@ -203,6 +208,11 @@ public class MinimoteControllerFragment extends MinimoteFragment
         super.onResume();
         Log.v(TAG, "MinimoteControllerFragment.onResume()");
 
+        Activity parentActivity = requireActivity();
+        if (parentActivity instanceof ButtonsCatcher) {
+            ((ButtonsCatcher) parentActivity).addButtonsListener(this);
+        }
+
         updateUI();
 
         if (!StringUtils.isValid(mServerAddress)) {
@@ -238,6 +248,29 @@ public class MinimoteControllerFragment extends MinimoteFragment
                     });
                 }
             });
+        } else {
+            // Ensure that connection is really established
+            Log.d(TAG, "Minimote connection should be connected, checking so");
+
+            doNetworkOperation(new Runnable() {
+                @Override
+                public void run() {
+                    mConnection.sendTcp(MinimotePacketFactory.newPing());
+                }
+            });
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        Log.v(TAG, "MinimoteControllerFragment.onPause()");
+
+        Activity parentActivity = requireActivity();
+        if (parentActivity instanceof ButtonsCatcher) {
+            ((ButtonsCatcher) parentActivity).removeButtonsListener(this);
         }
     }
 
@@ -419,66 +452,6 @@ public class MinimoteControllerFragment extends MinimoteFragment
                 }
             });
         }
-
-        return true;
-    }
-
-    // Really bad design
-    public boolean onMediaButton(int keycode, KeyEvent event) {
-        Log.v(TAG, "onMediaButton(): " + keycode);
-
-        if (event == null) {
-            Log.w(TAG, "Null event?");
-            return false;
-        }
-
-        final ButtonType bt = ButtonType.fromAndroidKeyCode(keycode);
-
-        if (bt == null) {
-            Log.w(TAG, "Unknown button type");
-            return false;
-        }
-
-        DB.getInstance().execute(new Runnable() {
-            @Override
-            public void run() {
-                HwHotkeyEntity hwhotkey = DB.getInstance().hwhotkeys().getByButton(bt.toString());
-
-                if (hwhotkey == null) {
-                    Log.d(TAG, "Nothing bound to this media button");
-                    return;
-                }
-
-                MinimoteKeyType baseKey = MinimoteKeyType.fromString(hwhotkey.key);
-                if (baseKey == null)
-                    return;
-
-
-                List<MinimoteKeyType> keys = new ArrayList<>();
-                if (hwhotkey.shift)
-                    keys.add(MinimoteKeyType.ShiftLeft);
-                if (hwhotkey.ctrl)
-                    keys.add(MinimoteKeyType.CtrlLeft);
-                if (hwhotkey.alt)
-                    keys.add(MinimoteKeyType.AltLeft);
-                if (hwhotkey.altgr)
-                    keys.add(MinimoteKeyType.AltGr);
-                if (hwhotkey.meta)
-                    keys.add(MinimoteKeyType.MetaLeft);
-
-                keys.add(baseKey);
-
-                final MinimotePacket packet = MinimotePacketFactory.newHotkey(keys);
-                doNetworkOperation(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "Handling bound media button: sending packet");
-                        mConnection.sendTcp(packet);
-                    }
-                });
-
-            }
-        });
 
         return true;
     }
@@ -760,5 +733,65 @@ public class MinimoteControllerFragment extends MinimoteFragment
                 return false;
             }
         });
+    }
+
+    @Override
+    public boolean onButtonPressed(int keycode, KeyEvent event) {
+        Log.v(TAG, "onMediaButton(): " + keycode);
+
+        if (event == null) {
+            Log.w(TAG, "Null event?");
+            return false;
+        }
+
+        final ButtonType bt = ButtonType.fromAndroidKeyCode(keycode);
+
+        if (bt == null) {
+            Log.w(TAG, "Unknown button type");
+            return false;
+        }
+
+        DB.getInstance().execute(new Runnable() {
+            @Override
+            public void run() {
+                HwHotkeyEntity hwhotkey = DB.getInstance().hwhotkeys().getByButton(bt.toString());
+
+                if (hwhotkey == null) {
+                    Log.d(TAG, "Nothing bound to this media button");
+                    return;
+                }
+
+                MinimoteKeyType baseKey = MinimoteKeyType.fromString(hwhotkey.key);
+                if (baseKey == null)
+                    return;
+
+
+                List<MinimoteKeyType> keys = new ArrayList<>();
+                if (hwhotkey.shift)
+                    keys.add(MinimoteKeyType.ShiftLeft);
+                if (hwhotkey.ctrl)
+                    keys.add(MinimoteKeyType.CtrlLeft);
+                if (hwhotkey.alt)
+                    keys.add(MinimoteKeyType.AltLeft);
+                if (hwhotkey.altgr)
+                    keys.add(MinimoteKeyType.AltGr);
+                if (hwhotkey.meta)
+                    keys.add(MinimoteKeyType.MetaLeft);
+
+                keys.add(baseKey);
+
+                final MinimotePacket packet = MinimotePacketFactory.newHotkey(keys);
+                doNetworkOperation(new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d(TAG, "Handling bound media button: sending packet");
+                        mConnection.sendTcp(packet);
+                    }
+                });
+
+            }
+        });
+
+        return true;
     }
 }

@@ -20,16 +20,23 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.navigation.NavigationView;
 
+import org.docheinstein.minimote.buttons.ButtonsCatcher;
+import org.docheinstein.minimote.buttons.ButtonsListener;
 import org.docheinstein.minimote.lifecycle.AppLifecycleManager;
-import org.docheinstein.minimote.ui.base.MinimoteFragment;
+import org.docheinstein.minimote.ui.base.MinimoteFragment.MinimoteFragmentOwner;
 import org.docheinstein.minimote.ui.controller.MinimoteControllerFragment;
 import org.docheinstein.minimote.database.DB;
 import org.docheinstein.minimote.utils.ResUtils;
 
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+
 
 public class MainActivity
         extends AppCompatActivity
-        implements MinimoteFragment.MinimoteFragmentOwner {
+        implements
+        MinimoteFragmentOwner,
+        ButtonsCatcher {
 
     private static final String TAG = "MainActivity";
 
@@ -37,7 +44,7 @@ public class MainActivity
     private DrawerLayout uiDrawer;
     private NavigationView uiNavigationView;
 
-    private Fragment mTopFragment;
+    private Set<ButtonsListener> mButtonsListeners = new CopyOnWriteArraySet<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -102,14 +109,20 @@ public class MainActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-//        super.onKeyDown(keyCode, event);
         Log.d(TAG, "Key down: " + keyCode);
 
-        if (mTopFragment instanceof MinimoteControllerFragment) {
-            return ((MinimoteControllerFragment) mTopFragment).onMediaButton(keyCode, event);
+        boolean handled = false;
+
+        for (ButtonsListener l : mButtonsListeners) {
+            handled |= l.onButtonPressed(keyCode, event);
         }
 
-        return false;
+        Log.d(TAG, "Event handeld: " + handled);
+
+        if (handled)
+            return true;
+        else
+            return super.onKeyDown(keyCode, event);
     }
 
     @Override
@@ -125,10 +138,15 @@ public class MainActivity
     }
 
     @Override
-    public void onFragmentResumed(Fragment f) {
-        Log.d(TAG, "Fragment resumed: " + f);
+    public void addButtonsListener(ButtonsListener btl) {
+        mButtonsListeners.add(btl);
 
-        mTopFragment = f;
+    }
+
+    @Override
+    public void removeButtonsListener(ButtonsListener btl) {
+        mButtonsListeners.remove(btl);
+
     }
 
     private void showConnectionWithServerFailedAlert(String serverAddress) {

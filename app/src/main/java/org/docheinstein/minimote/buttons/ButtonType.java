@@ -31,8 +31,6 @@ public enum ButtonType {
         return null;
     }
 
-
-
     private int mValue;
 
     ButtonType(int value) {

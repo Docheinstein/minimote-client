@@ -14,6 +14,7 @@ public class AppLifecycleManager implements LifecycleObserver {
     public interface AppLifecycleListener {
         void onAppStart();
         void onAppStop();
+        void onAppDestroy();
     }
 
     private static final AppLifecycleManager INSTANCE = new AppLifecycleManager();
@@ -46,4 +47,13 @@ public class AppLifecycleManager implements LifecycleObserver {
         for (AppLifecycleListener l : mListeners)
             l.onAppStop();
     }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    public void onLifecycleDestroy() {
+        Log.v(TAG, "onAppDestroy");
+        for (AppLifecycleListener l : mListeners)
+            l.onAppStop();
+    }
+
+
 }
