@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#FF018786</color>
+    <color name="primary">#2196F3</color>
+    <color name="fab_background_primary">#2196F3</color>
+    <color name="fab_background_secondary">#E37622</color>
+    <color name="fab_text">#E9E9E9</color>
 
     <color name="purple_200">#FFBB86FC</color>
     <color name="purple_500">#FF6200EE</color>

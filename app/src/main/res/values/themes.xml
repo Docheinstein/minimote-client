@@ -2,4 +2,13 @@
     <style name="Theme.Minimote" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
     </style>
+
+    <style name="Theme.Minimote.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.Minimote.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <style name="Theme.Minimote.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 </resources>

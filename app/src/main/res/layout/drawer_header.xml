@@ -16,17 +16,18 @@
         android:id="@+id/imageView"
         android:layout_width="@dimen/nav_header_icon"
         android:layout_height="wrap_content"
-        android:contentDescription="@string/nav_header_desc"
+        android:contentDescription="@string/nav_header_description"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         app:srcCompat="@drawable/minimote" />
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:text="Minimote"
-        android:textSize="36sp" />
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/app_name"
+            android:textColor="#FFFFFF"
+            android:textSize="@dimen/nav_header_text" />
 
 </LinearLayout>

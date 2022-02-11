@@ -13,7 +13,7 @@ class ServersViewModel : ViewModel() {
     val text: LiveData<String> = _text
 
     init {
-        debug("ServersViewModel.init")
+        debug("ServersViewModel.init()")
     }
 
 }
