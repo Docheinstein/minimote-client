@@ -28,7 +28,7 @@
         </com.google.android.material.appbar.AppBarLayout>
 
         <fragment
-            android:id="@+id/uiNavigationFragment"
+            android:id="@+id/navigation_controller"
             android:name="androidx.navigation.fragment.NavHostFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -36,7 +36,7 @@
     </LinearLayout>
 
     <com.google.android.material.navigation.NavigationView
-            android:id="@+id/uiNavigationView"
+            android:id="@+id/navigation_view"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="start"

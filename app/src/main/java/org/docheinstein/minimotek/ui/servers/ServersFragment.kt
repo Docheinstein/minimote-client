@@ -11,6 +11,7 @@ import android.widget.EditText
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.util.NetUtils
@@ -25,6 +26,7 @@ class ServersFragment : Fragment() {
 
     // Add server dialog
 
+    /*
     class AddServerDialog : DialogFragment() {
         companion object {
             const val FRAGMENT_TAG = "add_server_fragment"
@@ -93,14 +95,13 @@ class ServersFragment : Fragment() {
                 .show();
         }
     }
+    */
 
 
-    override fun onCreateView(
-            inflater: LayoutInflater,
-            container: ViewGroup?,
-            savedInstanceState: Bundle?
-    ): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View? {
         debug("ServersFragment.onCreateView()")
+
         val root = inflater.inflate(R.layout.servers, container, false)
         root.findViewById<FloatingActionButton>(R.id.uiAddServerButton).setOnClickListener {
             debug("uiAddServerButton.onClick()")
@@ -116,8 +117,7 @@ class ServersFragment : Fragment() {
     }
 
     private fun handleAddServerButtonClick() {
-        val addServerDialog = AddServerDialog()
-        addServerDialog.show(requireActivity().supportFragmentManager, AddServerDialog.FRAGMENT_TAG)
+        findNavController().navigate(ServersFragmentDirections.actionAddEditServer(null))
     }
 
     private fun handleDiscoverServersButtonClick() {

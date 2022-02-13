@@ -12,6 +12,7 @@
     <string name="address">Address</string>
     <string name="port">Port</string>
     <string name="hostname">Hostname</string>
+    <string name="description">Description</string>
 
     <!-- Edit hotkey -->
     <string name="edit_hotkey_preview">Preview</string>
@@ -37,24 +38,20 @@
 
     <string name="hwhotkey_item_label_placeholder">UP</string>
 
-    <!-- Add server -->
-    <string name="add_server_address_placeholder">192.168.1.102</string>
-    <string name="add_server_port_placeholder">50500</string>
+    <!-- Server -->
+    <string name="server_address_placeholder">192.168.1.102</string>
+    <string name="server_port_placeholder">50500</string>
+
+<!--    <string name="edit_server_display_name">Display name</string>-->
+<!--    <string name="edit_server_address">@string/address</string>-->
+<!--    <string name="edit_server_port">@string/port</string>-->
+<!--    <string name="edit_server_hostname">@string/hostname</string>-->
+<!--    <string name="edit_server_hostname_placeholder">arch-linux</string>-->
+<!--    <string name="edit_server_connect_automatically">Connect automatically</string>-->
 
     <!-- Discover -->
     <string name="discover_port_placeholder">50500</string>
 
-    <!-- Edit server -->
-    <string name="edit_server_display_name">Display name</string>
-    <string name="edit_server_address">@string/address</string>
-    <string name="edit_server_port">@string/port</string>
-    <string name="edit_server_hostname">@string/hostname</string>
-
-    <string name="edit_server_display_name_placeholder">Name (e.g. Debian 9)</string>
-    <string name="edit_server_address_placeholder">192.168.1.102</string>
-    <string name="edit_server_port_placeholder">50500</string>
-    <string name="edit_server_hostname_placeholder">arch-linux</string>
-    <string name="edit_server_connect_automatically">Connect automatically</string>
 
     <!-- Server list item -->
     <string name="server_list_item_display_name_placeholder">arch-linux</string>
