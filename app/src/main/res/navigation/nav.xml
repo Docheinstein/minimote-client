@@ -9,7 +9,7 @@
             android:id="@+id/nav_servers"
             android:name="org.docheinstein.minimotek.ui.servers.ServersFragment"
             android:label="@string/servers"
-            tools:layout="@layout/servers" >
+            tools:layout="@layout/server_list" >
         <action
             android:id="@+id/action_add_edit_server"
             app:destination="@id/nav_add_edit_server"

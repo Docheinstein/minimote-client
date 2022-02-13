@@ -8,6 +8,7 @@ const val TABLE_NAME = "server"
 const val COLUMN_ID = "id"
 const val COLUMN_ADDRESS = "address"
 const val COLUMN_PORT = "port"
+const val COLUMN_NAME = "name"
 
 @Entity(tableName = TABLE_NAME)
 data class Server(
@@ -20,7 +21,10 @@ data class Server(
 
     @ColumnInfo(name = COLUMN_PORT)
     val port: Int,
+
+    @ColumnInfo(name = COLUMN_NAME)
+    val name: String?,
 ) {
-    constructor(address: String, port: Int) :
-            this(0, address, port)
+    constructor(address: String, port: Int, name: String?) :
+            this(0, address, port, name)
 }

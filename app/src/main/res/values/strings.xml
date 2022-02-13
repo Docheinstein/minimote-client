@@ -12,7 +12,7 @@
     <string name="address">Address</string>
     <string name="port">Port</string>
     <string name="hostname">Hostname</string>
-    <string name="description">Description</string>
+    <string name="name">Name</string>
 
     <!-- Edit hotkey -->
     <string name="edit_hotkey_preview">Preview</string>
@@ -41,6 +41,7 @@
     <!-- Server -->
     <string name="server_address_placeholder">192.168.1.102</string>
     <string name="server_port_placeholder">50500</string>
+    <string name="server_optional_params">Optional</string>
 
 <!--    <string name="edit_server_display_name">Display name</string>-->
 <!--    <string name="edit_server_address">@string/address</string>-->
@@ -111,5 +112,10 @@
     <string name="nav_header_description">Header</string>
     <string name="discover_servers_button_description">Discover servers</string>
     <string name="add_server_button_description">Add server</string>
+
+    <string name="add_edit_server_invalid_address">Invalid address</string>
+    <string name="add_edit_server_invalid_port">Invalid port</string>
+
+
 
 </resources>

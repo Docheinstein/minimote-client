@@ -6,8 +6,22 @@
         android:layout_height="match_parent"
         tools:context=".ui.servers.ServersFragment">
 
+    <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/server_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:itemCount="2"
+                tools:listitem="@layout/server_list_item" />
+    </LinearLayout>
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/uiDiscoverServersButton"
+            android:id="@+id/discover_servers_button"
             android:layout_width="56dp"
             android:layout_height="0dp"
             android:layout_marginEnd="@dimen/fab_margin"
@@ -22,7 +36,7 @@
             app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/uiAddServerButton"
+            android:id="@+id/add_server_button"
             android:layout_width="56dp"
             android:layout_height="0dp"
             android:layout_marginStart="@dimen/fab_margin"

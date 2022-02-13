@@ -1,5 +1,6 @@
 package org.docheinstein.minimotek.data.server
 
+import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
@@ -10,7 +11,7 @@ interface ServerDao {
     suspend fun get(id: Int): Server
 
     @Query("SELECT * FROM $TABLE_NAME")
-    suspend fun getAll(): List<Server>
+    fun getAll(): LiveData<List<Server>>
 
     @Insert
     suspend fun add(server: Server): Long

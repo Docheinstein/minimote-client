@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp">
+
+    <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="@dimen/server_list_icon"
+            android:layout_height="@dimen/server_list_icon"
+            android:layout_gravity="center_vertical"
+            android:tint="@color/mid_gray"
+            app:srcCompat="@drawable/host" />
+
+    <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginStart="12dp"
+            android:layout_weight="1"
+            android:gravity="center_vertical"
+            android:orientation="vertical">
+
+        <TextView
+                android:id="@+id/name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mid_gray"
+                android:textSize="@dimen/server_list_item_primary_text"
+                android:textStyle="bold"
+                tools:text="arch-linux" />
+
+        <TextView
+                android:id="@+id/address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/mid_gray"
+                android:textSize="@dimen/server_list_item_secondary_text"
+                tools:text="192.168.1.102" />
+    </LinearLayout>
+
+</LinearLayout>

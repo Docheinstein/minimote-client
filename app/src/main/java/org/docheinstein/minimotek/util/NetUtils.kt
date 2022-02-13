@@ -1,29 +1,19 @@
 package org.docheinstein.minimotek.util
 
+private val IP_REGEX = Regex("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$")
+
 object NetUtils {
+    // https://stackoverflow.com/questions/5284147/validating-ipv4-addresses-with-regexp
     fun isValidIPv4(ip: String): Boolean {
-        if (ip.isEmpty() || ip.length > 15)
-            return false
-
-        val quartets = ip.split(Regex("\\."))
-
-        if (quartets.size != 4)
-            return false
-
-        for (quartet in quartets) {
-            try {
-                val q = quartet.toInt()
-                if (q < 0 || q > 255)
-                    return false
-            } catch (e: NumberFormatException) {
-                return false
-            }
-        }
-
-        return true
+        return IP_REGEX.matches(ip)
     }
 
-    fun isValidPort(port: Int): Boolean {
-        return port in 0..65535
+    fun isValidPort(port: String): Boolean {
+        return try {
+            val portInt = port.toInt()
+            portInt in 0..65535
+        } catch (e: NumberFormatException) {
+            false
+        }
     }
 }
