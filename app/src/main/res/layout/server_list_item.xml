@@ -4,14 +4,17 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp">
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?android:attr/selectableItemBackground">
 
     <ImageView
             android:id="@+id/imageView2"
             android:layout_width="@dimen/server_list_icon"
             android:layout_height="@dimen/server_list_icon"
             android:layout_gravity="center_vertical"
-            android:tint="@color/mid_gray"
+            app:tint="@color/mid_gray"
             app:srcCompat="@drawable/host" />
 
     <LinearLayout

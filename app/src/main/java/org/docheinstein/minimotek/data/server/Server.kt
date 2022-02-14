@@ -27,4 +27,8 @@ data class Server(
 ) {
     constructor(address: String, port: Int, name: String?) :
             this(0, address, port, name)
+
+    override fun toString(): String {
+        return "(id=$id, address=$address, port=$port, name=$name)"
+    }
 }

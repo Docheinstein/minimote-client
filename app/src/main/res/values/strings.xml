@@ -113,8 +113,22 @@
     <string name="discover_servers_button_description">Discover servers</string>
     <string name="add_server_button_description">Add server</string>
 
+
     <string name="add_edit_server_invalid_address">Invalid address</string>
     <string name="add_edit_server_invalid_port">Invalid port</string>
+
+    <string name="server_list_item_context_menu_title">Choose an action</string>
+    <string name="server_list_item_context_menu_delete">Delete</string>
+    <string name="server_list_item_context_menu_edit">Edit</string>
+
+    <string name="toolbar_title_add_server">Add server</string>
+    <string name="toolbar_title_edit_server">Edit server</string>
+
+    <string name="delete_server_confirmation_title">Remove server?</string>
+    <string name="delete_server_confirmation_message">Do you really want to remove the server?</string>
+
+
+
 
 
 

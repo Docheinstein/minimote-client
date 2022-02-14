@@ -3,6 +3,7 @@
         package="org.docheinstein.minimotek">
 
     <application
+            android:name=".MinimoteApp"
             android:allowBackup="true"
             android:icon="@mipmap/minimote_icon"
             android:roundIcon="@mipmap/minimote_icon_round"

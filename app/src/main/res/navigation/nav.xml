@@ -19,10 +19,13 @@
     <fragment
             android:id="@+id/nav_add_edit_server"
             android:name="org.docheinstein.minimotek.ui.server.AddEditServerFragment"
+            android:label="{title}"
             tools:layout="@layout/add_edit_server">
         <argument
             android:name="serverId"
-            app:nullable="true"
+            app:argType="long" />
+        <argument
+            android:name="title"
             app:argType="string" />
     </fragment>
 

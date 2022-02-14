@@ -1,6 +1,7 @@
 package org.docheinstein.minimotek.ui.server
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -11,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.docheinstein.minimotek.R
@@ -22,11 +24,11 @@ import org.docheinstein.minimotek.util.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 
+@AndroidEntryPoint
 class AddEditServerFragment : Fragment() {
 
     private val viewModel: AddEditServerViewModel by viewModels()
     private lateinit var binding: AddEditServerBinding
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,34 +37,33 @@ class AddEditServerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        debug("AddEditServerFragment.onCreateView()")
-
         val serverId = AddEditServerFragmentArgs.fromBundle(requireArguments()).serverId
-
-        debug("ServerId = $serverId")
+        debug("AddEditServerFragment.onCreateView() for serverId = $serverId")
 
         binding = AddEditServerBinding.inflate(inflater, container, false)
 
-        // Title
-        val toolbarTitle: String
-        if (serverId != null) {
-            toolbarTitle = "Edit server"
-            viewModel.purpose = AddEditServerViewModel.Purpose.EDIT
-        } else {
-            toolbarTitle = "Add server"
-            viewModel.purpose = AddEditServerViewModel.Purpose.ADD
-        }
-        requireActivity().findViewById<Toolbar>(R.id.toolbar).title = toolbarTitle
-
+        // Listen to fields change for real-time validation
         binding.address.addAfterTextChangedListener { validateAddress() }
         binding.port.addAfterTextChangedListener { validatePort()}
+
+        // Listen to server details retrieval (in edit mode)
+        viewModel.server.observe(viewLifecycleOwner) { server ->
+            if (server != null) {
+                debug("LiveData sent update for valid server, eventually updating UI")
+                if (binding.address.text?.toString()?.isEmpty() == true) {
+                    binding.address.setText(server.address)
+                    binding.port.setText(server.port.toString())
+                    binding.name.setText(server.name)
+                }
+            }
+        }
 
         return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.add_edit_server, menu)
-        if (viewModel.purpose == AddEditServerViewModel.Purpose.ADD) {
+        if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
             menu.removeItem(R.id.delete_menu_item)
         }
     }
@@ -86,7 +87,7 @@ class AddEditServerFragment : Fragment() {
 
         val address = binding.address.text.toString()
         val port = binding.port.text.toString()
-        val name = if (!binding.name.text.toString().isEmpty()) binding.name.text.toString() else null
+        val name = binding.name.text.toString().ifEmpty { null }
         debug("Address: $address")
         debug("Port: $port")
 
@@ -106,20 +107,27 @@ class AddEditServerFragment : Fragment() {
 
         // Address and port are valid, actually add/update the server
         debug("Valid address and port, proceeding")
-        val server = Server(address, portInt, name)
-        runBlocking { lifecycleScope.launch {
-            // TODO: use ServerRepository
-            DB.getInstance(requireContext()).serverDao().add(server)
-            requireActivity().runOnUiThread {
-                findNavController().navigateUp()
-            }
-        }}
-
-        return
+        if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
+            viewModel.insert(address, portInt, name)
+        } else {
+            val s = Server(viewModel.server.value!!.id, address, portInt, name)
+            viewModel.update(address, portInt, name)
+        }
+        
+        findNavController().navigateUp()
     }
 
     private fun handleDeleteButton() {
-
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.delete_server_confirmation_title)
+            .setMessage(R.string.delete_server_confirmation_message)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // actually delete
+                viewModel.delete()
+                findNavController().navigateUp()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun updateUI() {
