@@ -36,16 +36,14 @@ class AddEditServerViewModel @Inject constructor(
         mode = if (serverId != SERVER_ID_NONE) Mode.EDIT else Mode.ADD
     }
 
-    fun insert(addr: String, port: Int, name: String?) {
+    fun insert(s: Server) {
         viewModelScope.launch {
-            val s = Server(addr, port, name)
             serverRepository.add(s)
         }
     }
 
-    fun update(addr: String, port: Int, name: String?) {
+    fun update(s: Server) {
         viewModelScope.launch {
-            val s = Server(server.value!!.id, addr, port, name)
             serverRepository.update(s)
         }
     }

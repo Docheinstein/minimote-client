@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId "org.docheinstein.minimotek"
-        minSdkVersion 23
+        minSdkVersion 26
         targetSdkVersion 31
         versionCode 1
         versionName "1.0"
@@ -53,6 +53,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-fragment-ktx:2.4.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation "io.ktor:ktor-network:1.3.2"
 
     // room
     implementation "androidx.room:room-runtime:2.4.1"

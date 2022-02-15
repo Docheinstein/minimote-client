@@ -108,10 +108,11 @@ class AddEditServerFragment : Fragment() {
         // Address and port are valid, actually add/update the server
         debug("Valid address and port, proceeding")
         if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
-            viewModel.insert(address, portInt, name)
+            val s = Server(address, portInt, name)
+            viewModel.insert(s)
         } else {
             val s = Server(viewModel.server.value!!.id, address, portInt, name)
-            viewModel.update(address, portInt, name)
+            viewModel.update(s)
         }
         
         findNavController().navigateUp()

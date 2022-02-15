@@ -6,9 +6,11 @@
         <entry key="../../../../../layout/custom_preview.xml" value="0.20277777777777778" />
         <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_server_dialog.xml" value="0.10280797101449275" />
+        <entry key="app/src/main/res/layout/discover_dialog.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/discovery_dialog.xml" value="0.33" />
         <entry key="app/src/main/res/layout/main.xml" value="0.22" />
         <entry key="app/src/main/res/layout/server_item.xml" value="0.20208333333333334" />
-        <entry key="app/src/main/res/layout/server_list.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/server_list.xml" value="0.22" />
         <entry key="app/src/main/res/layout/server_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/servers.xml" value="0.33" />
         <entry key="app/src/main/res/menu/add_edit_server.xml" value="0.13125" />

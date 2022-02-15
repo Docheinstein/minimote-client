@@ -6,18 +6,17 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.data.server.Server
-import org.docheinstein.minimotek.databinding.AddEditServerBinding
 import org.docheinstein.minimotek.databinding.ServerListItemBinding
 import org.docheinstein.minimotek.databinding.ServerListBinding
-import org.docheinstein.minimotek.ui.server.AddEditServerFragment
+import org.docheinstein.minimotek.ui.discover.DiscoverDialogFragment
 import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.warn
-import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 
 @AndroidEntryPoint
@@ -27,23 +26,28 @@ class ServersFragment : Fragment() {
     private lateinit var binding: ServerListBinding
     private lateinit var adapter: ServerListAdapter
 
-    class ServerListAdapter() : RecyclerView.Adapter<ServerListAdapter.ServerListItemViewHolder>() {
-        private var servers: List<Server>? = null
+
+    private class ServerDiffCallback : DiffUtil.ItemCallback<Server>() {
+        override fun areItemsTheSame(oldItem: Server, newItem: Server): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: Server, newItem: Server): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+    class ServerListAdapter() : ListAdapter<Server, ServerListAdapter.ServerListItemViewHolder>(ServerDiffCallback()) {
         var selection: Int? = null
             private set
 
-        class ServerListItemViewHolder(val binding: ServerListItemBinding) :
+        class ServerListItemViewHolder(
+            val binding: ServerListItemBinding) :
             RecyclerView.ViewHolder(binding.root),
-            View.OnClickListener,
             View.OnCreateContextMenuListener {
                 init {
-//                    binding.root.setOnClickListener(this)
                     binding.root.setOnCreateContextMenuListener(this)
                 }
-
-            override fun onClick(view: View?) {
-
-            }
 
             override fun onCreateContextMenu(
                 menu: ContextMenu?,
@@ -58,48 +62,34 @@ class ServersFragment : Fragment() {
             }
         }
 
-        fun setServers(servers: List<Server>) {
-            this.servers = servers
-            notifyDataSetChanged()
-        }
-
         fun getSelectedServer(): Server? {
-            if (servers != null && selection != null && selection!! < servers!!.size)
-                return servers!![selection!!]
-            return null
+            return if (selection != null) currentList[selection!!] else null
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ServerListItemViewHolder {
             return ServerListItemViewHolder(
                 ServerListItemBinding.inflate(
-                    LayoutInflater.from(parent.context), parent, false))
+                    LayoutInflater.from(parent.context), parent, false),
+
+            )
         }
 
         override fun onBindViewHolder(holder: ServerListItemViewHolder, position: Int) {
-            if (servers == null) {
-                warn("Null server list")
-                return
-            }
-            val server = servers!![position]
+            val server = getItem(position)
             holder.binding.address.text = server.address
             holder.binding.name.text = server.name ?: server.address
+            holder.binding.root.setOnClickListener {
+                debug("Click on server $server")
+            }
             holder.binding.root.setOnLongClickListener {
                 selection = holder.adapterPosition
                 debug("Selection changed to position $selection")
                 false
             }
         }
-
-        override fun getItemCount(): Int {
-            debug("Server list size = ${servers?.size}")
-            if (servers == null) {
-                warn("Null server list")
-                return 0
-            }
-
-            return servers!!.size
-        }
     }
+
+
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
@@ -124,7 +114,7 @@ class ServersFragment : Fragment() {
         // Observe server list changes
         viewModel.servers.observe(viewLifecycleOwner) { servers ->
             debug("Server list update detected (new size = ${servers.size}, changing UI accordingly")
-            adapter.setServers(servers)
+            adapter.submitList(servers)
         }
 
         return binding.root
@@ -172,6 +162,8 @@ class ServersFragment : Fragment() {
     }
 
     private fun handleDiscoverServersButtonClick() {
-
+        val discoveryFragment = DiscoverDialogFragment()
+        discoveryFragment.show(childFragmentManager)
+//        discoveryFragment.startDiscovery()
     }
 }
