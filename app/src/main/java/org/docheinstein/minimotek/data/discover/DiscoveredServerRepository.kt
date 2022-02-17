@@ -2,48 +2,103 @@ package org.docheinstein.minimotek.data.discover
 
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.coroutineScope
+import io.ktor.util.date.*
+import io.ktor.util.network.*
+import io.ktor.utils.io.core.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.*
+import org.docheinstein.minimotek.DISCOVER_PORT
+import org.docheinstein.minimotek.extensions.toBinaryString
+import org.docheinstein.minimotek.minimote.MinimotePacket
+import org.docheinstein.minimotek.minimote.MinimotePacketFactory
+import org.docheinstein.minimotek.minimote.MinimotePacketType
 import org.docheinstein.minimotek.util.debug
-import java.net.DatagramSocket
-import java.net.InetAddress
+import org.docheinstein.minimotek.util.error
+import org.docheinstein.minimotek.util.warn
 import java.net.InetSocketAddress
-import java.net.SocketAddress
-import java.nio.channels.AsynchronousSocketChannel
-import java.util.concurrent.Executors
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToLong
-import kotlin.random.Random
 
 @Singleton
 class DiscoveredServerRepository @Inject constructor() {
-    fun discoverServers(): Flow<DiscoveredServer> {
-//        val socket = AsynchronousSocketChannel.open()
-//        val dest = InetSocketAddress("192.168.1.106", 8080)
-        return flow {
-//            socket.connect(dest).runCatching {  }
 
-            debug("DiscoveredServerRepository.discoverServers")
-            for (i in 0..10) {
-                val sx = DiscoveredServer("192.168.1.110", 50500, "stefano-$i")
-                emit(sx)
-//                delay((2000 * Random.nextFloat()).roundToLong())
-                delay(1000)
+    suspend fun discoverServers(): Flow<DiscoveredServer> {
+        /*
+         * The discover mechanism is the following:
+         * 1. Broadcast UDP packet on port 50500 (send to 255.255.255.255)
+         * 2. Listen to UDP responses on port 50500 (bound to local IPs: 0.0.0.0)
+         *
+         * The same UDP socket is used for sending and receiving.
+         */
+        debug("DiscoveredServerRepository.discoverServers")
+        try {
+            val socketBuilder = aSocket(ActorSelectorManager(Dispatchers.IO))
+
+            debug("Creating UDP socket")
+            val udpSocket = socketBuilder
+                .udp()
+                // listen to responses on local IP(s)
+                .bind(InetSocketAddress("0.0.0.0", DISCOVER_PORT)) {
+                reuseAddress = true
+                broadcast = true
             }
-//            val exec = Executors.newCachedThreadPool()
-//            val selector = ActorSelectorManager(exec.asCoroutineDispatcher())
-//            val udpSocketBuilder = aSocket(selector).udp()
-//            val udpSocket = udpSocketBuilder.bind(InetSocketAddress("0.0.0.0", 50500))
-//
-//            debug("Listening...")
-//            while (true) {
-//                val datagram = udpSocket.receive()
-//                debug("Received datagram")
-//            }
+
+            // Build discover request packet
+            val discoverRequestMinimotePacket = MinimotePacketFactory.newDiscoverRequest()
+            val discoverRequestPacket =
+                BytePacketBuilder(discoverRequestMinimotePacket.packetLength).also { builder ->
+                    builder.writeFully(discoverRequestMinimotePacket.toBytes())
+            }.build()
+
+            val discoverRequestPacketDatagram = Datagram(discoverRequestPacket, InetSocketAddress("255.255.255.255", DISCOVER_PORT))
+
+//            delay(2000)
+//            throw Exception("Unknown error")
+
+            // Broadcast request
+            debug("Sending discover request...$discoverRequestMinimotePacket")
+            udpSocket.send(discoverRequestPacketDatagram)
+
+            // Listen for responses
+            debug("Waiting for discover responses...")
+            return udpSocket.incoming.receiveAsFlow().transform { response ->
+                    debug("Received response from ${response.address} at t=${getTimeMillis()}")
+                    val responseBytes = response.packet.readBytes()
+                    debug("Response is (length=${responseBytes.size}): " +
+                            responseBytes.toBinaryString(pretty = true)
+                    )
+
+                    val discoverResponseMinimotePacket: MinimotePacket
+                    try {
+                        discoverResponseMinimotePacket = MinimotePacket.fromData(responseBytes)
+                    } catch (e: MinimotePacket.InvalidPacketException) {
+                        warn("Failed to parse packet: ${e.message}")
+                        return@transform
+                    }
+
+                    debug("Received packet is legal")
+
+                    if (discoverResponseMinimotePacket.packetType != MinimotePacketType.DiscoverResponse) {
+                        warn("Received packet is not a DiscoverResponse, ignoring it")
+                        return@transform
+                    }
+
+                    debug("Received packet is a valid discover response")
+
+                    val hostname = String(discoverResponseMinimotePacket.payload)
+                    val discoveredServer = DiscoveredServer(
+                        response.address.hostname,
+                        response.address.port,
+                        hostname
+                    )
+                    debug("Discovered host: $discoveredServer")
+
+                    emit(discoveredServer)
+            }
+        } catch (e: Exception) {
+            error("Exception: ${e.message}")
+            throw e
         }
     }
 }

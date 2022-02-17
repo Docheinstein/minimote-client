@@ -128,13 +128,12 @@
     <string name="delete_server_confirmation_message">Do you really want to remove the server?</string>
 
 
-    <string name="discovery_title">Discovery</string>
-    <string name="discovery_discovering">Discovering…</string>
-    <string name="discovery_helper">Click on a server to add it</string>
-
-
-
-
+    <string name="discover_title">Discovery</string>
+    <string name="discover_discovering">Discovering…</string>
+    <string name="discover_completed">Discover completed</string>
+    <string name="discover_helper">Click on a server to add it</string>
+    <string name="discover_failed">Discover failed</string>
+    <string name="discovered_server_added">Discovered server has been added</string>
 
 
 </resources>

@@ -2,14 +2,17 @@ package org.docheinstein.minimotek.ui.servers
 
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.data.server.Server
 import org.docheinstein.minimotek.data.server.ServerRepository
+import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
 @HiltViewModel
 class ServersViewModel @Inject constructor(
+    @IOGlobalScope private val ioScope: CoroutineScope,
     private val serverRepository: ServerRepository
 ) : ViewModel() {
 
@@ -20,7 +23,7 @@ class ServersViewModel @Inject constructor(
     }
 
    fun delete(server: Server) {
-        viewModelScope.launch {
+        ioScope.launch {
             serverRepository.delete(server)
         }
     }

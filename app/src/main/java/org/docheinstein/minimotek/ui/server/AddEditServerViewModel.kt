@@ -2,16 +2,17 @@ package org.docheinstein.minimotek.ui.server
 
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import org.docheinstein.minimotek.data.server.Server
 import org.docheinstein.minimotek.data.server.ServerRepository
+import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
 @HiltViewModel
 class AddEditServerViewModel @Inject constructor(
+    @IOGlobalScope private val ioScope: CoroutineScope,
     private val serverRepository: ServerRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -37,19 +38,20 @@ class AddEditServerViewModel @Inject constructor(
     }
 
     fun insert(s: Server) {
-        viewModelScope.launch {
+        ioScope.launch {
+            debug("insert.launch executed on thread = ${Thread.currentThread()}")
             serverRepository.add(s)
         }
     }
 
     fun update(s: Server) {
-        viewModelScope.launch {
+        ioScope.launch {
             serverRepository.update(s)
         }
     }
 
     fun delete() {
-        viewModelScope.launch {
+        ioScope.launch {
             serverRepository.delete(server.value!!)
         }
     }

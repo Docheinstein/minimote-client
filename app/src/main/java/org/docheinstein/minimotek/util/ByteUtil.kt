@@ -1,0 +1,1 @@
+package org.docheinstein.minimotek.util

@@ -19,8 +19,8 @@ import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.data.DB
 import org.docheinstein.minimotek.data.server.Server
 import org.docheinstein.minimotek.databinding.AddEditServerBinding
+import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.NetUtils
-import org.docheinstein.minimotek.util.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 

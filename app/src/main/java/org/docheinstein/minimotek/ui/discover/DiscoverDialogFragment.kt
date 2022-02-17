@@ -1,30 +1,27 @@
 package org.docheinstein.minimotek.ui.discover
 
+import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.core.view.isVisible
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.data.discover.DiscoveredServer
-import org.docheinstein.minimotek.data.server.Server
 import org.docheinstein.minimotek.databinding.DiscoverDialogBinding
 import org.docheinstein.minimotek.databinding.ServerListItemBinding
+import org.docheinstein.minimotek.util.TAG
 import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.info
-import org.docheinstein.minimotek.util.warn
 
 @AndroidEntryPoint
 class DiscoverDialogFragment : DialogFragment() {
-
-    companion object {
-        const val TAG = "DiscoveryDialogFragment"
-    }
 
     private val viewModel: DiscoverDialogViewModel by viewModels()
     private lateinit var binding: DiscoverDialogBinding
@@ -34,16 +31,12 @@ class DiscoverDialogFragment : DialogFragment() {
         override fun areItemsTheSame(oldItem: DiscoveredServer, newItem: DiscoveredServer): Boolean {
             return  oldItem.address == newItem.address &&
                     oldItem.port == newItem.port &&
-                    oldItem.name == newItem.name
+                    oldItem.hostname == newItem.hostname
         }
 
         override fun areContentsTheSame(oldItem: DiscoveredServer, newItem: DiscoveredServer): Boolean {
             return oldItem == newItem
         }
-    }
-
-    private interface DiscoveredServerListListener {
-        fun onAddServer(server: DiscoveredServer)
     }
 
     private class DiscoveredServerListAdapter(private val addServerCallback: (DiscoveredServer) -> Unit) :
@@ -64,7 +57,7 @@ class DiscoverDialogFragment : DialogFragment() {
         override fun onBindViewHolder(holder: DiscoveredServerListItemViewHolder, position: Int) {
             val server = getItem(position)
             holder.binding.address.text = server.address
-            holder.binding.name.text = server.name ?: server.address
+            holder.binding.name.text = server.hostname
             holder.binding.root.setOnClickListener {
                 debug("Click on server $server")
                 addServerCallback.invoke(server)
@@ -87,6 +80,10 @@ class DiscoverDialogFragment : DialogFragment() {
         adapter = DiscoveredServerListAdapter { server ->
             debug("Server to add $server")
             viewModel.insert(server)
+            Snackbar.make(
+                requireParentFragment().requireView(),
+                "${server.hostname} has been added", Snackbar.LENGTH_LONG
+            ).show()
             dismiss()
         }
         binding.discoveredServerList.adapter = adapter
@@ -99,6 +96,24 @@ class DiscoverDialogFragment : DialogFragment() {
             debug("New discovered servers list: $servers")
             adapter.submitList(servers.toList())
             debug("Current size = ${adapter.currentList.size} ${adapter.itemCount}")
+        }
+
+        viewModel.discoverError.observe(viewLifecycleOwner) { errorString ->
+            if (errorString != null) {
+                debug("Error occurred while discovering: $errorString")
+                AlertDialog.Builder(requireActivity())
+                    .setTitle(R.string.discover_failed)
+                    .setMessage("Failure reason: $errorString")
+                    .setPositiveButton(R.string.ok, null)
+                    .show()
+                dismiss()
+            }
+        }
+
+        viewModel.isDiscovering.observe(viewLifecycleOwner) { isDiscovering ->
+            // Update UI when discover is completed
+            binding.progressText.setText(if (isDiscovering) R.string.discover_discovering else R.string.discover_completed)
+            binding.progressBar.isVisible = isDiscovering
         }
 
         return binding.root
