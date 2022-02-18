@@ -29,8 +29,11 @@ fun Any.info(message: String) {
     Log.i(TAG, formatLogMessage(message))
 }
 
-fun Any.error(message: String) {
-    Log.e(TAG, formatLogMessage(message))
+fun Any.error(message: String, throwable: Throwable? = null) {
+    if (throwable != null)
+        Log.e(TAG, formatLogMessage(message), throwable)
+    else
+        Log.e(TAG, formatLogMessage(message))
 }
 
 fun Any.warn(message: String) {
@@ -40,6 +43,11 @@ fun Any.warn(message: String) {
 fun Any.debug(message: String) {
     if (BuildConfig.DEBUG)
         Log.d(TAG, formatLogMessage(message))
+}
+
+fun Any.verbose(message: String) {
+    if (BuildConfig.DEBUG)
+        Log.v(TAG, formatLogMessage(message))
 }
 
 // EXCEPTIONS

@@ -82,7 +82,8 @@ class DiscoverDialogFragment : DialogFragment() {
             viewModel.insert(server)
             Snackbar.make(
                 requireParentFragment().requireView(),
-                "${server.hostname} has been added", Snackbar.LENGTH_LONG
+                getString(R.string.server_added, server.hostname),
+                Snackbar.LENGTH_LONG
             ).show()
             dismiss()
         }

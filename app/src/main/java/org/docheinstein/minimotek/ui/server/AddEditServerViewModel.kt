@@ -14,7 +14,7 @@ import javax.inject.Inject
 class AddEditServerViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     private val serverRepository: ServerRepository,
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     companion object {

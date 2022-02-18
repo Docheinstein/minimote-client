@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.minimote
+package org.docheinstein.minimotek.packet
 
 enum class MinimotePacketType(val value: Int) {
     None(0x00),

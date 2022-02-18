@@ -2,6 +2,7 @@ package org.docheinstein.minimotek.data.server
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 const val TABLE_NAME = "server"
@@ -10,7 +11,13 @@ const val COLUMN_ADDRESS = "address"
 const val COLUMN_PORT = "port"
 const val COLUMN_NAME = "name"
 
-@Entity(tableName = TABLE_NAME)
+@Entity(
+    tableName = TABLE_NAME,
+    indices = [Index(
+        value = [COLUMN_ADDRESS, COLUMN_PORT],
+        unique = true
+    )]
+)
 data class Server(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_ID)
@@ -27,6 +34,10 @@ data class Server(
 ) {
     constructor(address: String, port: Int, name: String?) :
             this(0, address, port, name)
+
+    fun displayName(): String {
+        return name ?: address
+    }
 
     override fun toString(): String {
         return "(id=$id, address=$address, port=$port, name=$name)"

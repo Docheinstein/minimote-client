@@ -5,10 +5,13 @@ import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.Navigation.findNavController
+import androidx.navigation.findNavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.data.server.Server
@@ -57,7 +60,7 @@ class ServersFragment : Fragment() {
                 if (view != null && menu != null) {
                     val menuInflater = MenuInflater(view.context)
                     menuInflater.inflate(R.menu.server_context_menu, menu)
-                    menu.setHeaderTitle(view.context.resources.getString(R.string.server_list_item_context_menu_title))
+                    menu.setHeaderTitle(view.context.getString(R.string.server_list_item_context_menu_title))
                 }
             }
         }
@@ -77,11 +80,18 @@ class ServersFragment : Fragment() {
         override fun onBindViewHolder(holder: ServerListItemViewHolder, position: Int) {
             val server = getItem(position)
             holder.binding.address.text = server.address
-            holder.binding.name.text = server.name ?: server.address
+            holder.binding.name.text = server.displayName()
             holder.binding.root.setOnClickListener {
                 debug("Click on server $server")
+                holder.itemView.findNavController().navigate(
+                    ServersFragmentDirections.actionController(
+                        server.address,
+                        server.port,
+                        server.displayName()
+                ))
             }
             holder.binding.root.setOnLongClickListener {
+                debug("Long click on server $server")
                 selection = holder.adapterPosition
                 debug("Selection changed to position $selection")
                 false
@@ -113,7 +123,7 @@ class ServersFragment : Fragment() {
 
         // Observe server list changes
         viewModel.servers.observe(viewLifecycleOwner) { servers ->
-            debug("Server list update detected (new size = ${servers.size}, changing UI accordingly")
+            debug("Server list update detected (new size = ${servers.size}, changing UI accordingly)")
             adapter.submitList(servers)
         }
 
@@ -129,7 +139,7 @@ class ServersFragment : Fragment() {
                     findNavController().navigate(
                         ServersFragmentDirections.actionAddEditServer(
                             server.id,
-                            resources.getString(R.string.toolbar_title_edit_server))
+                            getString(R.string.toolbar_title_edit_server))
                     )
             }
             R.id.delete_menu_item -> {
@@ -142,6 +152,12 @@ class ServersFragment : Fragment() {
                         .setPositiveButton(R.string.ok) { _, _ ->
                             // actually delete
                             viewModel.delete(server)
+                            Snackbar.make(
+                                requireParentFragment().requireView(),
+                                getString(R.string.server_removed, server.displayName()),
+                                Snackbar.LENGTH_LONG
+                            ).show()
+
                             findNavController().navigateUp()
                         }
                         .setNegativeButton(R.string.cancel, null)
@@ -156,7 +172,7 @@ class ServersFragment : Fragment() {
         findNavController().navigate(
             ServersFragmentDirections.actionAddEditServer(
                 AddEditServerViewModel.SERVER_ID_NONE,
-                resources.getString(R.string.toolbar_title_add_server)
+                getString(R.string.toolbar_title_add_server)
             )
         )
     }
@@ -164,6 +180,5 @@ class ServersFragment : Fragment() {
     private fun handleDiscoverServersButtonClick() {
         val discoveryFragment = DiscoverDialogFragment()
         discoveryFragment.show(childFragmentManager)
-//        discoveryFragment.startDiscovery()
     }
 }

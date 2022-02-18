@@ -5,23 +5,26 @@ import io.ktor.network.sockets.*
 import io.ktor.util.date.*
 import io.ktor.util.network.*
 import io.ktor.utils.io.core.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.*
 import org.docheinstein.minimotek.DISCOVER_PORT
+import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.extensions.toBinaryString
-import org.docheinstein.minimotek.minimote.MinimotePacket
-import org.docheinstein.minimotek.minimote.MinimotePacketFactory
-import org.docheinstein.minimotek.minimote.MinimotePacketType
+import org.docheinstein.minimotek.packet.MinimotePacket
+import org.docheinstein.minimotek.packet.MinimotePacketFactory
+import org.docheinstein.minimotek.packet.MinimotePacketType
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.warn
+import java.io.IOException
 import java.net.InetSocketAddress
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DiscoveredServerRepository @Inject constructor() {
+class DiscoveredServerRepository @Inject constructor(
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher,
+) {
 
     suspend fun discoverServers(): Flow<DiscoveredServer> {
         /*
@@ -33,10 +36,8 @@ class DiscoveredServerRepository @Inject constructor() {
          */
         debug("DiscoveredServerRepository.discoverServers")
         try {
-            val socketBuilder = aSocket(ActorSelectorManager(Dispatchers.IO))
-
             debug("Creating UDP socket")
-            val udpSocket = socketBuilder
+            val udpSocket = aSocket(ActorSelectorManager(ioDispatcher))
                 .udp()
                 // listen to responses on local IP(s)
                 .bind(InetSocketAddress("0.0.0.0", DISCOVER_PORT)) {
@@ -51,7 +52,8 @@ class DiscoveredServerRepository @Inject constructor() {
                     builder.writeFully(discoverRequestMinimotePacket.toBytes())
             }.build()
 
-            val discoverRequestPacketDatagram = Datagram(discoverRequestPacket, InetSocketAddress("255.255.255.255", DISCOVER_PORT))
+            val discoverRequestPacketDatagram = Datagram(
+                discoverRequestPacket, InetSocketAddress("255.255.255.255", DISCOVER_PORT))
 
 //            delay(2000)
 //            throw Exception("Unknown error")
@@ -71,7 +73,7 @@ class DiscoveredServerRepository @Inject constructor() {
 
                     val discoverResponseMinimotePacket: MinimotePacket
                     try {
-                        discoverResponseMinimotePacket = MinimotePacket.fromData(responseBytes)
+                        discoverResponseMinimotePacket = MinimotePacket.fromBytes(responseBytes)
                     } catch (e: MinimotePacket.InvalidPacketException) {
                         warn("Failed to parse packet: ${e.message}")
                         return@transform
@@ -96,7 +98,7 @@ class DiscoveredServerRepository @Inject constructor() {
 
                     emit(discoveredServer)
             }
-        } catch (e: Exception) {
+        } catch (e: IOException) {
             error("Exception: ${e.message}")
             throw e
         }

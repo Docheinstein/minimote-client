@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -110,6 +111,11 @@ class AddEditServerFragment : Fragment() {
         if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
             val s = Server(address, portInt, name)
             viewModel.insert(s)
+            Snackbar.make(
+                requireParentFragment().requireView(),
+                getString(R.string.server_added, s.name ?: s.address),
+                Snackbar.LENGTH_LONG
+            ).show()
         } else {
             val s = Server(viewModel.server.value!!.id, address, portInt, name)
             viewModel.update(s)

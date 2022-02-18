@@ -15,6 +15,11 @@
             app:destination="@id/nav_add_edit_server"
             app:enterAnim="@anim/nav_default_enter_anim"
             app:exitAnim="@anim/nav_default_exit_anim" />
+        <action
+            android:id="@+id/action_controller"
+            app:destination="@id/nav_controller"
+            app:enterAnim="@anim/nav_default_enter_anim"
+            app:exitAnim="@anim/nav_default_exit_anim" />
     </fragment>
     <fragment
             android:id="@+id/nav_add_edit_server"
@@ -24,6 +29,21 @@
         <argument
             android:name="serverId"
             app:argType="long" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
+    <fragment
+            android:id="@+id/nav_controller"
+            android:name="org.docheinstein.minimotek.ui.controller.ControllerFragment"
+            android:label="{title}"
+            tools:layout="@layout/controller">
+        <argument
+            android:name="address"
+            app:argType="string" />
+        <argument
+            android:name="port"
+            app:argType="integer" />
         <argument
             android:name="title"
             app:argType="string" />

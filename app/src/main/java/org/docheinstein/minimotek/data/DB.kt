@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import org.docheinstein.minimotek.data.server.Server
 import org.docheinstein.minimotek.data.server.ServerDao
 
-const val DATABASE_VERSION = 2
+const val DATABASE_VERSION = 5
 const val DATABASE_NAME = "minimote"
 
 @Database(

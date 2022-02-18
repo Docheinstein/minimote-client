@@ -1,8 +1,8 @@
-package org.docheinstein.minimotek.minimote
+package org.docheinstein.minimotek.packet
 
 import io.ktor.util.date.*
-import org.docheinstein.minimotek.extensions.get8
-import org.docheinstein.minimotek.extensions.set8
+import org.docheinstein.minimotek.extensions.get64
+import org.docheinstein.minimotek.extensions.set64
 import org.docheinstein.minimotek.extensions.toBinaryString
 import java.lang.Exception
 
@@ -24,11 +24,11 @@ class MinimotePacket(
     companion object {
         const val HEADER_SIZE = 8
 
-        fun fromData(data: ByteArray): MinimotePacket {
+        fun fromBytes(data: ByteArray): MinimotePacket {
             if (data.size < HEADER_SIZE)
                 throw InvalidPacketException("Invalid packet: must be at least 8 bytes, but it's ${data.size} bytes")
 
-            val header: Long = data.get8()
+            val header: Long = data.get64()
 
             val packetLength = ((header ushr 56).toInt() and 0xFF)
             val packetTypeVal = ((header ushr 48).toInt() and 0xFF)
@@ -49,8 +49,8 @@ class MinimotePacket(
         }
     }
 
-    constructor(packetLength: Int, packetType: MinimotePacketType, payload: ByteArray) : this(
-        packetLength, packetType, getTimeMillis(), payload
+    constructor(packetType: MinimotePacketType, payload: ByteArray) : this(
+        HEADER_SIZE + payload.size, packetType, getTimeMillis(), payload
     )
 
     constructor(packetType: MinimotePacketType) : this(
@@ -66,7 +66,7 @@ class MinimotePacket(
             ((packetType.value and 0xFF).toLong() shl 48) or
             (eventTime and 0xFFFFFFFFFFFFL)
 
-        data.set8(header)
+        data.set64(header)
 
         if (payload.isNotEmpty())
             payload.copyInto(data, HEADER_SIZE)

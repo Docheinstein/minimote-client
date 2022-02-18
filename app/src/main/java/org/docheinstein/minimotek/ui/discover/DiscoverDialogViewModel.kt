@@ -2,11 +2,8 @@ package org.docheinstein.minimotek.ui.discover
 
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.ESTIMATED_DISCOVER_TIME
 import org.docheinstein.minimotek.data.discover.DiscoveredServer
 import org.docheinstein.minimotek.data.discover.DiscoveredServerRepository
@@ -17,6 +14,7 @@ import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.asMessage
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.error
+import java.io.IOException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +37,7 @@ class DiscoverDialogViewModel @Inject constructor(
     val discoveredServers: LiveData<List<DiscoveredServer>>
         get() = _discoveredServers
 
+//    private val discoverJob: Job
     init {
         debug("DiscoveryDialogViewModel.init()")
         // Launch on view model scope since the discover job makes sense only until this view is
@@ -52,8 +51,8 @@ class DiscoverDialogViewModel @Inject constructor(
                     __discoveredServers.add(discoveredServer)
                     _discoveredServers.postValue(__discoveredServers) // trigger update
                 }
-            } catch (e: Exception) {
-                error("Error occurred while discovering: ${e.asMessage()}")
+            } catch (e: IOException) {
+                error("Error occurred while discovering", e)
                 _discoverError.postValue(e.asMessage())
             }
         }
@@ -63,6 +62,10 @@ class DiscoverDialogViewModel @Inject constructor(
             debug("$ESTIMATED_DISCOVER_TIME ms: discovery is probably over")
             _isDiscovering.value = false
         }
+    }
+
+    override fun onCleared() {
+        debug("DiscoveryDialogViewModel.onCleared()")
     }
 
     fun insert(discoveredServer: DiscoveredServer) {

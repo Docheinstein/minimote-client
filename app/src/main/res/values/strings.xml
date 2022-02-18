@@ -133,7 +133,11 @@
     <string name="discover_completed">Discover completed</string>
     <string name="discover_helper">Click on a server to add it</string>
     <string name="discover_failed">Discover failed</string>
-    <string name="discovered_server_added">Discovered server has been added</string>
 
+    <string name="server_added">%1$s has been added</string>
+    <string name="server_removed">%1$s has been removed</string>
 
+        <!-- Add server failed (address) -->
+    <string name="connection_error_dialog_title">Connection failed</string>
+    <string name="connection_error_dialog_message">Failed to establish connection with %1$s:%2$d</string>
 </resources>

@@ -20,7 +20,7 @@ fun ByteArray.toBinaryString(pretty: Boolean = false): String {
 
 
 // get 8 bytes as long
-fun ByteArray.get8(offset: Int = 0): Long {
+fun ByteArray.get64(offset: Int = 0): Long {
     return ((this[offset].toLong() and 0xFF) shl  56) or
         ((this[offset + 1].toLong() and 0xFF) shl  48) or
         ((this[offset + 2].toLong() and 0xFF) shl  40) or
@@ -31,8 +31,8 @@ fun ByteArray.get8(offset: Int = 0): Long {
         ((this[offset + 7].toLong() and 0xFF))
 }
 
-// put long in 8 bytes
-fun ByteArray.set8(value: Long, offset: Int = 0) {
+// set 8 bytes from a long
+fun ByteArray.set64(value: Long, offset: Int = 0) {
     this[offset] =     ((value ushr 56) and 0xFFL).toByte()
     this[offset + 1] = ((value ushr 48) and 0xFFL).toByte()
     this[offset + 2] = ((value ushr 40) and 0xFFL).toByte()
@@ -43,10 +43,16 @@ fun ByteArray.set8(value: Long, offset: Int = 0) {
     this[offset + 7] = ((value) and 0xFFL).toByte()
 }
 
-
-fun ByteArray.set4(value: Int, offset: Int = 0) {
+// set 4 bytes from an int
+fun ByteArray.set32(value: Int, offset: Int = 0) {
     this[offset] =     ((value ushr 24) and 0xFF).toByte()
     this[offset + 1] = ((value ushr 16) and 0xFF).toByte()
     this[offset + 2] = ((value ushr 8) and 0xFF).toByte()
     this[offset + 3] = ((value)).toByte()
+}
+
+// set 2 bytes from an int
+fun ByteArray.set16(value: Int, offset: Int = 0) {
+    this[offset] =     ((value ushr 8) and 0xFF).toByte()
+    this[offset + 1] = ((value) and 0xFF).toByte()
 }
