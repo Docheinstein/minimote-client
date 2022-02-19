@@ -140,4 +140,8 @@
         <!-- Add server failed (address) -->
     <string name="connection_error_dialog_title">Connection failed</string>
     <string name="connection_error_dialog_message">Failed to establish connection with %1$s:%2$d</string>
+
+    <string name="connecting">Connecting…</string>
+
+
 </resources>

@@ -29,31 +29,28 @@ class TouchpadPointerView @JvmOverloads constructor(
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null)
             return super.onTouchEvent(event)
-
-        debug("Touch event : (X: " + event.x + ", Y: " + event.y + ")")
-
         if (listener == null)
             return super.onTouchEvent(event)
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                debug("onTouchEvent: ACTION DOWN")
+                debug("ACTION_DOWN (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadDown(event)
             }
             MotionEvent.ACTION_UP -> {
-                debug("onTouchEvent: ACTION_UP")
+                debug("ACTION_UP (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadUp(event)
             }
             MotionEvent.ACTION_POINTER_UP -> {
-                debug("onTouchEvent: ACTION_POINTER_UP")
+                debug("ACTION_POINTER_UP (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadPointerUp(event)
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
-                debug("onTouchEvent: ACTION_POINTER_DOWN")
+                debug("ACTION_POINTER_DOWN (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadPointerDown(event)
             }
             MotionEvent.ACTION_MOVE -> {
-                debug("onTouchEvent: ACTION_MOVE")
+                debug("ACTION_MOVE (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadMovement(event)
             }
         }
