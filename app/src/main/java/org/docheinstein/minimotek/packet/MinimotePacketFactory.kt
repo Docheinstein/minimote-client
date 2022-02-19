@@ -2,6 +2,8 @@ package org.docheinstein.minimotek.packet
 
 import org.docheinstein.minimotek.extensions.set16
 import org.docheinstein.minimotek.extensions.set32
+import org.docheinstein.minimotek.extensions.set8
+import org.docheinstein.minimotek.keys.MinimoteKeyType
 
 object MinimotePacketFactory {
 
@@ -90,5 +92,33 @@ object MinimotePacketFactory {
             ((y and 0xFFF))
         )
         return MinimotePacket(MinimotePacketType.Move, payload)
+    }
+
+    fun newWrite(c: Char): MinimotePacket {
+        // | CHAR (8 bite) |
+        val payload = ByteArray(1)
+        payload.set8(c.code)
+        return MinimotePacket(MinimotePacketType.Write, payload)
+    }
+
+    fun newKeyClick(keyType: MinimoteKeyType): MinimotePacket {
+        // | KEY TYPE (8 bit) |
+        val payload = ByteArray(1)
+        payload.set8(keyType.value)
+        return MinimotePacket(MinimotePacketType.KeyClick, payload)
+    }
+
+    fun newKeyDown(keyType: MinimoteKeyType): MinimotePacket {
+        // | KEY TYPE (8 bit) |
+        val payload = ByteArray(1)
+        payload.set8(keyType.value)
+        return MinimotePacket(MinimotePacketType.KeyDown, payload)
+    }
+
+    fun newKeyUp(keyType: MinimoteKeyType): MinimotePacket {
+        // | KEY TYPE (8 bit) |
+        val payload = ByteArray(1)
+        payload.set8(keyType.value)
+        return MinimotePacket(MinimotePacketType.KeyUp, payload)
     }
 }

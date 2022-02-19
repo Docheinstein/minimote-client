@@ -3,26 +3,17 @@ package org.docheinstein.minimotek.ui.controller
 import android.view.MotionEvent
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.network.selector.*
-import io.ktor.network.sockets.*
-import io.ktor.util.network.*
-import io.ktor.utils.io.core.*
+import io.ktor.util.date.*
 import kotlinx.coroutines.*
 import org.docheinstein.minimotek.*
 import org.docheinstein.minimotek.connection.MinimoteConnection
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
-import org.docheinstein.minimotek.extensions.toBinaryString
+import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.packet.MinimotePacket
 import org.docheinstein.minimotek.packet.MinimotePacketFactory
-import org.docheinstein.minimotek.packet.MinimotePacketType
-import org.docheinstein.minimotek.util.asMessage
 import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.warn
-import java.io.IOException
-import java.lang.Exception
-import java.net.InetSocketAddress
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -58,6 +49,7 @@ class ControllerViewModel @Inject constructor(
     val serverPort: Int = savedStateHandle[SERVER_PORT_STATE_KEY]!!
 
     private val connection = MinimoteConnection(serverAddress, serverPort)
+    private var lastConnectionCheckTime: Long = 0
     
     private var currentTouchEventId = 0
 
@@ -76,7 +68,7 @@ class ControllerViewModel @Inject constructor(
     init {
         debug("ControllerViewModel.init()")
 
-        viewModelScope.launch( ioDispatcher) {
+        viewModelScope.launch(ioDispatcher) {
             if (!connection.connect()) {
                 debug("MinimoteConnection.connect() failed")
                 _connectionState.postValue(ConnectionState.Disconnected)
@@ -90,6 +82,7 @@ class ControllerViewModel @Inject constructor(
             }
 
             // Connection is actually on
+            lastConnectionCheckTime = getTimeMillis()
             _connectionState.postValue(ConnectionState.Connected)
         }
     }
@@ -101,21 +94,12 @@ class ControllerViewModel @Inject constructor(
         }
     }
 
-    fun leftClick() {
-        if (!isConnected)
-            return
-        
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newLeftClick())
-        }
-    }
-
     fun leftDown() {
         if (!isConnected)
             return
 
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newLeftDown())
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(MinimotePacketFactory.newLeftDown())
         }
     }
 
@@ -123,26 +107,26 @@ class ControllerViewModel @Inject constructor(
         if (!isConnected)
             return
 
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newLeftUp())
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(MinimotePacketFactory.newLeftUp())
         }
     }
-    
-    fun middleClick() {
+
+    fun rightDown() {
         if (!isConnected)
             return
-        
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newMiddleClick())
+
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(MinimotePacketFactory.newRightDown())
         }
     }
-    
-    fun rightClick() {
+
+    fun rightUp() {
         if (!isConnected)
             return
-        
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newRightClick())
+
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(MinimotePacketFactory.newRightUp())
         }
     }
     
@@ -169,10 +153,9 @@ class ControllerViewModel @Inject constructor(
 
         lastClickTouchEventId = currentTouchEventId
 
-        viewModelScope.launch {
-            connection.sendUdp(MinimotePacketFactory.newLeftClick())
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(MinimotePacketFactory.newLeftClick())
         }
-
     }
 
     fun touchpadPointerDown(ev: MotionEvent) {
@@ -206,16 +189,14 @@ class ControllerViewModel @Inject constructor(
 
         lastClickTouchEventId = currentTouchEventId
 
-        viewModelScope.launch {
-            connection.sendUdp(clickPacket)
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendUdp(clickPacket)
         }
     }
 
     fun touchpadMovement(ev: MotionEvent) {
         if (!isConnected)
             return
-        debug("Movement pointer count = ${ev.pointerCount}")
-
         if (ev.pointerCount > 1) {
             if (ev.eventTime - lastScrollTime < SCROLL_MIN_TIME_BETWEEN_SAMPLES)
                 // do not exceed the sample rate
@@ -237,8 +218,8 @@ class ControllerViewModel @Inject constructor(
             lastScrollTime = ev.eventTime
             lastScrollY = ev.y.roundToInt()
 
-            viewModelScope.launch {
-                connection.sendUdp(scrollPacket)
+            viewModelScope.launch(ioDispatcher) {
+                checkConnectionAndSendUdp(scrollPacket)
             }
         } else {
             if (ev.eventTime - lastMovementSampleTime < MOVEMENT_MIN_TIME_BETWEEN_SAMPLES)
@@ -247,10 +228,84 @@ class ControllerViewModel @Inject constructor(
 
             lastMovementSampleTime = ev.eventTime
 
-            viewModelScope.launch {
-                connection.sendUdp(MinimotePacketFactory.newMove(currentTouchEventId, ev.x.roundToInt(), ev.y.roundToInt()))
+            // IMPORTANT
+            // compute outside of coroutine, otherwise these
+            // may change, for some obscure reason
+            val x = ev.x.roundToInt()
+            val y = ev.y.roundToInt()
+
+            viewModelScope.launch(ioDispatcher) {
+                checkConnectionAndSendUdp(MinimotePacketFactory.newMove(currentTouchEventId, x, y))
             }
         }
+    }
+
+    fun write(c: Char) {
+        if (!isConnected)
+            return
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendTcp(MinimotePacketFactory.newWrite(c))
+        }
+    }
+
+    fun keyClick(keyCode: Int) {
+        if (!isConnected)
+            return
+        val key = MinimoteKeyType.byKeyCode(keyCode)
+        if (key == null) {
+            warn("No key for keyCode $keyCode")
+            return
+        }
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendTcp(MinimotePacketFactory.newKeyClick(key))
+        }
+    }
+
+    fun keyDown(keyCode: Int) {
+        if (!isConnected)
+            return
+        val key = MinimoteKeyType.byKeyCode(keyCode)
+        if (key == null) {
+            warn("No key for keyCode $keyCode")
+            return
+        }
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendTcp(MinimotePacketFactory.newKeyDown(key))
+        }
+    }
+
+    fun keyUp(keyCode: Int) {
+        if (!isConnected)
+            return
+        val key = MinimoteKeyType.byKeyCode(keyCode)
+        if (key == null) {
+            warn("No key for keyCode $keyCode")
+            return
+        }
+        viewModelScope.launch(ioDispatcher) {
+            checkConnectionAndSendTcp(MinimotePacketFactory.newKeyUp(key))
+        }
+    }
+
+    private suspend fun checkConnectionAndSendUdp(packet: MinimotePacket): Boolean {
+        return connectionIsStillAlive() && connection.sendUdp(packet)
+    }
+
+    private suspend fun checkConnectionAndSendTcp(packet: MinimotePacket): Boolean {
+        return connectionIsStillAlive() && connection.sendTcp(packet)
+    }
+
+    private suspend fun connectionIsStillAlive(): Boolean {
+        if (getTimeMillis() - lastConnectionCheckTime > CONNECTION_KEEP_ALIVE_TIME) {
+            debug("Checking whether connection is still alive...")
+            // too much time passed from last ping, check connection is still alive
+            if (!connection.ensureConnection()) {
+                _connectionState.postValue(ConnectionState.Disconnected)
+                return false
+            }
+        }
+        lastConnectionCheckTime = getTimeMillis()
+        return true
     }
 
     private fun increaseMovementId() {

@@ -6,6 +6,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/hotkeys_button"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:clickable="true"
+        android:contentDescription="@string/hotkeys"
+        android:focusable="true"
+        android:src="@drawable/hotkeys"
+        app:backgroundTint="@color/fab_background_secondary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:tint="@color/fab_text" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/keyboard_button"
+        android:layout_width="56dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="@dimen/fab_margin"
+        android:layout_marginTop="@dimen/fab_margin"
+        android:clickable="true"
+        android:focusable="true"
+        android:contentDescription="@string/keyboard_button_description"
+        android:src="@drawable/keyboard"
+        app:tint="@color/fab_text"
+        app:backgroundTint="@color/fab_background_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <view class="org.docheinstein.minimotek.ui.controller.touchpad.TouchpadPointerView"
         android:id="@+id/touchpad_pointer"
         android:layout_width="0dp"
@@ -19,41 +49,40 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <LinearLayout
-        android:id="@+id/touchpad_buttons_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="#2C2A2A"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+            android:id="@+id/touchpad_buttons_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#2C2A2A"
+            android:orientation="vertical"
+            app:layout_constraintBottom_toTopOf="@id/keyboard_text_preview"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent">
 
         <ImageView
-            android:id="@+id/separator1"
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginBottom="4dp"
-            android:background="#C5C5C5" />
+                android:id="@+id/separator1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="4dp"
+                android:background="#C5C5C5" />
 
         <LinearLayout
-            android:id="@+id/touchpad_buttons_inner_container"
-            android:layout_width="match_parent"
-            android:layout_height="100dp"
-            android:orientation="horizontal"
-            android:paddingStart="8dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="8dp"
-            android:paddingBottom="8dp"
-        >
+                android:id="@+id/touchpad_buttons_inner_container"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/touchpad_buttons_height"
+                android:orientation="horizontal"
+                android:paddingStart="8dp"
+                android:paddingTop="8dp"
+                android:paddingEnd="8dp"
+                android:paddingBottom="8dp">
 
             <ImageView
-                android:id="@+id/touchpad_left_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginEnd="6dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true" />
+                    android:id="@+id/touchpad_left_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true" />
 
             <ImageView
                     android:id="@+id/separator2"
@@ -64,21 +93,38 @@
                     android:background="#C5C5C5" />
 
             <ImageView
-                android:id="@+id/touchpad_right_button"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_marginStart="6dp"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:focusable="true"/>
+                    android:id="@+id/touchpad_right_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="6dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true" />
         </LinearLayout>
     </LinearLayout>
+
+    <EditText
+            android:id="@+id/keyboard_text_preview"
+            android:layout_width="match_parent"
+            android:layout_height="64dp"
+            android:background="@drawable/keyboard_text_preview"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="textPersonName"
+            android:textSize="22sp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:text="Some text..."
+            tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:visibility="visible"
+            android:elevation="10dp"
+            android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

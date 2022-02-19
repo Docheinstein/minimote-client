@@ -16,3 +16,6 @@ const val MAX_MOVEMENT_ID = 256 // 8 bytes -> 2^8 == 256
 const val SCROLL_SAMPLE_RATE = 30 // Hz
 const val SCROLL_MIN_TIME_BETWEEN_SAMPLES = 1000 / SCROLL_SAMPLE_RATE // ms
 const val SCROLL_DELTA_FOR_TICK = 25 // points
+
+// Connection
+const val CONNECTION_KEEP_ALIVE_TIME = 10000

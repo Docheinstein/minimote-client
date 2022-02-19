@@ -48,37 +48,29 @@ class MinimoteConnection(
 
         // Actually check connection with ping/pong packets
         try {
-            debug("Creating UDP socket for listening to PONG")
-            val pongSocket = UdpSocket()
-            pongSocket.bind { reuseAddress = true }
-            val ok = pongSocket.let { sock ->
-                debug("Sending PING")
-                tcpSocket.send(MinimotePacketFactory.newPing(sock.boundLocalPort).toBytes())
+            debug("Sending PING")
 
-                debug("Waiting for PONG...")
-                val response = pongSocket.recv()
-                debug("Waiting finished")
+            tcpSocket.send(MinimotePacketFactory.newPing(udpSocket.boundLocalPort).toBytes())
 
-                val pongMinimotePacket: MinimotePacket
-                try {
-                    pongMinimotePacket = MinimotePacket.fromBytes(response)
-                } catch (e: MinimotePacket.InvalidPacketException) {
-                    warn("Failed to parse packet: ${e.asMessage()}")
-                    return@let false
-                }
+            debug("Waiting for PONG...")
+            val response = udpSocket.recv()
+            debug("Received a response for PING")
 
-                debug("Received packet is legal")
-
-                if (pongMinimotePacket.packetType != MinimotePacketType.Pong) {
-                    warn("Received packet is not a PONG")
-                    return@let false
-                }
-
-                debug("Received packet is a PONG, connection is healthy")
-                return@let true
+            val pongMinimotePacket: MinimotePacket
+            try {
+                pongMinimotePacket = MinimotePacket.fromBytes(response)
+            } catch (e: MinimotePacket.InvalidPacketException) {
+                warn("Failed to parse packet: ${e.asMessage()}")
+                return false
             }
-            pongSocket.disconnect()
-            return ok
+
+            if (pongMinimotePacket.packetType != MinimotePacketType.Pong) {
+                warn("Received packet is not a PONG")
+                return false
+            }
+
+            debug("Received packet is a PONG, connection is healthy")
+            return true
         } catch (e: IOException) {
             error("Failed to ensure connection: ${e.asMessage()}", e)
             return false

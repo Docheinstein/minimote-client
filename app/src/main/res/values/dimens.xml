@@ -15,4 +15,6 @@
     <dimen name="server_list_item_secondary_text">18sp</dimen>
     <dimen name="server_list_icon">36dp</dimen>
 
+    <dimen name="touchpad_buttons_height">80dp</dimen>
+
 </resources>

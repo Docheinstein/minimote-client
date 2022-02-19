@@ -4,6 +4,8 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../layout/custom_preview.xml" value="0.20277777777777778" />
+        <entry key="app/src/main/res/drawable/keyboard_preview.xml" value="0.2325" />
+        <entry key="app/src/main/res/drawable/keyboard_text_preview.xml" value="0.2325" />
         <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_server_dialog.xml" value="0.10280797101449275" />
         <entry key="app/src/main/res/layout/controller.xml" value="0.25" />
@@ -18,6 +20,7 @@
         <entry key="app/src/main/res/menu/drawer.xml" value="0.371875" />
         <entry key="app/src/main/res/menu/main.xml" value="0.371875" />
         <entry key="app/src/main/res/menu/server_context_menu.xml" value="0.2203125" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/minimote_icon.xml" value="0.15" />
       </map>
     </option>
   </component>

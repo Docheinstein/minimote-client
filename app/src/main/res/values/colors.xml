@@ -18,4 +18,5 @@
     <color name="fab_background_primary">@color/primary</color>
     <color name="fab_background_secondary">@color/secondary</color>
     <color name="fab_text">@color/dark_white</color>
+    <color name="keyboard_text_preview">@color/mid_gray</color>
 </resources>

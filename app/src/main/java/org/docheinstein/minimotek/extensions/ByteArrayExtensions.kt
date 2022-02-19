@@ -56,3 +56,8 @@ fun ByteArray.set16(value: Int, offset: Int = 0) {
     this[offset] =     ((value ushr 8) and 0xFF).toByte()
     this[offset + 1] = ((value) and 0xFF).toByte()
 }
+
+// set 1 bytes from an int
+fun ByteArray.set8(value: Int, offset: Int = 0) {
+    this[offset] = (value and 0xFF).toByte()
+}

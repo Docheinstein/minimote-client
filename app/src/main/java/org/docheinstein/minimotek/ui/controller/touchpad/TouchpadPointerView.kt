@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import org.docheinstein.minimotek.util.debug
+import kotlin.math.roundToInt
 
 //class TouchpadPointerView(context: Context) : View(context) {
 //    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
@@ -31,26 +32,28 @@ class TouchpadPointerView @JvmOverloads constructor(
             return super.onTouchEvent(event)
         if (listener == null)
             return super.onTouchEvent(event)
+        val x = event.x.roundToInt()
+        val y = event.y.roundToInt()
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                debug("ACTION_DOWN (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
+                debug("ACTION_DOWN (X = ${x}, Y = ${y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadDown(event)
             }
             MotionEvent.ACTION_UP -> {
-                debug("ACTION_UP (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
+                debug("ACTION_UP (X = ${x}, Y = ${y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadUp(event)
             }
             MotionEvent.ACTION_POINTER_UP -> {
-                debug("ACTION_POINTER_UP (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
+                debug("ACTION_POINTER_UP (X = ${x}, Y = ${y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadPointerUp(event)
             }
             MotionEvent.ACTION_POINTER_DOWN -> {
-                debug("ACTION_POINTER_DOWN (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
+                debug("ACTION_POINTER_DOWN (X = ${x}, Y = ${y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadPointerDown(event)
             }
             MotionEvent.ACTION_MOVE -> {
-                debug("ACTION_MOVE (X = ${event.x}, Y = ${event.y}, pointers = ${event.pointerCount})")
+                debug("ACTION_MOVE (X = ${x}, Y = ${y}, pointers = ${event.pointerCount})")
                 listener?.onTouchpadMovement(event)
             }
         }

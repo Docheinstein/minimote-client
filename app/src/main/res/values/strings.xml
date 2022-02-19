@@ -112,6 +112,8 @@
     <string name="nav_header_description">Header</string>
     <string name="discover_servers_button_description">Discover servers</string>
     <string name="add_server_button_description">Add server</string>
+    <string name="hotkeys_button_description">Show hotkeys</string>
+    <string name="keyboard_button_description">Show keyboard</string>
 
 
     <string name="add_edit_server_invalid_address">Invalid address</string>
