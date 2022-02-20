@@ -70,7 +70,7 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
         // keyboard
 
         binding.keyboardButton.setOnClickListener {
-            toggleSoftKeyboard()
+            binding.keyboardTextPreview.toggleKeyboard(requireActivity())
         }
 
         // text watcher: for soft keyboard chars and backspace
@@ -123,38 +123,6 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
                 viewModel.serverAddress, viewModel.serverPort))
             .setPositiveButton(R.string.ok, null)
             .show();
-    }
-
-    private fun toggleSoftKeyboard() {
-        debug("Toggling keyboard")
-        if (binding.keyboardTextPreview.isVisible)
-            hideKeyboard()
-        else
-            showKeyboard()
-    }
-
-    private fun hideKeyboard() {
-        debug("Hiding keyboard")
-            binding.keyboardTextPreview.isVisible = false
-
-        if (requireActivity().currentFocus == null) {
-            warn("No focused view?")
-        }
-
-        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(binding.keyboardTextPreview.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-    }
-
-    private fun showKeyboard() {
-        debug("Showing keyboard")
-        binding.keyboardTextPreview.isVisible = true
-        if (!binding.keyboardTextPreview.requestFocus()) {
-            warn("Failed to acquire focus for keyboard text preview")
-            return
-        }
-
-        val imm = requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.showSoftInput(binding.keyboardTextPreview, InputMethodManager.SHOW_IMPLICIT)
     }
 
     // Touchpad events

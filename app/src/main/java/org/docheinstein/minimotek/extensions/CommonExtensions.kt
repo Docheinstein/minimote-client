@@ -12,10 +12,12 @@ private fun formatLogMessage(message: String): String {
     if (!BuildConfig.DEBUG)
         return message
     val th = Thread.currentThread()
-    val thStr = if (th.threadGroup != null)
-        "[${th.name},${th.threadGroup!!.name}]"
-    else
-        "[${th.name}]"
+    val thStr = "[${th.name}]"
+//    val thStr = if (th.threadGroup != null)
+//        "[${th.name},${th.threadGroup!!.name}]"
+//    else
+//        "[${th.name}]"
+
     return "$thStr $message"
 }
 

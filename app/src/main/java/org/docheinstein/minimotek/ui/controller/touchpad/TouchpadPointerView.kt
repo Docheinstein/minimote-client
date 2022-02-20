@@ -7,9 +7,6 @@ import android.view.View
 import org.docheinstein.minimotek.util.debug
 import kotlin.math.roundToInt
 
-//class TouchpadPointerView(context: Context) : View(context) {
-//    constructor(context: Context, attrs: AttributeSet) : super(context, attrs)
-
 class TouchpadPointerView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -22,16 +19,14 @@ class TouchpadPointerView @JvmOverloads constructor(
         fun onTouchpadPointerDown(ev: MotionEvent)
         fun onTouchpadPointerUp(ev: MotionEvent)
         fun onTouchpadMovement(ev: MotionEvent)
-
     }
 
     var listener: TouchpadListener? = null
 
     override fun onTouchEvent(event: MotionEvent?): Boolean {
-        if (event == null)
+        if (event == null || listener == null)
             return super.onTouchEvent(event)
-        if (listener == null)
-            return super.onTouchEvent(event)
+
         val x = event.x.roundToInt()
         val y = event.y.roundToInt()
 

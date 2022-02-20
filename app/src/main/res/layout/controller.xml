@@ -36,7 +36,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <view class="org.docheinstein.minimotek.ui.controller.touchpad.TouchpadPointerView"
+    <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadPointerView
         android:id="@+id/touchpad_pointer"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -103,7 +103,8 @@
         </LinearLayout>
     </LinearLayout>
 
-    <EditText
+    <org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
+            style="@style/Widget.AppCompat.EditText"
             android:id="@+id/keyboard_text_preview"
             android:layout_width="match_parent"
             android:layout_height="64dp"
