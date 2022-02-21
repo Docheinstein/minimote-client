@@ -13,8 +13,13 @@
     <dimen name="server_list_item_height">80dp</dimen>
     <dimen name="server_list_item_primary_text">18sp</dimen>
     <dimen name="server_list_item_secondary_text">18sp</dimen>
-    <dimen name="server_list_icon">36dp</dimen>
+    <dimen name="server_list_item_icon">36dp</dimen>
 
     <dimen name="touchpad_buttons_height">80dp</dimen>
+    <dimen name="controller_widgets_bar_height">48dp</dimen>
+    <dimen name="controller_widget_size">32dp</dimen>
+
+    <dimen name="hw_hotkey_list_item_height">80dp</dimen>
+    <dimen name="hw_hotkey_list_item_icon">36dp</dimen>
 
 </resources>

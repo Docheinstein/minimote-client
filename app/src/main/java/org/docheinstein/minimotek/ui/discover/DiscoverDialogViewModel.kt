@@ -5,10 +5,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
 import org.docheinstein.minimotek.ESTIMATED_DISCOVER_TIME
-import org.docheinstein.minimotek.data.discover.DiscoveredServer
-import org.docheinstein.minimotek.data.discover.DiscoveredServerRepository
-import org.docheinstein.minimotek.data.server.Server
-import org.docheinstein.minimotek.data.server.ServerRepository
+import org.docheinstein.minimotek.discover.DiscoveredServer
+import org.docheinstein.minimotek.discover.Discoverer
+import org.docheinstein.minimotek.database.server.Server
+import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.asMessage
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class DiscoverDialogViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val discoveredServerRepository: DiscoveredServerRepository,
+    private val serverDiscoverer: Discoverer,
     private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
@@ -46,7 +46,7 @@ class DiscoverDialogViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             debug("Discovery coroutine launched")
             try {
-                discoveredServerRepository.discoverServers().collect { discoveredServer ->
+                serverDiscoverer.discoverServers().collect { discoveredServer ->
                     debug("DiscoverDialogViewModel received discoveredServer: $discoveredServer")
                     __discoveredServers.add(discoveredServer)
                     _discoveredServers.postValue(__discoveredServers) // trigger update

@@ -3,29 +3,24 @@ package org.docheinstein.minimotek.ui.controller
 import android.animation.Animator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.*
-import android.view.inputmethod.InputMethodManager
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.distinctUntilChanged
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.databinding.ControllerBinding
-import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadPointerView
+import org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
+import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
 
 @AndroidEntryPoint
-class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, TextWatcher,
-    View.OnKeyListener {
+class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, KeyboardEditText.KeyboardListener{
 
     private val viewModel: ControllerViewModel by viewModels()
     private lateinit var binding: ControllerBinding
@@ -40,9 +35,8 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
 
         binding = ControllerBinding.inflate(inflater, container, false)
 
-        // touchpad
-
-        binding.touchpadPointer.listener = this
+        // Touchpad
+        binding.touchpadArea.listener = this
 
         binding.touchpadLeftButton.setOnTouchListener { v, event ->
             when(event?.actionMasked) {
@@ -60,25 +54,43 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
             true
         }
 
-        // overlay
+        // Overlay
 
         binding.splash.setOnTouchListener { _, _ ->
             // prevent propagation of touch events if splash screen is atop
             true
         }
 
-        // keyboard
+        // Keyboard
+        binding.keyboardText.listener = this
 
-        binding.keyboardButton.setOnClickListener {
-            binding.keyboardTextPreview.toggleKeyboard(requireActivity())
+        // Widgets
+        binding.keyboardWidget.setOnClickListener {
+            viewModel.toggleKeyboard()
         }
 
-        // text watcher: for soft keyboard chars and backspace
-        binding.keyboardTextPreview.addTextChangedListener(this)
+        binding.touchpadButtonsWidget.setOnClickListener {
+            viewModel.toggleTouchpadButtons()
+        }
 
-        // key listener: for physical keyboards and special chars on soft keyboards
-        binding.keyboardTextPreview.setOnKeyListener(this)
+        // Detect widgets state
 
+        // IMPORTANT
+        // use distinctUntilChanged to prevent emission of the same state,
+        // since it would lead to recursive call loop
+        // (since keyboard is closed also from UIHH
+        viewModel.keyboard.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+            binding.keyboardWidget.setHighlight(enabled)
+            binding.keyboardText.setKeyboardOpen(requireActivity(), enabled)
+        }
+
+        viewModel.touchpadButtons.observe(viewLifecycleOwner) { enabled ->
+            binding.touchpadButtonsWidget.setHighlight(enabled)
+            binding.touchpadButtonsContainer.isVisible = enabled
+        }
+
+
+        // Detect connection state change
         viewModel.connectionState.observe(viewLifecycleOwner) { state ->
             debug("UI notified about new connection state: $state")
             when (state) {
@@ -122,7 +134,7 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
             .setMessage(getString(R.string.connection_error_dialog_message,
                 viewModel.serverAddress, viewModel.serverPort))
             .setPositiveButton(R.string.ok, null)
-            .show();
+            .show()
     }
 
     // Touchpad events
@@ -133,14 +145,18 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
     override fun onTouchpadMovement(ev: MotionEvent) = viewModel.touchpadMovement(ev)
 
     // Keyboard events
-    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
-    override fun afterTextChanged(s: Editable?) {}
+    override fun onKeyboardShown() {
+        debug("Keyboard shown")
+        viewModel.openKeyboard()
+    }
 
-    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        if (s == null)
-            return
+    override fun onKeyboardHidden() {
+        debug("Keyboard hidden")
+        viewModel.closeKeyboard()
+    }
 
-        debug("onTextChanged: (str: $s, start: $start, before: $before, count: $count)")
+    override fun onKeyboardText(s: CharSequence, start: Int, before: Int, count: Int) {
+        debug("onTextChanged: (str = $s, start = $start, before = $before, count = $count)")
 
         if (count > before) {
             // insertion
@@ -154,15 +170,12 @@ class ControllerFragment : Fragment(), TouchpadPointerView.TouchpadListener, Tex
         }
     }
 
-    override fun onKey(v: View?, keyCode: Int, event: KeyEvent?): Boolean {
+    override fun onKeyboardKey(keyCode: Int, event: KeyEvent) {
         debug("onKey: $keyCode")
-        if (event == null)
-            return false
 
         when (event.action) {
             KeyEvent.ACTION_DOWN -> { viewModel.keyDown(keyCode)}
             KeyEvent.ACTION_UP -> { viewModel.keyUp(keyCode) }
         }
-        return true
     }
 }

@@ -2,7 +2,9 @@ package org.docheinstein.minimotek.extensions
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.widget.ArrayAdapter
 import android.widget.EditText
+import android.widget.Spinner
 
 fun EditText.addAfterTextChangedListener(cb: (String) -> Unit) {
     this.addTextChangedListener(object : TextWatcher {
@@ -12,4 +14,8 @@ fun EditText.addAfterTextChangedListener(cb: (String) -> Unit) {
             cb.invoke(editable.toString())
         }
     })
+}
+
+fun Spinner.setSelection(value: String) {
+    setSelection((adapter as ArrayAdapter<String>).getPosition(value))
 }

@@ -5,6 +5,7 @@
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="add">Add</string>
+    <string name="edit">Edit</string>
 
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -126,6 +127,11 @@
     <string name="toolbar_title_add_server">Add server</string>
     <string name="toolbar_title_edit_server">Edit server</string>
 
+
+    <string name="toolbar_title_add_hw_hotkey">Add hotkey</string>
+    <string name="toolbar_title_edit_hw_hotkey">Edit hotkey</string>
+
+
     <string name="delete_server_confirmation_title">Remove server?</string>
     <string name="delete_server_confirmation_message">Do you really want to remove the server?</string>
 
@@ -145,5 +151,12 @@
 
     <string name="connecting">Connecting…</string>
 
+    <string name="hw_hotkey_list_item_context_menu_title">Choose an action</string>
+
+    <string name="delete_hw_hotkey_confirmation_title">Remove physical hotkey?</string>
+    <string name="delete_hw_hotkey_confirmation_message">Do you really want to remove the physical hotkey?</string>
+
+    <string name="hw_hotkey_added">%1$s has been added</string>
+    <string name="hw_hotkey_removed">%1$s has been removed</string>
 
 </resources>

@@ -13,26 +13,11 @@
             android:orientation="vertical">
 
         <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/server_list"
+                android:id="@+id/hw_hotkey_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:itemCount="2"
-                tools:listitem="@layout/server_list_item" />
+                tools:listitem="@layout/hw_hotkey_list_item" />
     </LinearLayout>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/discover_servers_button"
-            android:layout_width="56dp"
-            android:layout_height="0dp"
-            android:layout_marginEnd="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
-            android:clickable="true"
-            android:focusable="true"
-            android:contentDescription="@string/discover_servers_button_description"
-            android:src="@drawable/discover"
-            app:tint="@color/fab_text"
-            app:backgroundTint="@color/secondary"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

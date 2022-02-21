@@ -4,8 +4,8 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.docheinstein.minimotek.data.server.Server
-import org.docheinstein.minimotek.data.server.ServerRepository
+import org.docheinstein.minimotek.database.server.Server
+import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
@@ -22,7 +22,7 @@ class ServersViewModel @Inject constructor(
         debug("ServersViewModel.init(), current servers size is ${servers.value?.size}")
     }
 
-   fun delete(server: Server) {
+    fun delete(server: Server) {
         ioScope.launch {
             serverRepository.delete(server)
         }

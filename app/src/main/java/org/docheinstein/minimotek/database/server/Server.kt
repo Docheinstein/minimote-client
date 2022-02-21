@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.data.server
+package org.docheinstein.minimotek.database.server
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

@@ -6,38 +6,58 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/hotkeys_button"
-        android:layout_width="56dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="@dimen/fab_margin"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:clickable="true"
-        android:contentDescription="@string/hotkeys"
-        android:focusable="true"
-        android:src="@drawable/hotkeys"
-        app:backgroundTint="@color/fab_background_secondary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:tint="@color/fab_text" />
+    <LinearLayout
+            android:id="@+id/widgets_bar_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/keyboard_text">
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/keyboard_button"
-        android:layout_width="56dp"
-        android:layout_height="0dp"
-        android:layout_marginEnd="@dimen/fab_margin"
-        android:layout_marginTop="@dimen/fab_margin"
-        android:clickable="true"
-        android:focusable="true"
-        android:contentDescription="@string/keyboard_button_description"
-        android:src="@drawable/keyboard"
-        app:tint="@color/fab_text"
-        app:backgroundTint="@color/fab_background_primary"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        <ImageView
+                android:id="@+id/separator0"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/primary" />
 
-    <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadPointerView
-        android:id="@+id/touchpad_pointer"
+        <LinearLayout
+                android:id="@+id/widgets_bar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/controller_widgets_bar_height"
+                android:background="@color/controller_widgets_bar"
+                android:orientation="horizontal">
+
+            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
+                    android:id="@+id/keyboard_widget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/controller_widget_size"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/keyboard" />
+
+            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
+                android:id="@+id/touchpad_buttons_widget"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/controller_widget_size"
+                android:layout_gravity="center"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/touchpad_buttons" />
+
+            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
+                    android:id="@+id/hotkeys_widget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/controller_widget_size"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/hotkeys" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
+        android:id="@+id/touchpad_area"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#424242"
@@ -54,7 +74,7 @@
             android:layout_height="wrap_content"
             android:background="#2C2A2A"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@id/keyboard_text_preview"
+            app:layout_constraintBottom_toTopOf="@id/widgets_bar_container"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -104,14 +124,14 @@
     </LinearLayout>
 
     <org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
+            android:id="@+id/keyboard_text"
             style="@style/Widget.AppCompat.EditText"
-            android:id="@+id/keyboard_text_preview"
             android:layout_width="match_parent"
             android:layout_height="64dp"
             android:background="@drawable/keyboard_text_preview"
             android:ems="10"
             android:gravity="center"
-            android:inputType="textPersonName"
+            android:inputType="text"
             android:textSize="22sp"
             android:visibility="gone"
             app:layout_constraintBottom_toBottomOf="parent"

@@ -1,5 +1,8 @@
 package org.docheinstein.minimotek
 
+// DB
+const val AUTO_ID = 0L
+
 // Discover
 const val DISCOVER_PORT = 50500
 const val ESTIMATED_DISCOVER_TIME = 8000 // ms

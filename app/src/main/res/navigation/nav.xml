@@ -3,7 +3,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/navigation"
-        app:startDestination="@+id/nav_servers">
+        app:startDestination="@id/nav_servers">
 
     <fragment
             android:id="@+id/nav_servers"
@@ -13,14 +13,41 @@
         <action
             android:id="@+id/action_add_edit_server"
             app:destination="@id/nav_add_edit_server"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:enterAnim="@anim/nav_enter_anim"
+            app:exitAnim="@anim/nav_exit_anim" />
         <action
             android:id="@+id/action_controller"
             app:destination="@id/nav_controller"
-            app:enterAnim="@anim/nav_default_enter_anim"
-            app:exitAnim="@anim/nav_default_exit_anim" />
+            app:enterAnim="@anim/nav_enter_anim"
+            app:exitAnim="@anim/nav_exit_anim" />
     </fragment>
+
+    <fragment
+            android:id="@+id/nav_hw_hotkeys"
+            android:name="org.docheinstein.minimotek.ui.hwhotkeys.HwHotkeysFragment"
+            android:label="@string/hwhotkeys"
+            tools:layout="@layout/hw_hotkey_list" >
+        <action
+            android:id="@+id/action_add_edit_hw_hotkey"
+            app:destination="@id/nav_add_edit_hw_hotkey"
+            app:enterAnim="@anim/nav_enter_anim"
+            app:exitAnim="@anim/nav_exit_anim" />
+    </fragment>
+
+
+    <fragment
+        android:id="@+id/nav_add_edit_hw_hotkey"
+        android:name="org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyFragment"
+        android:label="{title}">
+        <argument
+            android:name="hwHotkeyId"
+            app:argType="long" />
+        <argument
+            android:name="title"
+            app:argType="string" />
+    </fragment>
+
+
     <fragment
             android:id="@+id/nav_add_edit_server"
             android:name="org.docheinstein.minimotek.ui.server.AddEditServerFragment"
@@ -33,6 +60,7 @@
             android:name="title"
             app:argType="string" />
     </fragment>
+
     <fragment
             android:id="@+id/nav_controller"
             android:name="org.docheinstein.minimotek.ui.controller.ControllerFragment"
@@ -49,4 +77,24 @@
             app:argType="string" />
     </fragment>
 
+<!--    <action-->
+<!--        android:id="@+id/actionSettings"-->
+<!--        app:destination="@id/naviSettings"-->
+<!--        app:enterAnim="@anim/nav_enter_anim"-->
+<!--        app:exitAnim="@anim/nav_exit_anim" />-->
+    <action
+            android:id="@+id/action_servers"
+            app:destination="@id/nav_servers"
+            app:enterAnim="@anim/nav_enter_anim"
+            app:exitAnim="@anim/nav_exit_anim" />
+<!--    <action-->
+<!--        android:id="@+id/actionHotkeys"-->
+<!--        app:destination="@id/naviHotkeys"-->
+<!--        app:enterAnim="@anim/nav_enter_anim"-->
+<!--        app:exitAnim="@anim/nav_exit_anim" />-->
+    <action
+        android:id="@+id/action_hw_hotkeys"
+        app:destination="@id/nav_hw_hotkeys"
+        app:enterAnim="@anim/nav_enter_anim"
+        app:exitAnim="@anim/nav_exit_anim" />
 </navigation>

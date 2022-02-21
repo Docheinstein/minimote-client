@@ -6,8 +6,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import org.docheinstein.minimotek.data.DB
-import org.docheinstein.minimotek.data.server.ServerDao
+import org.docheinstein.minimotek.database.DB
+import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyDao
+import org.docheinstein.minimotek.database.server.ServerDao
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Singleton
 
@@ -25,5 +26,11 @@ object DBModule {
     fun provideServerDao(db: DB): ServerDao {
         debug("provideServerDao")
         return db.serverDao()
+    }
+
+    @Provides
+    fun provideHwHotkeyDao(db: DB): HwHotkeyDao {
+        debug("provideHwHotkeyDao")
+        return db.hwHotkeyDao()
     }
 }

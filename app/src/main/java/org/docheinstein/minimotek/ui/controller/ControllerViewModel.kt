@@ -5,8 +5,12 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.ktor.util.date.*
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import org.docheinstein.minimotek.*
+import org.docheinstein.minimotek.buttons.ButtonEventBus
+import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.connection.MinimoteConnection
+import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
@@ -22,7 +26,8 @@ import kotlin.math.roundToInt
 class ControllerViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
-//    private val serverRepository: ServerRepository,
+    private val buttonEventBus: ButtonEventBus,
+    private val hwHotkeyRepository: HwHotkeyRepository,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -33,20 +38,21 @@ class ControllerViewModel @Inject constructor(
         Disconnected
     }
 
+    companion object {
+        private const val SERVER_ADDRESS_STATE_KEY = "address"
+        private const val SERVER_PORT_STATE_KEY = "port"
+    }
+    // Connection
+
+    val serverAddress: String = savedStateHandle[SERVER_ADDRESS_STATE_KEY]!!
+    val serverPort: Int = savedStateHandle[SERVER_PORT_STATE_KEY]!!
+
     private val _connectionState = MutableLiveData(ConnectionState.Connecting)
     val connectionState: LiveData<ConnectionState>
         get() = _connectionState
     
     val isConnected
         get() = _connectionState.value == ConnectionState.Connected
-
-    companion object {
-        private const val SERVER_ADDRESS_STATE_KEY = "address"
-        private const val SERVER_PORT_STATE_KEY = "port"
-    }
-
-    val serverAddress: String = savedStateHandle[SERVER_ADDRESS_STATE_KEY]!!
-    val serverPort: Int = savedStateHandle[SERVER_PORT_STATE_KEY]!!
 
     private val connection = MinimoteConnection(serverAddress, serverPort)
     private var lastConnectionCheckTime: Long = 0
@@ -64,6 +70,15 @@ class ControllerViewModel @Inject constructor(
     // Scroll handling
     private var lastScrollTime: Long = 0
     private var lastScrollY = 0
+
+    // Widgets
+    private val _touchpadButtons = MutableLiveData(true)
+    val touchpadButtons: LiveData<Boolean>
+        get() = _touchpadButtons
+
+    private val _keyboard = MutableLiveData(false)
+    val keyboard: LiveData<Boolean>
+        get() = _keyboard
 
     init {
         debug("ControllerViewModel.init()")
@@ -85,11 +100,28 @@ class ControllerViewModel @Inject constructor(
             lastConnectionCheckTime = getTimeMillis()
             _connectionState.postValue(ConnectionState.Connected)
         }
+
+//        buttonEventBus.events
+//            .onEach { btn ->
+//                debug("ControllerViewModel notified about button press")
+//                delay(5000)
+//            }
+        viewModelScope.launch {
+            debug("Going to collect buttonEventBus events")
+            buttonEventBus.events.collect { btn ->
+                debug("Collected button press")
+                withContext(ioDispatcher) {
+                    handleButtonPressed(btn)
+                }
+                debug("Button handled in ControllerViewModel")
+            }
+            debug("Finished to collect buttonEventBus events")
+        }
     }
 
     override fun onCleared() {
         debug("ControllerViewModel.onCleared")
-        ioScope.launch() {
+        ioScope.launch {
             connection.disconnect()
         }
     }
@@ -287,15 +319,72 @@ class ControllerViewModel @Inject constructor(
         }
     }
 
+    fun openKeyboard() {
+        _keyboard.value = true
+    }
+
+    fun closeKeyboard() {
+        _keyboard.value = false
+    }
+
+    fun toggleKeyboard() {
+        _keyboard.value = !(_keyboard.value ?: false)
+    }
+
+    fun showTouchpadButtons() {
+        _touchpadButtons.value = true
+    }
+
+    fun hideTouchpadButtons() {
+        _touchpadButtons.value = false
+    }
+
+    fun toggleTouchpadButtons() {
+        _touchpadButtons.value = !(_touchpadButtons.value ?: false)
+    }
+
+    private suspend fun handleButtonPressed(button: ButtonType) {
+        debug("ControllerViewModel notified about press of button $button")
+
+        val hwHotkey = hwHotkeyRepository.get(button)
+
+        if (hwHotkey == null) {
+            debug("No mapping for button $hwHotkey")
+            return
+        }
+
+        debug("Retrieved hotkey for button: $hwHotkey")
+
+        val keys = mutableListOf<MinimoteKeyType>()
+
+        // Modifiers
+        if (hwHotkey.shift)
+            keys.add(MinimoteKeyType.ShiftLeft)
+        if (hwHotkey.ctrl)
+            keys.add(MinimoteKeyType.CtrlLeft)
+        if (hwHotkey.alt)
+            keys.add(MinimoteKeyType.AltLeft)
+        if (hwHotkey.altgr)
+            keys.add(MinimoteKeyType.AltGr)
+        if (hwHotkey.meta)
+            keys.add(MinimoteKeyType.MetaLeft)
+
+        // Base
+        keys.add(hwHotkey.key)
+
+        checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
+
+    }
+
     private suspend fun checkConnectionAndSendUdp(packet: MinimotePacket): Boolean {
-        return connectionIsStillAlive() && connection.sendUdp(packet)
+        return isConnectionStillAlive() && connection.sendUdp(packet)
     }
 
     private suspend fun checkConnectionAndSendTcp(packet: MinimotePacket): Boolean {
-        return connectionIsStillAlive() && connection.sendTcp(packet)
+        return isConnectionStillAlive() && connection.sendTcp(packet)
     }
 
-    private suspend fun connectionIsStillAlive(): Boolean {
+    private suspend fun isConnectionStillAlive(): Boolean {
         if (getTimeMillis() - lastConnectionCheckTime > CONNECTION_KEEP_ALIVE_TIME) {
             debug("Checking whether connection is still alive...")
             // too much time passed from last ping, check connection is still alive

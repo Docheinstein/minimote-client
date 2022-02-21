@@ -13,12 +13,12 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="@dimen/nav_header_icon"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/nav_header_description"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        app:srcCompat="@drawable/minimote" />
+            android:id="@+id/imageView"
+            android:layout_width="@dimen/nav_header_icon"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:contentDescription="@string/nav_header_description"
+            app:srcCompat="@drawable/minimote" />
 
     <TextView
             android:id="@+id/textView"

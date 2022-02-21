@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.data.discover.DiscoveredServer
+import org.docheinstein.minimotek.discover.DiscoveredServer
 import org.docheinstein.minimotek.databinding.DiscoverDialogBinding
 import org.docheinstein.minimotek.databinding.ServerListItemBinding
 import org.docheinstein.minimotek.util.TAG

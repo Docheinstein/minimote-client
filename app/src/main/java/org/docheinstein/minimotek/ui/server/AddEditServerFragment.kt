@@ -1,28 +1,18 @@
 package org.docheinstein.minimotek.ui.server
 
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.*
-import androidx.appcompat.widget.Toolbar
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.data.DB
-import org.docheinstein.minimotek.data.server.Server
+import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.databinding.AddEditServerBinding
 import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.NetUtils
-import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 
 @AndroidEntryPoint
@@ -63,7 +53,7 @@ class AddEditServerFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.add_edit_server, menu)
+        inflater.inflate(R.menu.save_delete, menu)
         if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
             menu.removeItem(R.id.delete_menu_item)
         }
@@ -131,6 +121,11 @@ class AddEditServerFragment : Fragment() {
             .setPositiveButton(R.string.ok) { _, _ ->
                 // actually delete
                 viewModel.delete()
+                Snackbar.make(
+                    requireParentFragment().requireView(),
+                    getString(R.string.server_removed, viewModel.server.value?.displayName()),
+                    Snackbar.LENGTH_LONG
+                ).show()
                 findNavController().navigateUp()
             }
             .setNegativeButton(R.string.cancel, null)

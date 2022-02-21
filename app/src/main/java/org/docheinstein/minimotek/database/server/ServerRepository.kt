@@ -1,8 +1,7 @@
-package org.docheinstein.minimotek.data.server
+package org.docheinstein.minimotek.database.server
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.info
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -11,10 +10,10 @@ import kotlin.random.Random
 
 @Singleton
 class ServerRepository @Inject constructor(private val serverDao: ServerDao) {
-    val servers: Flow<List<Server>> = serverDao.getAll()
+    val servers: Flow<List<Server>> = serverDao.loadAll()
 
-    fun get(id: Long): Flow<Server> {
-        return serverDao.get(id)
+    fun load(id: Long): Flow<Server> {
+        return serverDao.load(id)
     }
 
     suspend fun add(server: Server) {

@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.data.discover
+package org.docheinstein.minimotek.discover
 
 
 data class DiscoveredServer(

@@ -3,10 +3,9 @@ package org.docheinstein.minimotek.ui.server
 import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
-import org.docheinstein.minimotek.data.server.Server
-import org.docheinstein.minimotek.data.server.ServerRepository
+import org.docheinstein.minimotek.database.server.Server
+import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
-import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
@@ -29,7 +28,7 @@ class AddEditServerViewModel @Inject constructor(
 
     // server for EDIT mode
     private val serverId: Long = savedStateHandle[SERVER_ID_STATE_KEY]!!
-    val server = serverRepository.get(serverId).asLiveData()
+    val server = serverRepository.load(serverId).asLiveData()
     var mode: Mode
 
     init {

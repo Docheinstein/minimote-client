@@ -4,14 +4,24 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../../layout/custom_preview.xml" value="0.20277777777777778" />
+        <entry key="app/src/main/res/drawable-v24/touchpad_button_pressed.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable-v24/touchpad_button_unpressed.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/hotkey.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/hotkeys_overlay.xml" value="0.207" />
         <entry key="app/src/main/res/drawable/keyboard_preview.xml" value="0.2325" />
         <entry key="app/src/main/res/drawable/keyboard_text_preview.xml" value="0.2325" />
+        <entry key="app/src/main/res/drawable/nav_item_selector.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/touchpad_button_selector.xml" value="0.207" />
+        <entry key="app/src/main/res/layout/add_edit_hw_hotkey.xml" value="0.21" />
         <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_server_dialog.xml" value="0.10280797101449275" />
-        <entry key="app/src/main/res/layout/controller.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/controller.xml" value="0.33" />
         <entry key="app/src/main/res/layout/discover_dialog.xml" value="0.33" />
         <entry key="app/src/main/res/layout/discovery_dialog.xml" value="0.33" />
-        <entry key="app/src/main/res/layout/main.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/drawer_header.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/hw_hotkey_item.xml" value="0.33559782608695654" />
+        <entry key="app/src/main/res/layout/hw_hotkey_list.xml" value="0.33559782608695654" />
+        <entry key="app/src/main/res/layout/main.xml" value="0.33" />
         <entry key="app/src/main/res/layout/server_item.xml" value="0.20208333333333334" />
         <entry key="app/src/main/res/layout/server_list.xml" value="0.22" />
         <entry key="app/src/main/res/layout/server_list_item.xml" value="0.33" />
@@ -20,6 +30,7 @@
         <entry key="app/src/main/res/menu/drawer.xml" value="0.371875" />
         <entry key="app/src/main/res/menu/main.xml" value="0.371875" />
         <entry key="app/src/main/res/menu/server_context_menu.xml" value="0.2203125" />
+        <entry key="app/src/main/res/menu/servers.xml" value="0.1671875" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/minimote_icon.xml" value="0.15" />
       </map>
     </option>

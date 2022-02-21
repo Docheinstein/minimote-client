@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.data.discover
+package org.docheinstein.minimotek.discover
 
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
@@ -22,7 +22,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DiscoveredServerRepository @Inject constructor(
+class Discoverer @Inject constructor(
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
 

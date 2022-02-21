@@ -10,12 +10,12 @@
         android:foreground="?android:attr/selectableItemBackground">
 
     <ImageView
-            android:id="@+id/imageView2"
-            android:layout_width="@dimen/server_list_item_icon"
-            android:layout_height="@dimen/server_list_item_icon"
+            android:id="@+id/icon"
+            android:layout_width="@dimen/hw_hotkey_list_item_icon"
+            android:layout_height="@dimen/hw_hotkey_list_item_icon"
             android:layout_gravity="center_vertical"
             app:tint="@color/mid_gray"
-            app:srcCompat="@drawable/host" />
+            app:srcCompat="@drawable/volume_down" />
 
     <LinearLayout
             android:layout_width="0dp"
@@ -27,21 +27,13 @@
             android:orientation="vertical">
 
         <TextView
-                android:id="@+id/name"
+                android:id="@+id/label"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/mid_gray"
-                android:textSize="@dimen/server_list_item_primary_text"
+                android:textSize="18sp"
                 android:textStyle="bold"
-                tools:text="arch-linux" />
-
-        <TextView
-                android:id="@+id/address"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/mid_gray"
-                android:textSize="@dimen/server_list_item_secondary_text"
-                tools:text="192.168.1.102" />
+                tools:text="Volume Up" />
     </LinearLayout>
 
 </LinearLayout>

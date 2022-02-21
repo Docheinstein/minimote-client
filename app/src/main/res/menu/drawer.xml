@@ -2,9 +2,33 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item
-        android:id="@+id/servers_menu_item"
-        android:icon="@drawable/servers"
-        android:title="@string/servers"
-        app:showAsAction="ifRoom" />
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_servers"
+            android:icon="@drawable/servers"
+            android:title="@string/servers"
+            android:checkable="true"
+            app:showAsAction="ifRoom" />
+
+<!--        <item-->
+<!--            android:id="@+id/hotkeys_menu_item"-->
+<!--            android:icon="@drawable/hotkeys"-->
+<!--            android:title="@string/hotkeys"-->
+<!--            android:checkable="true"-->
+<!--            app:showAsAction="ifRoom" />-->
+
+        <item
+            android:id="@+id/nav_hw_hotkeys"
+            android:icon="@drawable/hwhotkeys"
+            android:title="@string/hwhotkeys"
+            android:checkable="true"
+            app:showAsAction="ifRoom" />
+
+<!--        <item-->
+<!--            android:id="@+id/settings_menu_item"-->
+<!--            android:icon="@drawable/settings"-->
+<!--            android:title="@string/settings"-->
+<!--            android:checkable="true"-->
+<!--            app:showAsAction="ifRoom" />-->
+    </group>
 </menu>

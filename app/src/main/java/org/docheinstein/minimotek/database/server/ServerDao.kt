@@ -1,19 +1,17 @@
-package org.docheinstein.minimotek.data.server
+package org.docheinstein.minimotek.database.server
 
 import androidx.room.*
-import androidx.room.OnConflictStrategy.IGNORE
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ServerDao {
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
-    fun get(id: Long): Flow<Server>
+    fun load(id: Long): Flow<Server>
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun getAll(): Flow<List<Server>>
+    fun loadAll(): Flow<List<Server>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-//    @Query("INSERT OR IGNORE INTO $TABLE_NAME ()")
     suspend fun add(server: Server): Long
 
     @Update

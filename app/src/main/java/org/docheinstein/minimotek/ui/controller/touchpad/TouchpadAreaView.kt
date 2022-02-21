@@ -7,7 +7,7 @@ import android.view.View
 import org.docheinstein.minimotek.util.debug
 import kotlin.math.roundToInt
 
-class TouchpadPointerView @JvmOverloads constructor(
+class TouchpadAreaView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
