@@ -33,7 +33,7 @@
                 android:textColor="@color/mid_gray"
                 android:textSize="18sp"
                 android:textStyle="bold"
-                tools:text="Volume Up" />
+                tools:text="Volume Down" />
     </LinearLayout>
 
 </LinearLayout>

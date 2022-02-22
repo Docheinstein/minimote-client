@@ -43,13 +43,13 @@ class AddEditHotkeyFragment : Fragment() {
                 debug("LiveData sent update for hotkey $hotkey, eventually updating UI")
                 if (hotkey != null) {
                     debug("Fetched hwHotkey is valid")
-//                    binding.button.setSelection(hwHotkey.button.name)
-//                    binding.alt.isChecked = hwHotkey.alt
-//                    binding.altgr.isChecked = hwHotkey.altgr
-//                    binding.ctrl.isChecked = hwHotkey.ctrl
-//                    binding.meta.isChecked = hwHotkey.meta
-//                    binding.shift.isChecked = hwHotkey.shift
-//                    binding.key.setSelection(hwHotkey.key.name)
+                    binding.key.setSelection(hotkey.key.name)
+                    binding.alt.isChecked = hotkey.alt
+                    binding.altgr.isChecked = hotkey.altgr
+                    binding.ctrl.isChecked = hotkey.ctrl
+                    binding.meta.isChecked = hotkey.meta
+                    binding.shift.isChecked = hotkey.shift
+                    binding.label.setText(hotkey.displayName())
                 } else {
                     warn("Invalid server")
                 }
@@ -82,30 +82,26 @@ class AddEditHotkeyFragment : Fragment() {
 
     private fun handleSaveButton() {
         debug("Handling save button")
-//
-//        val hwHotkey = HwHotkey(
-//            id = if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) viewModel.hwHotkey?.value!!.id else AUTO_ID,
-//            button = ButtonType.valueOf(binding.button.selectedItem.toString()),
-//            alt = binding.alt.isChecked,
-//            altgr = binding.altgr.isChecked,
-//            ctrl = binding.ctrl.isChecked,
-//            meta = binding.meta.isChecked,
-//            shift = binding.shift.isChecked,
-//            key = MinimoteKeyType.valueOf(binding.key.selectedItem.toString())
-//        )
-//
-//        debug("Saving hwHotkey = $hwHotkey")
-//
-//        if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.ADD) {
-//            viewModel.insert(hwHotkey)
-//            Snackbar.make(
-//                requireParentFragment().requireView(),
-//                getString(R.string.hw_hotkey_added, hwHotkey.button.name),
-//                Snackbar.LENGTH_LONG
-//            ).show()
-//        } else {
-//            viewModel.update(hwHotkey)
-//        }
+
+        val hotkey = viewModel.save(
+            key = MinimoteKeyType.valueOf(binding.key.selectedItem.toString()),
+            alt = binding.alt.isChecked,
+            altgr = binding.altgr.isChecked,
+            ctrl = binding.ctrl.isChecked,
+            meta = binding.meta.isChecked,
+            shift = binding.shift.isChecked,
+            label = binding.label.text.toString().ifEmpty { null }
+        )
+
+        if (viewModel.mode == AddEditHotkeyViewModel.Mode.ADD) {
+            Snackbar.make(
+                requireParentFragment().requireView(),
+                getString(R.string.hw_hotkey_added, hotkey.displayName()),
+                Snackbar.LENGTH_LONG
+            ).show()
+        } else {
+            // TODO
+        }
 
         findNavController().navigateUp()
     }
@@ -119,7 +115,7 @@ class AddEditHotkeyFragment : Fragment() {
                 viewModel.delete()
                 Snackbar.make(
                     requireParentFragment().requireView(),
-                    getString(R.string.hw_hotkey_removed, viewModel.hotkey?.value?.button?.name),
+                    getString(R.string.hw_hotkey_removed, viewModel.hotkey?.value?.displayName()),
                     Snackbar.LENGTH_LONG
                 ).show()
                 findNavController().navigateUp()

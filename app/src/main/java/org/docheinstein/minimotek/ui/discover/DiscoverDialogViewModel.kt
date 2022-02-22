@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collect
+import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.ESTIMATED_DISCOVER_TIME
 import org.docheinstein.minimotek.discover.DiscoveredServer
 import org.docheinstein.minimotek.discover.Discoverer
@@ -70,8 +71,8 @@ class DiscoverDialogViewModel @Inject constructor(
 
     fun insert(discoveredServer: DiscoveredServer) {
         ioScope.launch {
-            val s = Server(discoveredServer.address, discoveredServer.port, discoveredServer.hostname)
-            serverRepository.add(s)
+            val s = Server(AUTO_ID, discoveredServer.address, discoveredServer.port, discoveredServer.hostname)
+            serverRepository.save(s)
         }
     }
 }

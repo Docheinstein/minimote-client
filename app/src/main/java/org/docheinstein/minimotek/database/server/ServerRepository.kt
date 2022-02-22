@@ -16,16 +16,10 @@ class ServerRepository @Inject constructor(private val serverDao: ServerDao) {
         return serverDao.load(id)
     }
 
-    suspend fun add(server: Server) {
-        info("Adding server $server")
+    suspend fun save(server: Server) {
+        info("Saving server $server")
         delay((2000 * Random.nextFloat()).roundToLong()) // simulate latency
-        serverDao.add(server)
-    }
-
-    suspend fun update(server: Server) {
-        info("Updating server $server")
-        delay((2000 * Random.nextFloat()).roundToLong()) // simulate latency
-        serverDao.update(server)
+        serverDao.save(server)
     }
 
     suspend fun delete(server: Server) {

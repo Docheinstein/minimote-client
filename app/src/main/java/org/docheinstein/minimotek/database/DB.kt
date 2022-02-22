@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.HotkeyDao
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyDao
 import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerDao
 
-const val DATABASE_VERSION = 6
+const val DATABASE_VERSION = 8
 const val DATABASE_NAME = "minimote"
 
 @Database(
@@ -17,12 +19,14 @@ const val DATABASE_NAME = "minimote"
     exportSchema = false,
     entities = [
         Server::class,
+        Hotkey::class,
         HwHotkey::class
    ],
 )
 abstract class DB : RoomDatabase() {
     abstract fun serverDao(): ServerDao
     abstract fun hwHotkeyDao(): HwHotkeyDao
+    abstract fun hotkeyDao(): HotkeyDao
 
     // Singleton
     companion object {

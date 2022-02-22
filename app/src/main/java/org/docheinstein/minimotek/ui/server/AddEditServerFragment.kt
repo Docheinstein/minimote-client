@@ -108,17 +108,15 @@ class AddEditServerFragment : Fragment() {
 
         // Address and port are valid, actually add/update the server
         debug("Valid address and port, proceeding")
+        val server = viewModel.save(address, portInt, name)
         if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
-            val s = Server(address, portInt, name)
-            viewModel.insert(s)
             Snackbar.make(
                 requireParentFragment().requireView(),
-                getString(R.string.server_added, s.name ?: s.address),
+                getString(R.string.server_added, server.displayName()),
                 Snackbar.LENGTH_LONG
             ).show()
         } else {
-            val s = Server(viewModel.server?.value!!.id, address, portInt, name)
-            viewModel.update(s)
+            // TODO
         }
         
         findNavController().navigateUp()

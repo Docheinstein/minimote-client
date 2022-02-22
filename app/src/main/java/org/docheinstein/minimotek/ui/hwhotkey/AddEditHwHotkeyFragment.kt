@@ -82,8 +82,7 @@ class AddEditHwHotkeyFragment : Fragment() {
     private fun handleSaveButton() {
         debug("Handling save button")
 
-        val hwHotkey = HwHotkey(
-            id = if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) viewModel.hwHotkey?.value!!.id else AUTO_ID,
+        val hwHotkey = viewModel.save(
             button = ButtonType.valueOf(binding.button.selectedItem.toString()),
             alt = binding.alt.isChecked,
             altgr = binding.altgr.isChecked,
@@ -93,17 +92,14 @@ class AddEditHwHotkeyFragment : Fragment() {
             key = MinimoteKeyType.valueOf(binding.key.selectedItem.toString())
         )
 
-        debug("Saving hwHotkey = $hwHotkey")
-
         if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.ADD) {
-            viewModel.insert(hwHotkey)
             Snackbar.make(
                 requireParentFragment().requireView(),
                 getString(R.string.hw_hotkey_added, hwHotkey.button.name),
                 Snackbar.LENGTH_LONG
             ).show()
         } else {
-            viewModel.update(hwHotkey)
+            // TODO
         }
 
         findNavController().navigateUp()

@@ -10,6 +10,7 @@ import org.docheinstein.minimotek.*
 import org.docheinstein.minimotek.buttons.ButtonEventBus
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.connection.MinimoteConnection
+import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
@@ -31,7 +32,7 @@ class ControllerViewModel @Inject constructor(
     private val buttonEventBus: ButtonEventBus,
     private val settingsManager: SettingsManager,
     savedStateHandle: SavedStateHandle,
-) : ViewModel() {
+) : ViewModel(), ButtonEventBus.ButtonEventListener {
 
 
     enum class ConnectionState {
@@ -74,6 +75,7 @@ class ControllerViewModel @Inject constructor(
     private var lastScrollY = 0
 
     // Widgets
+    // TODO call these fields isXxxShown
     private val _touchpadButtons = MutableLiveData(true)
     val touchpadButtons: LiveData<Boolean>
         get() = _touchpadButtons
@@ -86,12 +88,32 @@ class ControllerViewModel @Inject constructor(
     val hotkeys: LiveData<Boolean>
         get() = _hotkeys
 
+    // Hardware hotkeys
+    // We have to keep those cached and up to date since we have
+    // to say whether we want to handle the event or note synchronously
+    // and therefore there's no time to fetch the mapping from the db
+    private val buttonsMapping = mutableMapOf<ButtonType, HwHotkey>()
+
     init {
         debug("ControllerViewModel.init()")
+
+        // Subscribe button events
+        buttonEventBus.addButtonEventListener(this)
 
         _keyboard.value = settingsManager.getAutomaticallyOpenKeyboard()
         _touchpadButtons.value = settingsManager.getAutomaticallyShowTouchpadButtons()
         _hotkeys.value = settingsManager.getAutomaticallyShowHotkeys()
+
+        // Fetch the physical hotkeys
+        viewModelScope.launch {
+            hwHotkeyRepository.loadAll().collect { hwHotkeys ->
+                debug("Updating cached hw hotkeys")
+                buttonsMapping.clear()
+                for (h in hwHotkeys) {
+                    buttonsMapping[h.button] = h
+                }
+            }
+        }
 
         viewModelScope.launch(ioDispatcher) {
             if (!connection.connect()) {
@@ -116,17 +138,17 @@ class ControllerViewModel @Inject constructor(
 //                debug("ControllerViewModel notified about button press")
 //                delay(5000)
 //            }
-        viewModelScope.launch {
-            debug("Going to collect buttonEventBus events")
-            buttonEventBus.events.collect { btn ->
-                debug("Collected button press")
-                withContext(ioDispatcher) {
-                    handleButtonPressed(btn)
-                }
-                debug("Button handled in ControllerViewModel")
-            }
-            debug("Finished to collect buttonEventBus events")
-        }
+//        viewModelScope.launch {
+//            debug("Going to collect buttonEventBus events")
+//            buttonEventBus.events.collect { btn ->
+//                debug("Collected button press")
+//                withContext(ioDispatcher) {
+//                    handleButtonPressed(btn)
+//                }
+//                debug("Button handled in ControllerViewModel")
+//            }
+//            debug("Finished to collect buttonEventBus events")
+//        }
     }
 
     override fun onCleared() {
@@ -134,6 +156,8 @@ class ControllerViewModel @Inject constructor(
         ioScope.launch {
             connection.disconnect()
         }
+        // Unsubscribe button events
+        buttonEventBus.removeButtonEventListener(this)
     }
 
     fun leftDown() {
@@ -303,30 +327,54 @@ class ControllerViewModel @Inject constructor(
         }
     }
 
-    fun keyDown(keyCode: Int) {
+    fun keyDown(keyCode: Int): Boolean {
         if (!isConnected)
-            return
+            return false
+
+        // Intercept hotkeys (e.g. VolumeUp with keyboard open)
+        val button = ButtonType.byKeyCode(keyCode)
+        if (button != null && buttonsMapping.contains(button))
+            // key handled, publish the event
+            // (so that this ViewModel will handle it since we are also listeners of the bus)
+            return buttonEventBus.publish(button)
+
+        // Standard case: other key pressed
         val key = MinimoteKeyType.byKeyCode(keyCode)
         if (key == null) {
             warn("No key for keyCode $keyCode")
-            return
+            return false // key not handled
         }
+
         viewModelScope.launch(ioDispatcher) {
             checkConnectionAndSendTcp(MinimotePacketFactory.newKeyDown(key))
         }
+
+        return true // key handled
     }
 
-    fun keyUp(keyCode: Int) {
+    fun keyUp(keyCode: Int): Boolean {
         if (!isConnected)
-            return
+            return false
+
+        // Intercept hotkeys (e.g. VolumeUp with keyboard open)
+        val button = ButtonType.byKeyCode(keyCode)
+        if (button != null && buttonsMapping.contains(button))
+            // key handled, but do not publish since
+            // we have already published it in keyDown
+            return true
+
+        // Standard case: other key pressed
         val key = MinimoteKeyType.byKeyCode(keyCode)
         if (key == null) {
             warn("No key for keyCode $keyCode")
-            return
+            return false // key not handled
         }
+
         viewModelScope.launch(ioDispatcher) {
             checkConnectionAndSendTcp(MinimotePacketFactory.newKeyUp(key))
         }
+
+        return true // key handled
     }
 
     fun openKeyboard() {
@@ -353,37 +401,45 @@ class ControllerViewModel @Inject constructor(
         _touchpadButtons.value = !(_touchpadButtons.value ?: false)
     }
 
-    private suspend fun handleButtonPressed(button: ButtonType) {
+
+    override fun onButtonPressed(button: ButtonType): Boolean {
         debug("ControllerViewModel notified about press of button $button")
 
-        val hwHotkey = hwHotkeyRepository.get(button)
-
+        val hwHotkey = buttonsMapping[button]
         if (hwHotkey == null) {
             debug("No mapping for button $hwHotkey")
-            return
+            return false // not handled
         }
 
         debug("Retrieved hotkey for button: $hwHotkey")
 
+        viewModelScope.launch(ioDispatcher) {
+            hotkey(hwHotkey)
+        }
+
+        return true // handled
+    }
+
+    // TODO: base class for hotkey
+    private suspend fun hotkey(hotkey: HwHotkey) {
         val keys = mutableListOf<MinimoteKeyType>()
 
         // Modifiers
-        if (hwHotkey.shift)
+        if (hotkey.shift)
             keys.add(MinimoteKeyType.ShiftLeft)
-        if (hwHotkey.ctrl)
+        if (hotkey.ctrl)
             keys.add(MinimoteKeyType.CtrlLeft)
-        if (hwHotkey.alt)
+        if (hotkey.alt)
             keys.add(MinimoteKeyType.AltLeft)
-        if (hwHotkey.altgr)
+        if (hotkey.altgr)
             keys.add(MinimoteKeyType.AltGr)
-        if (hwHotkey.meta)
+        if (hotkey.meta)
             keys.add(MinimoteKeyType.MetaLeft)
 
-        // Base
-        keys.add(hwHotkey.key)
+        // Base key
+        keys.add(hotkey.key)
 
         checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
-
     }
 
     private suspend fun checkConnectionAndSendUdp(packet: MinimotePacket): Boolean {

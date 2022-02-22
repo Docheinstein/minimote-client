@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
+import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.databinding.*
 import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
@@ -72,6 +73,13 @@ class HwHotkeysFragment : Fragment() {
 
             holder.binding.label.text = hwHotkey.button.name
 
+            val icon = when (hwHotkey.button) {
+                ButtonType.VolumeDown -> { R.drawable.volume_down }
+                ButtonType.VolumeUp -> { R.drawable.volume_up }
+            }
+
+            holder.binding.icon.setImageResource(icon)
+
             holder.binding.root.setOnClickListener {
                 debug("Click on hwHotkey $hwHotkey")
                  holder.itemView.findNavController().navigate(
@@ -99,7 +107,7 @@ class HwHotkeysFragment : Fragment() {
         adapter = HwHotkeyListAdapter()
         binding.hwHotkeyList.adapter = adapter
 
-        // Observe server list changes
+        // Observe hw hotkeys list changes
         viewModel.hwHotkeys.observe(viewLifecycleOwner) { hwHotkeys ->
             debug("Server list update detected (new size = ${hwHotkeys.size}, changing UI accordingly)")
             adapter.submitList(hwHotkeys)
@@ -151,8 +159,6 @@ class HwHotkeysFragment : Fragment() {
                                 getString(R.string.hw_hotkey_removed, hwHotkey.button.name),
                                 Snackbar.LENGTH_LONG
                             ).show()
-
-                            findNavController().navigateUp()
                         }
                         .setNegativeButton(R.string.cancel, null)
                         .show()

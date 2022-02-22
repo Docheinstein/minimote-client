@@ -15,6 +15,8 @@
     <string name="hostname">Hostname</string>
     <string name="name">Name</string>
 
+    <string name="display_name">Display name</string>
+
     <!-- Edit hotkey -->
     <string name="edit_hotkey_preview">Preview</string>
     <string name="edit_hotkey_modifiers">Modifiers</string>
@@ -126,6 +128,10 @@
 
     <string name="toolbar_title_add_server">Add server</string>
     <string name="toolbar_title_edit_server">Edit server</string>
+
+
+    <string name="toolbar_title_add_hotkey">Add hotkey</string>
+    <string name="toolbar_title_edit_hotkey">Edit hotkey</string>
 
 
     <string name="toolbar_title_add_hw_hotkey">Add hotkey</string>

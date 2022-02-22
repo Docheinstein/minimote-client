@@ -155,7 +155,6 @@ class ServersFragment : Fragment() {
                                 getString(R.string.server_removed, server.displayName()),
                                 Snackbar.LENGTH_LONG
                             ).show()
-                            findNavController().navigateUp()
                         }
                         .setNegativeButton(R.string.cancel, null)
                         .show()

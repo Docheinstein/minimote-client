@@ -6,6 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 const val TABLE_NAME = "server"
+
 const val COLUMN_ID = "id"
 const val COLUMN_ADDRESS = "address"
 const val COLUMN_PORT = "port"
@@ -32,9 +33,6 @@ data class Server(
     @ColumnInfo(name = COLUMN_NAME)
     val name: String?,
 ) {
-    constructor(address: String, port: Int, name: String?) :
-            this(0, address, port, name)
-
     fun displayName(): String {
         return name ?: address
     }

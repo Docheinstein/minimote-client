@@ -94,7 +94,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:backgroundTint="@color/white"
-                                android:hint="@string/name" />
+                                android:hint="@string/display_name" />
                     </com.google.android.material.textfield.TextInputLayout>
 
 

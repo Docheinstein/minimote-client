@@ -16,10 +16,7 @@ interface HwHotkeyDao {
     suspend fun getByButton(button: ButtonType): HwHotkey?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun add(hwHotkey: HwHotkey): Long
-
-    @Update
-    suspend fun update(hwHotkey: HwHotkey): Int
+    suspend fun save(hwHotkey: HwHotkey): Long
 
     @Delete
     suspend fun delete(hwHotkey: HwHotkey): Int

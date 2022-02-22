@@ -61,10 +61,10 @@
 
     <fragment
         android:id="@+id/nav_add_edit_hotkey"
-        android:name="org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyFragment"
+        android:name="org.docheinstein.minimotek.ui.hotkey.AddEditHotkeyFragment"
         android:label="{title}">
         <argument
-            android:name="hwHotkeyId"
+            android:name="hotkeyId"
             app:argType="long" />
         <argument
             android:name="title"

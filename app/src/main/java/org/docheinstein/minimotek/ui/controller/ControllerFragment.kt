@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
+import android.widget.Button
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -12,6 +13,7 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
+import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.databinding.ControllerBinding
 import org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
 import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
@@ -170,12 +172,13 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
         }
     }
 
-    override fun onKeyboardKey(keyCode: Int, event: KeyEvent) {
+    override fun onKeyboardKey(keyCode: Int, event: KeyEvent): Boolean {
         debug("onKey: $keyCode")
 
-        when (event.action) {
+        return when (event.action) {
             KeyEvent.ACTION_DOWN -> { viewModel.keyDown(keyCode)}
             KeyEvent.ACTION_UP -> { viewModel.keyUp(keyCode) }
+            else -> { false }
         }
     }
 }

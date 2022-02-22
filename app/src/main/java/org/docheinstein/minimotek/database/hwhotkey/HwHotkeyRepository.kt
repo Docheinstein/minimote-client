@@ -16,19 +16,18 @@ class HwHotkeyRepository @Inject constructor(private val hwHotkeyDao: HwHotkeyDa
         return hwHotkeyDao.load(id)
     }
 
+    fun loadAll(): Flow<List<HwHotkey>> {
+        return hwHotkeyDao.loadAll()
+    }
+
     suspend fun get(button: ButtonType): HwHotkey? {
         debug("Getting hw hotkey by button $button")
         return hwHotkeyDao.getByButton(button)
     }
 
-    suspend fun add(hwHotkey: HwHotkey) {
-        info("Adding hwHotkey $hwHotkey")
-        hwHotkeyDao.add(hwHotkey)
-    }
-
-    suspend fun update(hwHotkey: HwHotkey) {
-        info("Updating hwHotkey $hwHotkey")
-        hwHotkeyDao.update(hwHotkey)
+    suspend fun save(hwHotkey: HwHotkey) {
+        info("Saving hwHotkey $hwHotkey")
+        hwHotkeyDao.save(hwHotkey)
     }
 
     suspend fun delete(hwHotkey: HwHotkey) {

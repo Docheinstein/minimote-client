@@ -5,6 +5,8 @@ import androidx.lifecycle.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.HotkeyRepository
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
@@ -14,18 +16,18 @@ import javax.inject.Inject
 @HiltViewModel
 class HotkeysViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
-    private val hwHotkeyRepository: HwHotkeyRepository
+    private val hotkeyRepository: HotkeyRepository
 ) : ViewModel() {
 
-    val hwHotkeys = hwHotkeyRepository.hwHotkeys.asLiveData()
+    val hotkeys = hotkeyRepository.hotkeys.asLiveData()
 
     init {
         debug("HwHotkeysViewModel.init()")
     }
 
-    fun delete(hwHotkey: HwHotkey) {
+    fun delete(hotkey: Hotkey) {
         ioScope.launch {
-            hwHotkeyRepository.delete(hwHotkey)
+            hotkeyRepository.delete(hotkey)
         }
     }
 }

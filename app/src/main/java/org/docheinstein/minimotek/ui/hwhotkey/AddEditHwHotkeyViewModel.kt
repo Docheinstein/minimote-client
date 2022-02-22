@@ -9,10 +9,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import org.docheinstein.minimotek.AUTO_ID
+import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.di.IOGlobalScope
+import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
@@ -35,24 +39,38 @@ class AddEditHwHotkeyViewModel @Inject constructor(
     }
 
     private val hwHotkeyId: Long = savedStateHandle[HW_HOTKEY_ID_STATE_KEY] ?: HW_HOTKEY_ID_NONE
-    val mode = if (hwHotkeyId != HW_HOTKEY_ID_NONE) Mode.EDIT else Mode.ADD
+    val mode = if (hwHotkeyId == HW_HOTKEY_ID_NONE) Mode.ADD else Mode.EDIT
     val hwHotkey = if (mode == Mode.EDIT) hwHotkeyRepository.load(hwHotkeyId).asLiveData() else null
 
     init {
         debug("AddEditHwHotkeyViewModel.init() for hwHotkeyId = $hwHotkeyId")
     }
 
-    fun insert(hwHotkey: HwHotkey) {
+    fun save(
+        button: ButtonType,
+        alt: Boolean,
+        altgr: Boolean,
+        ctrl: Boolean,
+        meta: Boolean,
+        shift: Boolean,
+        key: MinimoteKeyType
+    ): HwHotkey {
+        val hwHotkey = HwHotkey(
+            id = if (mode == Mode.EDIT) hwHotkey?.value!!.id else AUTO_ID,
+            button = button,
+            alt = alt,
+            altgr = altgr,
+            ctrl = ctrl,
+            meta = meta,
+            shift = shift,
+            key = key
+        )
         ioScope.launch {
-            hwHotkeyRepository.add(hwHotkey)
+            hwHotkeyRepository.save(hwHotkey)
         }
+        return hwHotkey
     }
 
-    fun update(hwHotkey: HwHotkey) {
-        ioScope.launch {
-            hwHotkeyRepository.update(hwHotkey)
-        }
-    }
 
     fun delete() {
         ioScope.launch {

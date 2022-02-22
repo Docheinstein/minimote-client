@@ -6,9 +6,15 @@ import androidx.lifecycle.asLiveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import org.docheinstein.minimotek.AUTO_ID
+import org.docheinstein.minimotek.buttons.ButtonType
+import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.HotkeyRepository
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
+import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyViewModel
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
@@ -30,24 +36,37 @@ class AddEditHotkeyViewModel @Inject constructor(
         EDIT
     }
 
-    private val hwHotkeyId: Long = savedStateHandle[HOTKEY_ID_STATE_KEY] ?: HOTKEY_ID_NONE
-    val mode = if (hwHotkeyId != HOTKEY_ID_NONE) Mode.EDIT else Mode.ADD
-    val hotkey = if (mode == Mode.EDIT) hotkeyRepository.load(hwHotkeyId).asLiveData() else null
+    private val hotkeyId: Long = savedStateHandle[HOTKEY_ID_STATE_KEY] ?: HOTKEY_ID_NONE
+    val mode = if (hotkeyId == HOTKEY_ID_NONE) Mode.ADD else Mode.EDIT
+    val hotkey = if (mode == Mode.EDIT) hotkeyRepository.load(hotkeyId).asLiveData() else null
 
     init {
-        debug("AddEditHotkeyViewModel.init() for hwHotkeyId = $hwHotkeyId")
+        debug("AddEditHotkeyViewModel.init() for hotkeyId = $hotkeyId")
     }
 
-    fun insert(hwHotkey: HwHotkey) {
+    fun save(
+        key: MinimoteKeyType,
+        alt: Boolean,
+        altgr: Boolean,
+        ctrl: Boolean,
+        meta: Boolean,
+        shift: Boolean,
+        label: String?
+        ): Hotkey {
+        val hotkey = Hotkey(
+            id = if (mode == Mode.EDIT) hotkey?.value!!.id else AUTO_ID,
+            alt = alt,
+            altgr = altgr,
+            ctrl = ctrl,
+            meta = meta,
+            shift = shift,
+            key = key,
+            label = label,
+        )
         ioScope.launch {
-            hotkeyRepository.add(hwHotkey)
+            hotkeyRepository.save(hotkey)
         }
-    }
-
-    fun update(hwHotkey: HwHotkey) {
-        ioScope.launch {
-            hotkeyRepository.update(hwHotkey)
-        }
+        return hotkey
     }
 
     fun delete() {

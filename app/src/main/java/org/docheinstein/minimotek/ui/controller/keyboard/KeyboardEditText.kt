@@ -24,7 +24,7 @@ class KeyboardEditText @JvmOverloads constructor(
 
     interface KeyboardListener {
         fun onKeyboardText(s: CharSequence, start: Int, before: Int, count: Int)
-        fun onKeyboardKey(keyCode: Int, event: KeyEvent)
+        fun onKeyboardKey(keyCode: Int, event: KeyEvent): Boolean
         fun onKeyboardShown()
         fun onKeyboardHidden()
     }
@@ -149,7 +149,6 @@ class KeyboardEditText @JvmOverloads constructor(
         if (event == null || listener == null)
             return false
         debug("KeyboardEditText.onKey() (keyCode = $keyCode)")
-        listener?.onKeyboardKey(keyCode, event)
-        return true
+        return listener!!.onKeyboardKey(keyCode, event)
     }
 }
