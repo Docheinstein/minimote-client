@@ -14,13 +14,17 @@ class HotkeyRepository @Inject constructor(private val hotkeyDao: HotkeyDao) {
         return hotkeyDao.load(id)
     }
 
+    suspend fun updatePosition(id: Long, x: Int, y: Int) {
+        info("Updating hotkey position $id")
+        hotkeyDao.updatePosition(id, x, y)
+    }
     suspend fun save(hotkey: Hotkey) {
-        info("Saving hotkeyDao $hotkey")
+        info("Saving hotkey $hotkey")
         hotkeyDao.save(hotkey)
     }
 
     suspend fun delete(hotkey: Hotkey) {
-        info("Deleting hwHotkey $hotkey")
+        info("Deleting hotkey $hotkey")
         hotkeyDao.delete(hotkey)
     }
 }

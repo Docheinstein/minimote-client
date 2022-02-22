@@ -10,6 +10,8 @@ import org.docheinstein.minimotek.*
 import org.docheinstein.minimotek.buttons.ButtonEventBus
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.connection.MinimoteConnection
+import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.HotkeyRepository
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IODispatcher
@@ -29,6 +31,7 @@ class ControllerViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     private val hwHotkeyRepository: HwHotkeyRepository,
+    private val hotkeyRepository: HotkeyRepository,
     private val buttonEventBus: ButtonEventBus,
     private val settingsManager: SettingsManager,
     savedStateHandle: SavedStateHandle,
@@ -87,6 +90,9 @@ class ControllerViewModel @Inject constructor(
     private val _hotkeys = MutableLiveData(false)
     val hotkeys: LiveData<Boolean>
         get() = _hotkeys
+
+
+    val hotkeysX = hotkeyRepository.hotkeys.asLiveData()
 
     // Hardware hotkeys
     // We have to keep those cached and up to date since we have
@@ -401,6 +407,18 @@ class ControllerViewModel @Inject constructor(
         _touchpadButtons.value = !(_touchpadButtons.value ?: false)
     }
 
+    fun showHotkeys() {
+        _hotkeys.value = true
+    }
+
+    fun hideHotkeys() {
+        _hotkeys.value = false
+    }
+
+    fun toggleHotkeys() {
+        _hotkeys.value = !(_hotkeys.value ?: false)
+    }
+
 
     override fun onButtonPressed(button: ButtonType): Boolean {
         debug("ControllerViewModel notified about press of button $button")
@@ -413,33 +431,54 @@ class ControllerViewModel @Inject constructor(
 
         debug("Retrieved hotkey for button: $hwHotkey")
 
-        viewModelScope.launch(ioDispatcher) {
-            hotkey(hwHotkey)
-        }
-
         return true // handled
     }
 
     // TODO: base class for hotkey
-    private suspend fun hotkey(hotkey: HwHotkey) {
-        val keys = mutableListOf<MinimoteKeyType>()
+    fun hotkey(hotkey: HwHotkey) {
+        viewModelScope.launch(ioDispatcher) {
+            val keys = mutableListOf<MinimoteKeyType>()
 
-        // Modifiers
-        if (hotkey.shift)
-            keys.add(MinimoteKeyType.ShiftLeft)
-        if (hotkey.ctrl)
-            keys.add(MinimoteKeyType.CtrlLeft)
-        if (hotkey.alt)
-            keys.add(MinimoteKeyType.AltLeft)
-        if (hotkey.altgr)
-            keys.add(MinimoteKeyType.AltGr)
-        if (hotkey.meta)
-            keys.add(MinimoteKeyType.MetaLeft)
+            // Modifiers
+            if (hotkey.shift)
+                keys.add(MinimoteKeyType.ShiftLeft)
+            if (hotkey.ctrl)
+                keys.add(MinimoteKeyType.CtrlLeft)
+            if (hotkey.alt)
+                keys.add(MinimoteKeyType.AltLeft)
+            if (hotkey.altgr)
+                keys.add(MinimoteKeyType.AltGr)
+            if (hotkey.meta)
+                keys.add(MinimoteKeyType.MetaLeft)
 
-        // Base key
-        keys.add(hotkey.key)
+            // Base key
+            keys.add(hotkey.key)
 
-        checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
+            checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
+        }
+    }
+
+    fun hotkey(hotkey: Hotkey) {
+        viewModelScope.launch(ioDispatcher) {
+            val keys = mutableListOf<MinimoteKeyType>()
+
+            // Modifiers
+            if (hotkey.shift)
+                keys.add(MinimoteKeyType.ShiftLeft)
+            if (hotkey.ctrl)
+                keys.add(MinimoteKeyType.CtrlLeft)
+            if (hotkey.alt)
+                keys.add(MinimoteKeyType.AltLeft)
+            if (hotkey.altgr)
+                keys.add(MinimoteKeyType.AltGr)
+            if (hotkey.meta)
+                keys.add(MinimoteKeyType.MetaLeft)
+
+            // Base key
+            keys.add(hotkey.key)
+
+            checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
+        }
     }
 
     private suspend fun checkConnectionAndSendUdp(packet: MinimotePacket): Boolean {

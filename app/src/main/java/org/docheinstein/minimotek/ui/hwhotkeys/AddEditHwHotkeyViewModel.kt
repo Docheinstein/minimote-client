@@ -1,22 +1,17 @@
-package org.docheinstein.minimotek.ui.hwhotkey
+package org.docheinstein.minimotek.ui.hwhotkeys
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
-import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 

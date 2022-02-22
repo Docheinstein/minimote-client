@@ -17,4 +17,8 @@ interface HotkeyDao {
 
     @Delete
     suspend fun delete(hotkey: Hotkey): Int
+
+    // UPDATE
+    @Query("UPDATE $TABLE_NAME SET $COLUMN_X = :x, $COLUMN_Y = :y WHERE $COLUMN_ID = :id")
+    fun updatePosition(id: Long, x: Int, y: Int)
 }

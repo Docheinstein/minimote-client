@@ -16,9 +16,6 @@ import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.databinding.*
 import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
-import org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyFragmentDirections
-import org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyViewModel
-import org.docheinstein.minimotek.ui.servers.ServersFragmentDirections
 import org.docheinstein.minimotek.util.debug
 
 

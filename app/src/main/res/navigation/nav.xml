@@ -36,7 +36,7 @@
 
     <fragment
         android:id="@+id/nav_add_edit_hw_hotkey"
-        android:name="org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyFragment"
+        android:name="org.docheinstein.minimotek.ui.hwhotkeys.AddEditHwHotkeyFragment"
         android:label="{title}">
         <argument
             android:name="hwHotkeyId"
@@ -61,7 +61,7 @@
 
     <fragment
         android:id="@+id/nav_add_edit_hotkey"
-        android:name="org.docheinstein.minimotek.ui.hotkey.AddEditHotkeyFragment"
+        android:name="org.docheinstein.minimotek.ui.hotkeys.AddEditHotkeyFragment"
         android:label="{title}">
         <argument
             android:name="hotkeyId"
@@ -73,7 +73,7 @@
 
     <fragment
             android:id="@+id/nav_add_edit_server"
-            android:name="org.docheinstein.minimotek.ui.server.AddEditServerFragment"
+            android:name="org.docheinstein.minimotek.ui.servers.AddEditServerFragment"
             android:label="{title}"
             tools:layout="@layout/add_edit_server">
         <argument

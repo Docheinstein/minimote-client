@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.ui.hotkey
+package org.docheinstein.minimotek.ui.hotkeys
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -7,17 +7,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
-import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.database.hotkey.HotkeyRepository
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyViewModel
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 
+private const val DEFAULT_HOTKEY_X = 24
+private const val DEFAULT_HOTKEY_Y = 24
 
 @HiltViewModel
 class AddEditHotkeyViewModel @Inject constructor(
@@ -52,7 +50,7 @@ class AddEditHotkeyViewModel @Inject constructor(
         meta: Boolean,
         shift: Boolean,
         label: String?
-        ): Hotkey {
+    ): Hotkey {
         val hotkey = Hotkey(
             id = if (mode == Mode.EDIT) hotkey?.value!!.id else AUTO_ID,
             alt = alt,
@@ -62,6 +60,8 @@ class AddEditHotkeyViewModel @Inject constructor(
             shift = shift,
             key = key,
             label = label,
+            x = DEFAULT_HOTKEY_X,
+            y = DEFAULT_HOTKEY_Y
         )
         ioScope.launch {
             hotkeyRepository.save(hotkey)

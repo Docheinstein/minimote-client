@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -13,15 +14,16 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.databinding.HotkeysBinding
-import org.docheinstein.minimotek.ui.hotkey.AddEditHotkeyViewModel
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
+import kotlin.math.roundToInt
 
 @AndroidEntryPoint
 class HotkeysFragment : Fragment() {
     private val viewModel: HotkeysViewModel by viewModels()
     private lateinit var binding: HotkeysBinding
 
+    private lateinit var saveButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +51,12 @@ class HotkeysFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.add, menu)
+        inflater.inflate(R.menu.add_save, menu)
+        saveButton = menu.findItem(R.id.save_menu_item)
+        saveButton.icon.mutate()
+//        saveButton.isEnabled = false
+//        saveButton.icon.mutate().alpha = 120
+        setSaveButtonEnabled(false)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -57,6 +64,9 @@ class HotkeysFragment : Fragment() {
             R.id.add_menu_item -> {
                 handleAddHotkeyButton()
                 return true
+            }
+            R.id.save_menu_item -> {
+                handleSaveHotkeysButton()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -113,6 +123,7 @@ class HotkeysFragment : Fragment() {
         }
     }
 
+
     private fun handleHotkeyDragged(v: View, ev: DragEvent) {
         when (ev.action) {
             DragEvent.ACTION_DRAG_STARTED -> {
@@ -141,7 +152,7 @@ class HotkeysFragment : Fragment() {
 
                 debug("Dropped hotkey: $hotkeyIdStr")
 
-                val hotkeyView: TextView? = binding.hotkeys.findViewWithTag(hotkeyIdStr)
+                val hotkeyView: HotkeyView? = binding.hotkeys.findViewWithTag(hotkeyIdStr)
 
                 if (hotkeyView == null) {
                     warn("Failed to find hotkey for tag $hotkeyIdStr")
@@ -159,6 +170,7 @@ class HotkeysFragment : Fragment() {
                     this.topMargin = y
                 }
 
+                setSaveButtonEnabled(true)
             }
             else -> {
                 warn("Unknown rag event detected")
@@ -169,17 +181,15 @@ class HotkeysFragment : Fragment() {
     private fun makeHotkeyView(hotkey: Hotkey): View {
         val hotkeyIdStr = hotkey.id.toString()
 
-        val hotkeyView = TextView(context)
+        val hotkeyView = HotkeyView(requireContext(), hotkey = hotkey)
         hotkeyView.tag = hotkeyIdStr
-        hotkeyView.text = hotkey.displayName()
-        hotkeyView.textSize = 24f
 
         val lp = FrameLayout.LayoutParams(
             FrameLayout.LayoutParams.WRAP_CONTENT,
             FrameLayout.LayoutParams.WRAP_CONTENT
         )
-        lp.leftMargin = 50
-        lp.topMargin = 50
+        lp.leftMargin = hotkey.x
+        lp.topMargin = hotkey.y
         hotkeyView.layoutParams = lp
 
         hotkeyView.setOnClickListener {
@@ -197,13 +207,34 @@ class HotkeysFragment : Fragment() {
             it.startDragAndDrop(
                 ClipData.newPlainText(hotkeyIdStr, hotkeyIdStr),
                 View.DragShadowBuilder(hotkeyView),
-                null, 0
+                hotkey, 0
             )
 
             true
         }
 
         return hotkeyView
+    }
+
+    private fun handleSaveHotkeysButton() {
+        debug("Clicked on save, saving ${binding.hotkeys.childCount} hotkeys")
+
+        for (hotkeyView in binding.hotkeys.children) {
+            if (hotkeyView !is HotkeyView) {
+                warn("Child view is not an hotkey view!?")
+                continue
+            }
+
+            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
+            val id = (hotkeyView.tag as String).toLong()
+            val x = lp.leftMargin
+            val y = lp.topMargin
+
+            debug("Updating hotkey $id to position ($x,$y)")
+            viewModel.updatePosition(id, x, y)
+        }
+
+        findNavController().navigateUp()
     }
 
     private fun handleAddHotkeyButton() {
@@ -213,5 +244,15 @@ class HotkeysFragment : Fragment() {
                 getString(R.string.toolbar_title_add_hotkey)
             )
         )
+    }
+
+    private fun setSaveButtonEnabled(enabled: Boolean) {
+        if (enabled) {
+            saveButton.isEnabled = true
+            saveButton.icon.alpha = 255
+        } else {
+            saveButton.isEnabled = false
+            saveButton.icon.alpha = 127
+        }
     }
 }

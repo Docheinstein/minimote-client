@@ -56,17 +56,34 @@
 
     </LinearLayout>
 
-    <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
-        android:id="@+id/touchpad_area"
+    <FrameLayout
+        android:id="@+id/main_content"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="#424242"
         app:layout_constraintBottom_toTopOf="@id/touchpad_buttons_container"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
+                android:id="@+id/touchpad_area"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#424242" />
+
+        <FrameLayout
+                android:id="@+id/hotkeys_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+        </FrameLayout>
+
+    </FrameLayout>
 
     <LinearLayout
             android:id="@+id/touchpad_buttons_container"
@@ -141,7 +158,7 @@
             tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/overlay"
+            android:id="@+id/splash_overlay"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:elevation="10dp"

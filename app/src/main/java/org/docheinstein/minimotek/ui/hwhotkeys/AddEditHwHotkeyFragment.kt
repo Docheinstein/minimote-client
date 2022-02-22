@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.ui.hwhotkey
+package org.docheinstein.minimotek.ui.hwhotkeys
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -8,14 +8,11 @@ import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.databinding.AddEditHwHotkeyBinding
 import org.docheinstein.minimotek.extensions.setSelection
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
@@ -37,7 +34,8 @@ class AddEditHwHotkeyFragment : Fragment() {
 
         // Fetch server details (only the first time)
         if (viewModel.hwHotkey?.value == null &&
-            viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) {
+            viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT
+        ) {
             viewModel.hwHotkey?.observe(viewLifecycleOwner) { hwHotkey ->
                 debug("LiveData sent update for hwHotkey $hwHotkey, eventually updating UI")
                 if (hwHotkey != null) {

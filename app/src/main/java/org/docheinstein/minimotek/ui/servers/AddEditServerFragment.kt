@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.ui.server
+package org.docheinstein.minimotek.ui.servers
 
 import android.app.AlertDialog
 import android.os.Bundle
@@ -9,7 +9,6 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.databinding.AddEditServerBinding
 import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.NetUtils
@@ -29,7 +28,9 @@ class AddEditServerFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val serverId = AddEditServerFragmentArgs.fromBundle(requireArguments()).serverId
+        val serverId = AddEditServerFragmentArgs.fromBundle(
+            requireArguments()
+        ).serverId
         debug("AddEditServerFragment.onCreateView() for serverId = $serverId")
 
         binding = AddEditServerBinding.inflate(inflater, container, false)
@@ -40,7 +41,8 @@ class AddEditServerFragment : Fragment() {
 
         // Fetch server details (only the first time)
         if (viewModel.server?.value == null &&
-            viewModel.mode == AddEditServerViewModel.Mode.EDIT) {
+            viewModel.mode == AddEditServerViewModel.Mode.EDIT
+        ) {
             viewModel.server?.observe(viewLifecycleOwner) { server ->
                 debug("LiveData sent update for server $server, eventually updating UI")
                 if (server != null) {

@@ -17,7 +17,6 @@ import org.docheinstein.minimotek.databinding.ServerListItemBinding
 import org.docheinstein.minimotek.databinding.ServerListBinding
 import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
 import org.docheinstein.minimotek.ui.discover.DiscoverDialogFragment
-import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.debug
 
 @AndroidEntryPoint

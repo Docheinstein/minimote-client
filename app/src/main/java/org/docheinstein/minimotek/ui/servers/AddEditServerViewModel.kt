@@ -1,17 +1,13 @@
-package org.docheinstein.minimotek.ui.server
+package org.docheinstein.minimotek.ui.servers
 
 import androidx.lifecycle.*
-import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.ktor.util.date.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
 import org.docheinstein.minimotek.AUTO_ID
-import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
-import org.docheinstein.minimotek.ui.hwhotkey.AddEditHwHotkeyViewModel
+import org.docheinstein.minimotek.ui.hwhotkeys.AddEditHwHotkeyViewModel
 import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 

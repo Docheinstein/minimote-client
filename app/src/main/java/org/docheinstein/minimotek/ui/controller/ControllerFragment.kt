@@ -6,6 +6,7 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import android.widget.Button
+import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
@@ -14,9 +15,11 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.buttons.ButtonType
+import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.databinding.ControllerBinding
 import org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
 import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
+import org.docheinstein.minimotek.ui.hotkeys.HotkeyView
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
@@ -56,7 +59,7 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
             true
         }
 
-        // Overlay
+        // Splash Overlay
 
         binding.splash.setOnTouchListener { _, _ ->
             // prevent propagation of touch events if splash screen is atop
@@ -75,6 +78,10 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
             viewModel.toggleTouchpadButtons()
         }
 
+        binding.hotkeysWidget.setOnClickListener {
+            viewModel.toggleHotkeys()
+        }
+
         // Detect widgets state
 
         // IMPORTANT
@@ -91,26 +98,30 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
             binding.touchpadButtonsContainer.isVisible = enabled
         }
 
+        viewModel.hotkeys.observe(viewLifecycleOwner) { enabled ->
+            binding.hotkeysWidget.setHighlight(enabled)
+            binding.hotkeysContainer.isVisible = enabled
+        }
 
         // Detect connection state change
         viewModel.connectionState.observe(viewLifecycleOwner) { state ->
             debug("UI notified about new connection state: $state")
             when (state) {
                 ControllerViewModel.ConnectionState.Connecting -> {
-                    // show overlay
-                    binding.overlay.isVisible = true
-                    binding.overlay.alpha = 1.0f
+                    // show splashOverlay
+                    binding.splashOverlay.isVisible = true
+                    binding.splashOverlay.alpha = 1.0f
 
                 }
                 ControllerViewModel.ConnectionState.Connected -> {
-                    if (binding.overlay.isVisible) {
-                        binding.overlay.animate().alpha(0.0f).setListener(object : Animator.AnimatorListener {
+                    if (binding.splashOverlay.isVisible) {
+                        binding.splashOverlay.animate().alpha(0.0f).setListener(object : Animator.AnimatorListener {
                             override fun onAnimationStart(animation: Animator?) {}
                             override fun onAnimationCancel(animation: Animator?) {}
                             override fun onAnimationRepeat(animation: Animator?) {}
                             override fun onAnimationEnd(animation: Animator?) {
-                                // hide the overlay so that it won't consume touch events anymore
-                                binding.overlay.isVisible = false
+                                // hide the splashOverlay so that it won't consume touch events anymore
+                                binding.splashOverlay.isVisible = false
                             }
                         })
                     }
@@ -126,8 +137,33 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
             }
         }
 
+        viewModel.hotkeysX.observe(viewLifecycleOwner) { hotkeys ->
+            updateHotkeysContainer(hotkeys)
+        }
 
         return binding.root
+    }
+
+    private fun updateHotkeysContainer(hotkeys: List<Hotkey>) {
+        debug("Updating hotkeys container with ${hotkeys.size} hotkeys")
+
+        for (hotkey in hotkeys) {
+            val hotkeyView = HotkeyView(requireContext(), hotkey = hotkey)
+            val lp = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            )
+            lp.leftMargin = hotkey.x
+            lp.topMargin = hotkey.y
+            hotkeyView.layoutParams = lp
+
+            hotkeyView.setOnClickListener { _ ->
+                debug("Clicked on hotkey $hotkey")
+                viewModel.hotkey(hotkey)
+            }
+
+            binding.hotkeysContainer.addView(hotkeyView)
+        }
     }
 
     private fun showConnectionErrorAlert() {

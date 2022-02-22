@@ -17,6 +17,8 @@ const val COLUMN_CTRL = "ctrl"
 const val COLUMN_ALT = "alt"
 const val COLUMN_ALTGR = "altgr"
 const val COLUMN_META = "meta"
+const val COLUMN_X = "x"
+const val COLUMN_Y = "y"
 
 
 @Entity(
@@ -45,16 +47,37 @@ data class Hotkey(
     @ColumnInfo(name = COLUMN_META)
     var meta: Boolean,
 
+    @ColumnInfo(name = COLUMN_X)
+    var x: Int,
+
+    @ColumnInfo(name = COLUMN_Y)
+    var y: Int,
+
     @ColumnInfo(name = COLUMN_LABEL)
     var label: String?,
 ) {
     fun displayName(): String {
-        // TODO...
-        return label ?: key.name
+        if (label != null)
+            return label!!
+
+        val tokens = mutableListOf<String>()
+        if (ctrl)
+            tokens.add("CTRL")
+        if (alt)
+            tokens.add("ALT")
+        if (altgr)
+            tokens.add("ALT GR")
+        if (meta)
+            tokens.add("META")
+        if (shift)
+            tokens.add("SHIFT")
+        tokens.add(key.keyString)
+
+        return tokens.joinToString(separator = "+")
     }
 
 
     override fun toString(): String {
-        return "(id=$id, shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, key=$key, label=$label)"
+        return "(id=$id, shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, key=${key.keyString}, label=$label)"
     }
 }
