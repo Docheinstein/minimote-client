@@ -88,9 +88,9 @@
     <string name="hwhotkeys">Physical hotkeys</string>
 
     <!-- Settings -->
-    <string name="settings_show_touchpad_buttons">Show touchpad buttons</string>
-    <string name="settings_automatically_open_hotkeys">Open hotkeys automatically</string>
-    <string name="settings_automatically_open_keyboard">Open keyboard automatically</string>
+    <string name="settings_automatically_show_touchpad_buttons">Show touchpad buttons automatically</string>
+    <string name="settings_automatically_show_hotkeys">Show hotkeys automatically</string>
+    <string name="settings_automatically_show_keyboard">Show keyboard automatically</string>
 
     <string name="settings_touchpad_color">Touchpad color</string>
     <string name="settings_buttons_container_color">Touchpad buttons container color</string>

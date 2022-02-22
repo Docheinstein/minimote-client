@@ -16,6 +16,7 @@ import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.packet.MinimotePacket
 import org.docheinstein.minimotek.packet.MinimotePacketFactory
+import org.docheinstein.minimotek.settings.SettingsManager
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 import javax.inject.Inject
@@ -26,8 +27,9 @@ import kotlin.math.roundToInt
 class ControllerViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val buttonEventBus: ButtonEventBus,
     private val hwHotkeyRepository: HwHotkeyRepository,
+    private val buttonEventBus: ButtonEventBus,
+    private val settingsManager: SettingsManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -80,8 +82,16 @@ class ControllerViewModel @Inject constructor(
     val keyboard: LiveData<Boolean>
         get() = _keyboard
 
+    private val _hotkeys = MutableLiveData(false)
+    val hotkeys: LiveData<Boolean>
+        get() = _hotkeys
+
     init {
         debug("ControllerViewModel.init()")
+
+        _keyboard.value = settingsManager.getAutomaticallyOpenKeyboard()
+        _touchpadButtons.value = settingsManager.getAutomaticallyShowTouchpadButtons()
+        _hotkeys.value = settingsManager.getAutomaticallyShowHotkeys()
 
         viewModelScope.launch(ioDispatcher) {
             if (!connection.connect()) {

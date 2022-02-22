@@ -72,7 +72,7 @@
             android:id="@+id/touchpad_buttons_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#2C2A2A"
+            android:background="@color/controller_background"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@id/widgets_bar_container"
             app:layout_constraintEnd_toEndOf="parent"

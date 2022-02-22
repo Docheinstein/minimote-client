@@ -10,6 +10,7 @@
     <color name="light_gray">#817F7F</color>
     <color name="mid_gray">#615F5F</color>
     <color name="dark_gray">#404040</color>
+    <color name="darkest_gray">#2C2A2A</color>
     <color name="dark_white">#E9E9E9</color>
     <color name="white">#FFFFFF</color>
 
@@ -22,6 +23,7 @@
     <color name="keyboard_text_preview">@color/mid_gray</color>
     <color name="controller_widgets_bar">@color/dark_white</color>
 
+    <color name="controller_background">@color/darkest_gray</color>
     <color name="controller_widget_highlighted">@color/light_blue</color>
     <color name="controller_widget_unhighlighted">@color/lightest_gray</color>
 </resources>

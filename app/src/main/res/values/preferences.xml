@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Controller -->
+    <string name="pref_automatically_show_touchpad_buttons">pref_automatically_show_touchpad_buttons</string>
+    <bool name="pref_automatically_show_touchpad_buttons_default">true</bool>
+
+    <string name="pref_automatically_show_hotkeys">pref_automatically_show_hotkeys</string>
+    <bool name="pref_automatically_show_hotkeys_default">false</bool>
+
+    <string name="pref_automatically_show_keyboard">pref_automatically_show_keyboard</string>
+    <bool name="pref_automatically_show_keyboard_default">false</bool>
+</resources>

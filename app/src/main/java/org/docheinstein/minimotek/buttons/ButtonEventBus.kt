@@ -1,7 +1,6 @@
 package org.docheinstein.minimotek.buttons
 
 
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import org.docheinstein.minimotek.util.debug
@@ -10,9 +9,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ButtonEventBus @Inject constructor(
-
-) {
+class ButtonEventBus @Inject constructor() {
     private val _events = MutableSharedFlow<ButtonType>(
         /*
          * Buffer size.
