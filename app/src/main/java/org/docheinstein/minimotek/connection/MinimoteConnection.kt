@@ -9,7 +9,6 @@ import org.docheinstein.minimotek.util.asMessage
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.error
 import org.docheinstein.minimotek.util.warn
-import java.io.IOException
 
 class MinimoteConnection(
     val address: String,
@@ -24,7 +23,7 @@ class MinimoteConnection(
             tcpSocket.connect {
                 reuseAddress = true
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             error("Failed to establish TCP connection: ${e.asMessage()}", e)
             return false
         }
@@ -33,7 +32,7 @@ class MinimoteConnection(
             udpSocket.bind {
                 reuseAddress = true
             }
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             error("Failed to create UDP socket: ${e.asMessage()}", e)
             return false
         }
@@ -71,7 +70,7 @@ class MinimoteConnection(
 
             debug("Received packet is a PONG, connection is healthy")
             return true
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             error("Failed to ensure connection: ${e.asMessage()}", e)
             return false
         }
@@ -81,7 +80,7 @@ class MinimoteConnection(
         return try {
             tcpSocket.send(packet.toBytes())
             true
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             error("Failed to send packet: ${e.asMessage()}", e)
             false
         }
@@ -91,7 +90,7 @@ class MinimoteConnection(
         return try {
             udpSocket.send(packet.toBytes(), address, port)
             true
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             error("Failed to send packet: ${e.asMessage()}", e)
             false
         }
@@ -103,7 +102,7 @@ class MinimoteConnection(
             tcpSocket.disconnect()
             udpSocket.disconnect()
             true
-        } catch (e: IOException) {
+        } catch (e: Exception) {
             false
         }
     }

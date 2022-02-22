@@ -131,7 +131,7 @@ class ServersFragment : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.edit_menu_item -> {
-                val server = adapter.selected
+                val server = adapter.selected()
                 debug("Going to edit server at position ${adapter.selection}: ${server?.id}")
                 if (server != null)
                     findNavController().navigate(
@@ -141,7 +141,7 @@ class ServersFragment : Fragment() {
                     )
             }
             R.id.delete_menu_item -> {
-                val server = adapter.selected
+                val server = adapter.selected()
                 debug("Going to delete server at position ${adapter.selection}: ${server?.id}")
                 if (server != null) {
                     AlertDialog.Builder(requireActivity())

@@ -3,8 +3,11 @@ package org.docheinstein.minimotek.ui.hwhotkey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
+import androidx.lifecycle.liveData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
 import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
@@ -31,14 +34,12 @@ class AddEditHwHotkeyViewModel @Inject constructor(
         EDIT
     }
 
-    // for EDIT mode
-    private val hwHotkeyId: Long = savedStateHandle[HW_HOTKEY_ID_STATE_KEY]!!
-    val hwHotkey = hwHotkeyRepository.load(hwHotkeyId).asLiveData()
-    var mode: Mode
+    private val hwHotkeyId: Long = savedStateHandle[HW_HOTKEY_ID_STATE_KEY] ?: HW_HOTKEY_ID_NONE
+    val mode = if (hwHotkeyId != HW_HOTKEY_ID_NONE) Mode.EDIT else Mode.ADD
+    val hwHotkey = if (mode == Mode.EDIT) hwHotkeyRepository.load(hwHotkeyId).asLiveData() else null
 
     init {
         debug("AddEditHwHotkeyViewModel.init() for hwHotkeyId = $hwHotkeyId")
-        mode = if (hwHotkeyId != HW_HOTKEY_ID_NONE) Mode.EDIT else Mode.ADD
     }
 
     fun insert(hwHotkey: HwHotkey) {
@@ -55,7 +56,7 @@ class AddEditHwHotkeyViewModel @Inject constructor(
 
     fun delete() {
         ioScope.launch {
-            hwHotkeyRepository.delete(hwHotkey.value!!)
+            hwHotkeyRepository.delete(hwHotkey?.value!!)
         }
     }
 }

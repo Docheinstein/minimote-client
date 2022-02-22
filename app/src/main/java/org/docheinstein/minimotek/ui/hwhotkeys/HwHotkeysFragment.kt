@@ -125,7 +125,7 @@ class HwHotkeysFragment : Fragment() {
     override fun onContextItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.edit_menu_item -> {
-                val hwHotkey = adapter.selected
+                val hwHotkey = adapter.selected()
                 debug("Going to edit hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
                 if (hwHotkey != null) {
                     findNavController().navigate(
@@ -137,7 +137,7 @@ class HwHotkeysFragment : Fragment() {
                 }
             }
             R.id.delete_menu_item -> {
-                val hwHotkey = adapter.selected
+                val hwHotkey = adapter.selected()
                 debug("Going to delete hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
                 if (hwHotkey != null) {
                     AlertDialog.Builder(requireActivity())

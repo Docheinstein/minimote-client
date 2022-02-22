@@ -12,8 +12,9 @@ abstract class SelectableListAdapter <T, VH : RecyclerView.ViewHolder>(diffCallb
     var selection: Int? = null
         private set
 
-    var selected: T? = if (selection != null) currentList[selection!!] else null
-        private set
+    fun selected(): T? {
+        return if (selection != null) currentList[selection!!] else null
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VH {
         return doCreateViewHolder(parent, viewType)

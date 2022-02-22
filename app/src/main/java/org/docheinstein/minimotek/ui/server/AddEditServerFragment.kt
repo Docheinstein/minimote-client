@@ -14,6 +14,7 @@ import org.docheinstein.minimotek.databinding.AddEditServerBinding
 import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
 import org.docheinstein.minimotek.util.NetUtils
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.warn
 
 @AndroidEntryPoint
 class AddEditServerFragment : Fragment() {
@@ -37,20 +38,29 @@ class AddEditServerFragment : Fragment() {
         binding.address.addAfterTextChangedListener { validateAddress() }
         binding.port.addAfterTextChangedListener { validatePort()}
 
-        // Listen to server details retrieval (in edit mode)
-        viewModel.server.observe(viewLifecycleOwner) { server ->
-            if (server != null) {
-                debug("LiveData sent update for valid server, eventually updating UI")
-                if (binding.address.text?.toString()?.isEmpty() == true) {
+        // Fetch server details (only the first time)
+        if (viewModel.server?.value == null &&
+            viewModel.mode == AddEditServerViewModel.Mode.EDIT) {
+            viewModel.server?.observe(viewLifecycleOwner) { server ->
+                debug("LiveData sent update for server $server, eventually updating UI")
+                if (server != null) {
+                    debug("Fetched server is valid")
                     binding.address.setText(server.address)
                     binding.port.setText(server.port.toString())
                     binding.name.setText(server.name)
+                } else {
+                    warn("Invalid server")
                 }
             }
         }
 
         return binding.root
     }
+//
+//    override fun onSaveInstanceState(outState: Bundle) {
+//        outState.putBoolean("new", false)
+//        super.onSaveInstanceState(outState)
+//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.save_delete, menu)
@@ -107,7 +117,7 @@ class AddEditServerFragment : Fragment() {
                 Snackbar.LENGTH_LONG
             ).show()
         } else {
-            val s = Server(viewModel.server.value!!.id, address, portInt, name)
+            val s = Server(viewModel.server?.value!!.id, address, portInt, name)
             viewModel.update(s)
         }
         
@@ -123,7 +133,7 @@ class AddEditServerFragment : Fragment() {
                 viewModel.delete()
                 Snackbar.make(
                     requireParentFragment().requireView(),
-                    getString(R.string.server_removed, viewModel.server.value?.displayName()),
+                    getString(R.string.server_removed, viewModel.server?.value?.displayName()),
                     Snackbar.LENGTH_LONG
                 ).show()
                 findNavController().navigateUp()

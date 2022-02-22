@@ -15,7 +15,9 @@ import org.docheinstein.minimotek.databinding.AddEditHwHotkeyBinding
 import org.docheinstein.minimotek.extensions.setSelection
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.ui.server.AddEditServerViewModel
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.warn
 
 
 @AndroidEntryPoint
@@ -33,18 +35,24 @@ class AddEditHwHotkeyFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         binding = AddEditHwHotkeyBinding.inflate(inflater, container, false)
 
-        viewModel.hwHotkey.observe(viewLifecycleOwner) { hwHotkey ->
-            if (hwHotkey != null) {
-                // TODO handle rotation change
-                binding.button.setSelection(hwHotkey.button.name)
-                binding.alt.isChecked = hwHotkey.alt
-                binding.altgr.isChecked = hwHotkey.altgr
-                binding.ctrl.isChecked = hwHotkey.ctrl
-                binding.meta.isChecked = hwHotkey.meta
-                binding.shift.isChecked = hwHotkey.shift
-                binding.key.setSelection(hwHotkey.key.name)
+        // Fetch server details (only the first time)
+        if (viewModel.hwHotkey?.value == null &&
+            viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) {
+            viewModel.hwHotkey?.observe(viewLifecycleOwner) { hwHotkey ->
+                debug("LiveData sent update for hwHotkey $hwHotkey, eventually updating UI")
+                if (hwHotkey != null) {
+                    debug("Fetched hwHotkey is valid")
+                    binding.button.setSelection(hwHotkey.button.name)
+                    binding.alt.isChecked = hwHotkey.alt
+                    binding.altgr.isChecked = hwHotkey.altgr
+                    binding.ctrl.isChecked = hwHotkey.ctrl
+                    binding.meta.isChecked = hwHotkey.meta
+                    binding.shift.isChecked = hwHotkey.shift
+                    binding.key.setSelection(hwHotkey.key.name)
+                } else {
+                    warn("Invalid server")
+                }
             }
-
         }
 
         return binding.root
@@ -75,7 +83,7 @@ class AddEditHwHotkeyFragment : Fragment() {
         debug("Handling save button")
 
         val hwHotkey = HwHotkey(
-            id = if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) viewModel.hwHotkey.value!!.id else AUTO_ID,
+            id = if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT) viewModel.hwHotkey?.value!!.id else AUTO_ID,
             button = ButtonType.valueOf(binding.button.selectedItem.toString()),
             alt = binding.alt.isChecked,
             altgr = binding.altgr.isChecked,
@@ -110,7 +118,7 @@ class AddEditHwHotkeyFragment : Fragment() {
                 viewModel.delete()
                 Snackbar.make(
                     requireParentFragment().requireView(),
-                    getString(R.string.hw_hotkey_removed, viewModel.hwHotkey.value?.button?.name),
+                    getString(R.string.hw_hotkey_removed, viewModel.hwHotkey?.value?.button?.name),
                     Snackbar.LENGTH_LONG
                 ).show()
                 findNavController().navigateUp()
