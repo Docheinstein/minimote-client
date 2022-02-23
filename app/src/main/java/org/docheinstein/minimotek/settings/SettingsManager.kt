@@ -25,8 +25,8 @@ class SettingsManager @Inject constructor(
     )
 
     fun getAutomaticallyShowHotkeys() = getBoolean(context,
-        R.string.pref_automatically_show_touchpad_buttons,
-        R.bool.pref_automatically_show_touchpad_buttons_default
+        R.string.pref_automatically_show_hotkeys,
+        R.bool.pref_automatically_show_hotkeys_default
     )
 
     private fun getBoolean(ctx: Context, @StringRes prefKey: Int, @BoolRes defValueKey: Int): Boolean {

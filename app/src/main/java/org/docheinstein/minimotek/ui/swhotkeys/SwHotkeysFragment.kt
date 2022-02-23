@@ -1,42 +1,77 @@
-package org.docheinstein.minimotek.ui.hotkeys
+package org.docheinstein.minimotek.ui.swhotkeys
 
 import android.content.ClipData
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
-import android.widget.TextView
 import androidx.core.view.children
 import androidx.core.view.updateLayoutParams
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.HotkeysBinding
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
-import kotlin.math.roundToInt
 
 @AndroidEntryPoint
-class HotkeysFragment : Fragment() {
-    private val viewModel: HotkeysViewModel by viewModels()
+class SwHotkeysFragment : Fragment() {
+    private val viewModel: SwHotkeysSharedViewModel by viewModels()
     private lateinit var binding: HotkeysBinding
 
     private lateinit var saveButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        debug("SwHotkeysFragment.onCreate")
         setHasOptionsMenu(true)
+    }
+
+    override fun onResume() {
+        debug("SwHotkeysFragment.onResume")
+        super.onResume()
+    }
+
+    override fun onPause() {
+        debug("SwHotkeysFragment.onPause")
+        super.onPause()
+    }
+
+    override fun onStop() {
+        debug("SwHotkeysFragment.onStop")
+        super.onStop()
+    }
+
+    override fun onStart() {
+        debug("SwHotkeysFragment.onStart")
+        super.onStart()
+    }
+
+    override fun onDestroy() {
+        debug("SwHotkeysFragment.onDestroy")
+        super.onDestroy()
+    }
+
+    override fun onDestroyView() {
+        debug("SwHotkeysFragment.onDestroyView")
+        super.onDestroyView()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        debug("SwHotkeysFragment.onCreateView")
 
         binding = HotkeysBinding.inflate(inflater, container, false)
 
         // Observe hw hotkeys list changes
-        viewModel.hotkeys.observe(viewLifecycleOwner) { hotkeys ->
+        // TODO: prevent reloading/rotation change
+        debug("Observing swHotkeys updates")
+        viewModel.swHotkeys.observe(viewLifecycleOwner) { hotkeys ->
+            debug("Received hotkeys update")
             if (hotkeys != null) {
                 handleHotkeysUpdate(hotkeys)
             }
@@ -54,9 +89,11 @@ class HotkeysFragment : Fragment() {
         inflater.inflate(R.menu.add_save, menu)
         saveButton = menu.findItem(R.id.save_menu_item)
         saveButton.icon.mutate()
-//        saveButton.isEnabled = false
-//        saveButton.icon.mutate().alpha = 120
-        setSaveButtonEnabled(false)
+
+        viewModel.hasPendingChanges.observe(viewLifecycleOwner) { yes ->
+            debug("Pending changes = $yes")
+            setSaveButtonEnabled(yes)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -72,48 +109,10 @@ class HotkeysFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
-    override fun onContextItemSelected(item: MenuItem): Boolean {
-//        when(item.itemId) {
-//            R.id.edit_menu_item -> {
-//                val hwHotkey = adapter.selected()
-//                debug("Going to edit hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
-//                if (hwHotkey != null) {
-//                    findNavController().navigate(
-//                        HwHotkeysFragmentDirections.actionAddEditHwHotkey(
-//                            hwHotkey.id,
-//                            getString(R.string.toolbar_title_edit_hw_hotkey)
-//                        )
-//                    )
-//                }
-//            }
-//            R.id.delete_menu_item -> {
-//                val hwHotkey = adapter.selected()
-//                debug("Going to delete hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
-//                if (hwHotkey != null) {
-//                    AlertDialog.Builder(requireActivity())
-//                        .setTitle(R.string.delete_hw_hotkey_confirmation_title)
-//                        .setMessage(R.string.delete_hw_hotkey_confirmation_message)
-//                        .setPositiveButton(R.string.ok) { _, _ ->
-//                            // actually delete
-//                            viewModel.delete(hwHotkey)
-//                            Snackbar.make(
-//                                requireParentFragment().requireView(),
-//                                getString(R.string.hw_hotkey_removed, hwHotkey.button.name),
-//                                Snackbar.LENGTH_LONG
-//                            ).show()
-//
-//                            findNavController().navigateUp()
-//                        }
-//                        .setNegativeButton(R.string.cancel, null)
-//                        .show()
-//                }
-//            }
-//        }
-        return super.onContextItemSelected(item)
-    }
 
-    private fun handleHotkeysUpdate(hotkeys: List<Hotkey>) {
-        debug("Hotkey list has been updating, updating UI")
+    private fun handleHotkeysUpdate(hotkeys: List<SwHotkey>) {
+        debug("Hotkey list updated, updating UI")
+        // TODO: update only changed views
 
         binding.hotkeys.removeAllViews()
 
@@ -148,11 +147,13 @@ class HotkeysFragment : Fragment() {
                     return
                 }
 
+                // TODO: update viewModel
+
                 val hotkeyIdStr: String = ev.clipData.getItemAt(0).text.toString()
 
                 debug("Dropped hotkey: $hotkeyIdStr")
 
-                val hotkeyView: HotkeyView? = binding.hotkeys.findViewWithTag(hotkeyIdStr)
+                val hotkeyView: SwHotkeyView? = binding.hotkeys.findViewWithTag(hotkeyIdStr)
 
                 if (hotkeyView == null) {
                     warn("Failed to find hotkey for tag $hotkeyIdStr")
@@ -162,15 +163,18 @@ class HotkeysFragment : Fragment() {
                 val halfWidth = hotkeyView.width / 2
                 val halfHeight = hotkeyView.height / 2
 
-                hotkeyView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-                    val x = (ev.x - halfWidth).toInt()
-                    val y = (ev.y - halfHeight).toInt()
-                    debug("Updating X = $x, Y = $y")
-                    this.leftMargin = x
-                    this.topMargin = y
-                }
+                val x = (ev.x - halfWidth).toInt()
+                val y = (ev.y - halfHeight).toInt()
 
-                setSaveButtonEnabled(true)
+                viewModel.updatePosition(hotkeyIdStr.toLong(), x, y)
+
+//                hotkeyView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
+//                    val x = (ev.x - halfWidth).toInt()
+//                    val y = (ev.y - halfHeight).toInt()
+//                    debug("Updating X = $x, Y = $y")
+//                    this.leftMargin = x
+//                    this.topMargin = y
+//                }
             }
             else -> {
                 warn("Unknown rag event detected")
@@ -178,10 +182,10 @@ class HotkeysFragment : Fragment() {
         }
     }
 
-    private fun makeHotkeyView(hotkey: Hotkey): View {
+    private fun makeHotkeyView(hotkey: SwHotkey): View {
         val hotkeyIdStr = hotkey.id.toString()
 
-        val hotkeyView = HotkeyView(requireContext(), hotkey = hotkey)
+        val hotkeyView = SwHotkeyView(requireContext(), hotkey = hotkey)
         hotkeyView.tag = hotkeyIdStr
 
         val lp = FrameLayout.LayoutParams(
@@ -194,7 +198,7 @@ class HotkeysFragment : Fragment() {
 
         hotkeyView.setOnClickListener {
             findNavController().navigate(
-                HotkeysFragmentDirections.actionAddEditHotkey(
+                SwHotkeysFragmentDirections.actionAddEditHotkey(
                     hotkey.id,
                     getString(R.string.toolbar_title_edit_hotkey)
                 )
@@ -219,28 +223,29 @@ class HotkeysFragment : Fragment() {
     private fun handleSaveHotkeysButton() {
         debug("Clicked on save, saving ${binding.hotkeys.childCount} hotkeys")
 
-        for (hotkeyView in binding.hotkeys.children) {
-            if (hotkeyView !is HotkeyView) {
-                warn("Child view is not an hotkey view!?")
-                continue
-            }
-
-            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
-            val id = (hotkeyView.tag as String).toLong()
-            val x = lp.leftMargin
-            val y = lp.topMargin
-
-            debug("Updating hotkey $id to position ($x,$y)")
-            viewModel.updatePosition(id, x, y)
-        }
+        viewModel.commit()
+//        for (hotkeyView in binding.hotkeys.children) {
+//            if (hotkeyView !is SwHotkeyView) {
+//                warn("Child view is not an hotkey view!?")
+//                continue
+//            }
+//
+//            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
+//            val id = (hotkeyView.tag as String).toLong()
+//            val x = lp.leftMargin
+//            val y = lp.topMargin
+//
+//            debug("Updating hotkey $id to position ($x,$y)")
+//            viewModel.updatePosition(id, x, y)
+//        }
 
         findNavController().navigateUp()
     }
 
     private fun handleAddHotkeyButton() {
         findNavController().navigate(
-            HotkeysFragmentDirections.actionAddEditHotkey(
-                AddEditHotkeyViewModel.HOTKEY_ID_NONE,
+            SwHotkeysFragmentDirections.actionAddEditHotkey(
+                SwHotkeysSharedViewModel.HOTKEY_ID_NONE,
                 getString(R.string.toolbar_title_add_hotkey)
             )
         )

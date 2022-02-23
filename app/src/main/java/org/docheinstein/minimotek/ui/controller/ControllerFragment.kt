@@ -5,7 +5,6 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
-import android.widget.Button
 import android.widget.FrameLayout
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
@@ -14,12 +13,11 @@ import androidx.lifecycle.distinctUntilChanged
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.buttons.ButtonType
-import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.ControllerBinding
 import org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
 import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
-import org.docheinstein.minimotek.ui.hotkeys.HotkeyView
+import org.docheinstein.minimotek.ui.swhotkeys.SwHotkeyView
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
@@ -144,11 +142,11 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
         return binding.root
     }
 
-    private fun updateHotkeysContainer(hotkeys: List<Hotkey>) {
+    private fun updateHotkeysContainer(hotkeys: List<SwHotkey>) {
         debug("Updating hotkeys container with ${hotkeys.size} hotkeys")
 
         for (hotkey in hotkeys) {
-            val hotkeyView = HotkeyView(requireContext(), hotkey = hotkey)
+            val hotkeyView = SwHotkeyView(requireContext(), hotkey = hotkey)
             val lp = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT

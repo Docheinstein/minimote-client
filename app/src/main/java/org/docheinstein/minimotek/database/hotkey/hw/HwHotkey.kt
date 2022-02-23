@@ -1,12 +1,11 @@
-package org.docheinstein.minimotek.database.hwhotkey
+package org.docheinstein.minimotek.database.hotkey.hw
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 import org.docheinstein.minimotek.buttons.ButtonType
-import org.docheinstein.minimotek.database.server.COLUMN_ADDRESS
-import org.docheinstein.minimotek.database.server.COLUMN_PORT
+import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
 
@@ -31,10 +30,10 @@ const val COLUMN_KEY = "key"
 data class HwHotkey(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_ID)
-    val id: Long,
+    var id: Long,
 
     @ColumnInfo(name = COLUMN_BUTTON)
-    val button: ButtonType,
+    var button: ButtonType,
 
     @ColumnInfo(name = COLUMN_SHIFT)
     var shift: Boolean,
@@ -56,5 +55,16 @@ data class HwHotkey(
 ) {
     override fun toString(): String {
         return "(id=$id, button=$button, shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, key=$key)"
+    }
+
+    fun toHotkey(): Hotkey {
+        return Hotkey(
+            key = key,
+            shift = shift,
+            ctrl = ctrl,
+            alt = alt,
+            altgr = altgr,
+            meta = meta
+        )
     }
 }

@@ -8,8 +8,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.buttons.ButtonType
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
+import org.docheinstein.minimotek.database.hotkey.hw.HwHotkey
+import org.docheinstein.minimotek.database.hotkey.hw.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.util.debug

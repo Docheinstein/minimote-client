@@ -80,14 +80,26 @@ class AddEditHwHotkeyFragment : Fragment() {
     private fun handleSaveButton() {
         debug("Handling save button")
 
+        val key = MinimoteKeyType.byKeyString(binding.key.selectedItem.toString())
+        if (key == null) {
+            warn("Invalid key for keyString ${binding.key.selectedItem}")
+            return
+        }
+
+        val button = ButtonType.byKeyString(binding.button.selectedItem.toString())
+        if (button == null) {
+            warn("Invalid button for keyString ${binding.button.selectedItem}")
+            return
+        }
+
         val hwHotkey = viewModel.save(
-            button = ButtonType.valueOf(binding.button.selectedItem.toString()),
+            button = button,
             alt = binding.alt.isChecked,
             altgr = binding.altgr.isChecked,
             ctrl = binding.ctrl.isChecked,
             meta = binding.meta.isChecked,
             shift = binding.shift.isChecked,
-            key = MinimoteKeyType.valueOf(binding.key.selectedItem.toString())
+            key = key
         )
 
         if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.ADD) {

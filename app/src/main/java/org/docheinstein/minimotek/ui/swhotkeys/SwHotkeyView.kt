@@ -1,19 +1,18 @@
-package org.docheinstein.minimotek.ui.hotkeys
+package org.docheinstein.minimotek.ui.swhotkeys
 
 import android.content.Context
 import android.util.AttributeSet
-import android.widget.FrameLayout
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.res.ResourcesCompat
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.database.hotkey.Hotkey
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 
 
-class HotkeyView @JvmOverloads constructor(
+class SwHotkeyView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0,
-    hotkey: Hotkey? = null
+    hotkey: SwHotkey? = null
 ) : AppCompatTextView(context, attrs, defStyle) {
 
     init {

@@ -16,7 +16,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <org.docheinstein.minimotek.ui.hotkeys.HotkeyView
+        <org.docheinstein.minimotek.ui.swhotkeys.SwHotkeyView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"

@@ -22,16 +22,16 @@ const val COLUMN_NAME = "name"
 data class Server(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COLUMN_ID)
-    val id: Long,
+    var id: Long,
 
     @ColumnInfo(name = COLUMN_ADDRESS)
-    val address: String,
+    var address: String,
 
     @ColumnInfo(name = COLUMN_PORT)
-    val port: Int,
+    var port: Int,
 
     @ColumnInfo(name = COLUMN_NAME)
-    val name: String?,
+    var name: String?,
 ) {
     fun displayName(): String {
         return name ?: address

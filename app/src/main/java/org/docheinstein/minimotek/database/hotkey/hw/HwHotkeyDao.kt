@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.database.hwhotkey
+package org.docheinstein.minimotek.database.hotkey.hw
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

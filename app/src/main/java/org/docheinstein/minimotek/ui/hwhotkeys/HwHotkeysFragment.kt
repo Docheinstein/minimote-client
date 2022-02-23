@@ -13,7 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.buttons.ButtonType
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
+import org.docheinstein.minimotek.database.hotkey.hw.HwHotkey
 import org.docheinstein.minimotek.databinding.*
 import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
 import org.docheinstein.minimotek.util.debug

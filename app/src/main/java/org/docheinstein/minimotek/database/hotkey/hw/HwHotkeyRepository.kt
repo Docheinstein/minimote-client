@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.database.hwhotkey
+package org.docheinstein.minimotek.database.hotkey.hw
 
 import kotlinx.coroutines.flow.Flow
 import org.docheinstein.minimotek.buttons.ButtonType

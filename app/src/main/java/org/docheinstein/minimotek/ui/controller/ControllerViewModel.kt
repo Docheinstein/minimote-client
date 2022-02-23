@@ -11,9 +11,10 @@ import org.docheinstein.minimotek.buttons.ButtonEventBus
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.connection.MinimoteConnection
 import org.docheinstein.minimotek.database.hotkey.Hotkey
-import org.docheinstein.minimotek.database.hotkey.HotkeyRepository
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkey
-import org.docheinstein.minimotek.database.hwhotkey.HwHotkeyRepository
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkeyRepository
+import org.docheinstein.minimotek.database.hotkey.hw.HwHotkey
+import org.docheinstein.minimotek.database.hotkey.hw.HwHotkeyRepository
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
@@ -31,7 +32,7 @@ class ControllerViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     private val hwHotkeyRepository: HwHotkeyRepository,
-    private val hotkeyRepository: HotkeyRepository,
+    private val swHotkeyRepository: SwHotkeyRepository,
     private val buttonEventBus: ButtonEventBus,
     private val settingsManager: SettingsManager,
     savedStateHandle: SavedStateHandle,
@@ -92,7 +93,7 @@ class ControllerViewModel @Inject constructor(
         get() = _hotkeys
 
 
-    val hotkeysX = hotkeyRepository.hotkeys.asLiveData()
+    val hotkeysX = swHotkeyRepository.hotkeys.asLiveData()
 
     // Hardware hotkeys
     // We have to keep those cached and up to date since we have
@@ -103,12 +104,9 @@ class ControllerViewModel @Inject constructor(
     init {
         debug("ControllerViewModel.init()")
 
+
         // Subscribe button events
         buttonEventBus.addButtonEventListener(this)
-
-        _keyboard.value = settingsManager.getAutomaticallyOpenKeyboard()
-        _touchpadButtons.value = settingsManager.getAutomaticallyShowTouchpadButtons()
-        _hotkeys.value = settingsManager.getAutomaticallyShowHotkeys()
 
         // Fetch the physical hotkeys
         viewModelScope.launch {
@@ -137,6 +135,10 @@ class ControllerViewModel @Inject constructor(
             // Connection is actually on
             lastConnectionCheckTime = getTimeMillis()
             _connectionState.postValue(ConnectionState.Connected)
+
+            _keyboard.postValue(settingsManager.getAutomaticallyOpenKeyboard())
+            _touchpadButtons.postValue(settingsManager.getAutomaticallyShowTouchpadButtons())
+            _hotkeys.postValue(settingsManager.getAutomaticallyShowHotkeys())
         }
 
 //        buttonEventBus.events
@@ -431,32 +433,13 @@ class ControllerViewModel @Inject constructor(
 
         debug("Retrieved hotkey for button: $hwHotkey")
 
+        hotkey(hwHotkey)
+
         return true // handled
     }
 
-    // TODO: base class for hotkey
-    fun hotkey(hotkey: HwHotkey) {
-        viewModelScope.launch(ioDispatcher) {
-            val keys = mutableListOf<MinimoteKeyType>()
-
-            // Modifiers
-            if (hotkey.shift)
-                keys.add(MinimoteKeyType.ShiftLeft)
-            if (hotkey.ctrl)
-                keys.add(MinimoteKeyType.CtrlLeft)
-            if (hotkey.alt)
-                keys.add(MinimoteKeyType.AltLeft)
-            if (hotkey.altgr)
-                keys.add(MinimoteKeyType.AltGr)
-            if (hotkey.meta)
-                keys.add(MinimoteKeyType.MetaLeft)
-
-            // Base key
-            keys.add(hotkey.key)
-
-            checkConnectionAndSendTcp(MinimotePacketFactory.newHotkey(keys))
-        }
-    }
+    fun hotkey(hwHotkey: HwHotkey) = hotkey(hwHotkey.toHotkey())
+    fun hotkey(swHotkey: SwHotkey) = hotkey(swHotkey.toHotkey())
 
     fun hotkey(hotkey: Hotkey) {
         viewModelScope.launch(ioDispatcher) {

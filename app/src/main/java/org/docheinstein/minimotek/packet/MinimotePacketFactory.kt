@@ -6,28 +6,6 @@ import org.docheinstein.minimotek.extensions.set8
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
 object MinimotePacketFactory {
-
-    /*
-        LeftDown(0x01),
-        LeftUp(0x02),
-        LeftClick(0x03),
-        MiddleDown(0x04),
-        MiddleUp(0x05),
-        MiddleClick(0x06),
-        RightDown(0x07),
-        RightUp(0x08),
-        RightClick(0x09),
-        ScrollDown(0x0A),
-        ScrollUp(0x0B),
-        Move(0x0C),
-        Write(0x0D),
-        KeyDown(0x0E),
-        KeyUp(0x0F),
-        KeyClick(0x10),
-
-        DiscoverRequest(0xFE),
-     */
-
     fun newLeftDown(): MinimotePacket {
         return MinimotePacket(MinimotePacketType.LeftDown)
     }
