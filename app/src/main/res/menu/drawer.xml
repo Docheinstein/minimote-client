@@ -11,7 +11,7 @@
             app:showAsAction="ifRoom" />
 
         <item
-            android:id="@+id/nav_hotkeys"
+            android:id="@+id/nav_sw_hotkeys"
             android:icon="@drawable/hotkeys"
             android:title="@string/hotkeys"
             android:checkable="true"

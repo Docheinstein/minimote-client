@@ -1,17 +1,15 @@
 package org.docheinstein.minimotek.ui.swhotkeys
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.view.*
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
+import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.databinding.AddEditHotkeyBinding
-import org.docheinstein.minimotek.extensions.setSelection
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
@@ -21,7 +19,7 @@ import org.docheinstein.minimotek.util.warn
 class AddEditSwHotkeyFragment : Fragment() {
 
     private val viewModel: AddEditSwHotkeyViewModel by viewModels()
-    private val sharedViewModel: SwHotkeysSharedViewModel by viewModels({requireParentFragment()})
+    private val sharedViewModel: SwHotkeysViewModel by hiltNavGraphViewModels(R.id.nav_sw_hotkeys)
 //    private val sharedViewModel: SwHotkeysSharedViewModel by activityViewModels()
     private lateinit var binding: AddEditHotkeyBinding
 
@@ -59,7 +57,7 @@ class AddEditSwHotkeyFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.save_delete, menu)
+        inflater.inflate(R.menu.save_delete_alt, menu)
         if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.ADD) {
             menu.removeItem(R.id.delete_menu_item)
         }
@@ -100,7 +98,7 @@ class AddEditSwHotkeyFragment : Fragment() {
             )
         } else if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
             sharedViewModel.edit(
-                id = viewModel.swHotkey!!.value!!.id,
+                id = viewModel.swHotkeyId,
                 key = key,
                 alt = binding.alt.isChecked,
                 altgr = binding.altgr.isChecked,
@@ -141,5 +139,7 @@ class AddEditSwHotkeyFragment : Fragment() {
 //            }
 //            .setNegativeButton(R.string.cancel, null)
 //            .show()
+        sharedViewModel.remove(viewModel.swHotkeyId)
+        findNavController().navigateUp()
     }
 }

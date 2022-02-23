@@ -3,6 +3,7 @@ package org.docheinstein.minimotek.database.hotkey.sw
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.docheinstein.minimotek.Orientation
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
@@ -17,6 +18,7 @@ const val COLUMN_CTRL = "ctrl"
 const val COLUMN_ALT = "alt"
 const val COLUMN_ALTGR = "altgr"
 const val COLUMN_META = "meta"
+const val COLUMN_ORIENTATION = "orientation"
 const val COLUMN_X = "x"
 const val COLUMN_Y = "y"
 
@@ -46,6 +48,9 @@ data class SwHotkey (
 
     @ColumnInfo(name = COLUMN_META)
     var meta: Boolean,
+
+    @ColumnInfo(name = COLUMN_ORIENTATION)
+    var orientation: Orientation,
 
     @ColumnInfo(name = COLUMN_X)
     var x: Int,

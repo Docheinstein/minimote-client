@@ -4,6 +4,7 @@
     <!-- MISC -->
     <string name="delete">Delete</string>
     <string name="save">Save</string>
+    <string name="clear">Clear</string>
     <string name="add">Add</string>
     <string name="edit">Edit</string>
 
@@ -164,5 +165,9 @@
 
     <string name="hw_hotkey_added">%1$s has been added</string>
     <string name="hw_hotkey_removed">%1$s has been removed</string>
+
+
+    <string name="sw_hotkeys_clear_confirmation_title">Clear hotkeys?</string>
+    <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys?</string>
 
 </resources>

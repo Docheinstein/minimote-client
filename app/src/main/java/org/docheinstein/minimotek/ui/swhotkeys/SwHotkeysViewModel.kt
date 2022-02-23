@@ -4,6 +4,7 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.singleOrNull
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
@@ -20,7 +21,7 @@ private const val DEFAULT_HOTKEY_X = 48
 private const val DEFAULT_HOTKEY_Y = 48
 
 @HiltViewModel
-class SwHotkeysSharedViewModel @Inject constructor(
+class SwHotkeysViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher,
     private val swHotkeyRepository: SwHotkeyRepository
@@ -52,11 +53,12 @@ class SwHotkeysSharedViewModel @Inject constructor(
         debug("SwHotkeysSharedViewModel.init()")
         viewModelScope.launch(ioDispatcher) {
             debug("Retrieving hotkeys")
-            swHotkeyRepository.hotkeys.singleOrNull()?.let {
+            swHotkeyRepository.hotkeys.collect {
+//            swHotkeyRepository.hotkeys.singleOrNull()?.let {
                 debug("Hotkeys retrieved")
                 for (h in it)
                     __swHotkeys.add(h)
-                _swHotkeys.postValue(__swHotkeys) // trigger update
+                triggerUpdate(pendingChanges = false)
             }
         }
     }
@@ -69,9 +71,10 @@ class SwHotkeysSharedViewModel @Inject constructor(
     fun commit() {
         // DB update
 
-        debug("Would save hotkeys")
+        debug("Would save ${__swHotkeys.size} hotkeys")
 
         ioScope.launch {
+            swHotkeyRepository.clear()
             for (h in __swHotkeys) {
                 // translate brand new hotkeys' ids to AUTO_ID before insert into the DB
                 if (h.id < 0)
@@ -111,6 +114,21 @@ class SwHotkeysSharedViewModel @Inject constructor(
         triggerUpdate()
 
         return hotkey
+    }
+
+    fun remove(id: Long) {
+        debug("Removing hotkey in-memory")
+
+        if (__swHotkeys.removeIf { swHotkey -> swHotkey.id == id })
+            triggerUpdate()
+        else
+            warn("No hotkey with id $id to remove")
+    }
+
+    fun clear() {
+        debug("Removing all in-memory hotkeys")
+        __swHotkeys.clear()
+        triggerUpdate()
     }
 
 
@@ -169,10 +187,10 @@ class SwHotkeysSharedViewModel @Inject constructor(
         }
     }
 
-    private fun triggerUpdate() {
+    private fun triggerUpdate(pendingChanges: Boolean = true) {
         debug("Triggering update, size is = ${__swHotkeys.size}")
         _swHotkeys.postValue(__swHotkeys)
-        _hasPendingChanges.postValue(true)
+        _hasPendingChanges.postValue(pendingChanges)
     }
 
     private fun getNextId(): Long {

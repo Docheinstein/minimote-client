@@ -1,16 +1,15 @@
 package org.docheinstein.minimotek.ui.swhotkeys
 
+import android.app.AlertDialog
 import android.content.ClipData
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
-import androidx.core.view.children
-import androidx.core.view.updateLayoutParams
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.addCallback
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
@@ -20,9 +19,11 @@ import org.docheinstein.minimotek.util.warn
 
 @AndroidEntryPoint
 class SwHotkeysFragment : Fragment() {
-    private val viewModel: SwHotkeysSharedViewModel by viewModels()
+//    private val viewModel: SwHotkeysViewModel by viewModels()
+    private val viewModel: SwHotkeysViewModel by hiltNavGraphViewModels(R.id.nav_sw_hotkeys)
     private lateinit var binding: HotkeysBinding
 
+    private lateinit var clearButton: MenuItem
     private lateinit var saveButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +31,7 @@ class SwHotkeysFragment : Fragment() {
         debug("SwHotkeysFragment.onCreate")
         setHasOptionsMenu(true)
     }
+
 
     override fun onResume() {
         debug("SwHotkeysFragment.onResume")
@@ -72,6 +74,7 @@ class SwHotkeysFragment : Fragment() {
         debug("Observing swHotkeys updates")
         viewModel.swHotkeys.observe(viewLifecycleOwner) { hotkeys ->
             debug("Received hotkeys update")
+            setMenuItemEnabled(clearButton, hotkeys.isNotEmpty())
             if (hotkeys != null) {
                 handleHotkeysUpdate(hotkeys)
             }
@@ -86,13 +89,16 @@ class SwHotkeysFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.add_save, menu)
+        inflater.inflate(R.menu.clear_add_save, menu)
+        clearButton = menu.findItem(R.id.clear_menu_item)
         saveButton = menu.findItem(R.id.save_menu_item)
+
+        clearButton.icon.mutate()
         saveButton.icon.mutate()
 
         viewModel.hasPendingChanges.observe(viewLifecycleOwner) { yes ->
             debug("Pending changes = $yes")
-            setSaveButtonEnabled(yes)
+            setMenuItemEnabled(saveButton, yes)
         }
     }
 
@@ -104,6 +110,9 @@ class SwHotkeysFragment : Fragment() {
             }
             R.id.save_menu_item -> {
                 handleSaveHotkeysButton()
+            }
+            R.id.clear_menu_item -> {
+                handleClearButton()
             }
         }
         return super.onOptionsItemSelected(item)
@@ -198,7 +207,7 @@ class SwHotkeysFragment : Fragment() {
 
         hotkeyView.setOnClickListener {
             findNavController().navigate(
-                SwHotkeysFragmentDirections.actionAddEditHotkey(
+                SwHotkeysFragmentDirections.actionAddEditSwHotkey(
                     hotkey.id,
                     getString(R.string.toolbar_title_edit_hotkey)
                 )
@@ -244,20 +253,34 @@ class SwHotkeysFragment : Fragment() {
 
     private fun handleAddHotkeyButton() {
         findNavController().navigate(
-            SwHotkeysFragmentDirections.actionAddEditHotkey(
-                SwHotkeysSharedViewModel.HOTKEY_ID_NONE,
+            SwHotkeysFragmentDirections.actionAddEditSwHotkey(
+                SwHotkeysViewModel.HOTKEY_ID_NONE,
                 getString(R.string.toolbar_title_add_hotkey)
             )
         )
     }
 
-    private fun setSaveButtonEnabled(enabled: Boolean) {
+    private fun handleClearButton() {
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.sw_hotkeys_clear_confirmation_title)
+            .setMessage(R.string.sw_hotkeys_clear_confirmation_message)
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // actually delete
+                viewModel.clear()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun setMenuItemEnabled(menuItem: MenuItem, enabled: Boolean) {
         if (enabled) {
-            saveButton.isEnabled = true
-            saveButton.icon.alpha = 255
+            menuItem.isEnabled = true
+            menuItem.icon.alpha = 255
         } else {
-            saveButton.isEnabled = false
-            saveButton.icon.alpha = 127
+            menuItem.isEnabled = false
+            menuItem.icon.alpha = 127
         }
     }
+
+
 }

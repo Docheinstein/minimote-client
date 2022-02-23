@@ -34,12 +34,12 @@ class AddEditSwHotkeyViewModel @Inject constructor(
         EDIT
     }
 
-    private val hotkeyId: Long = savedStateHandle[HOTKEY_ID_STATE_KEY] ?: HOTKEY_ID_NONE
-    val mode = if (hotkeyId == HOTKEY_ID_NONE) Mode.ADD else Mode.EDIT
-    val swHotkey = if (mode == Mode.EDIT) swHotkeyRepository.load(hotkeyId).asLiveData() else null
+    val swHotkeyId: Long = savedStateHandle[HOTKEY_ID_STATE_KEY] ?: HOTKEY_ID_NONE
+    val mode = if (swHotkeyId == HOTKEY_ID_NONE) Mode.ADD else Mode.EDIT
+//    val swHotkey = if (mode == Mode.EDIT) swHotkeyRepository.load(hotkeyId).asLiveData() else null
 
     init {
-        debug("AddEditHotkeyViewModel.init() for hotkeyId = $hotkeyId")
+        debug("AddEditHotkeyViewModel.init() for hotkeyId = $swHotkeyId")
     }
 //
 //    fun save(

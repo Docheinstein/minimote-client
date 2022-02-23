@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
 import android.view.MenuItem
+import androidx.activity.addCallback
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
 import androidx.drawerlayout.widget.DrawerLayout
@@ -55,6 +56,11 @@ class MainActivity : AppCompatActivity() {
             debug("Destination changed to: ${dest.id}")
         }
 
+//        onBackPressedDispatcher.addCallback(this) {
+//            // Handle the back button event
+//            debug("OnBack")
+//        }
+
         debug("MainActivity.onCreate() DONE")
     }
 
@@ -63,18 +69,18 @@ class MainActivity : AppCompatActivity() {
         // Automatically navigation to the fragment with the same id as the menu item's id
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
-
-    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        debug("Detected keyDown for $keyCode")
-        var handled = false
-
-        val button = ButtonType.byKeyCode(keyCode)
-        if (button != null) {
-            handled = buttonEventBus.publish(button)
-        }
-
-        return if (handled) true else super.onKeyDown(keyCode, event)
-    }
+//
+//    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+//        debug("Detected keyDown for $keyCode")
+//        var handled = false
+//
+//        val button = ButtonType.byKeyCode(keyCode)
+//        if (button != null) {
+//            handled = buttonEventBus.publish(button)
+//        }
+//
+//        return if (handled) true else super.onKeyDown(keyCode, event)
+//    }
 
     private fun navigateFromDrawerTo(dir: NavDirections) {
         navController.navigate(dir)
@@ -85,7 +91,13 @@ class MainActivity : AppCompatActivity() {
         return true
     }
 
+//    override fun onNavigateUp(): Boolean {
+//        debug("onNavigateUp")
+//        return navController.navigateUp(appBarConfiguration) || super.onNavigateUp()
+//    }
+
     override fun onSupportNavigateUp(): Boolean {
+        debug("onSupportNavigateUp")
         return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }
