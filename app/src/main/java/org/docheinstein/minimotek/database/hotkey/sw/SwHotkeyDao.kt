@@ -28,6 +28,9 @@ interface SwHotkeyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(hotkey: SwHotkey): Long
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun saveAll(hotkeys: List<SwHotkey>)
+
     @Delete
     suspend fun delete(hotkey: SwHotkey): Int
 
@@ -36,6 +39,13 @@ interface SwHotkeyDao {
 
     @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_ORIENTATION = :orientation")
     suspend fun clearForOrientation(orientation: Orientation): Int
+
+
+    @Transaction
+    suspend fun replaceForOrientation(orientation: Orientation, hotkeys: List<SwHotkey>) {
+        clearForOrientation(orientation)
+        saveAll(hotkeys)
+    }
 
     // UPDATE
     @Query("UPDATE $TABLE_NAME SET $COLUMN_X = :x, $COLUMN_Y = :y WHERE $COLUMN_ID = :id")

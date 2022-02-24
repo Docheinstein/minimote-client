@@ -34,9 +34,13 @@ class AddEditSwHotkeyFragment : Fragment() {
                               savedInstanceState: Bundle?): View? {
         binding = AddEditHotkeyBinding.inflate(inflater, container, false)
 
-        // Fetch server details (only the first time)
+        debug("AddEditSwHotkeyFragment.onCreateView()")
+
+        // Fetch details (only the first time)
         if (viewModel.swHotkey == null &&
             viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
+            debug("Fetching details for hotkey ${viewModel.swHotkeyId}")
+
             val hotkey = sharedViewModel.hotkey(viewModel.swHotkeyId)
             viewModel.swHotkey = hotkey
             if (hotkey != null) {
@@ -96,61 +100,20 @@ class AddEditSwHotkeyFragment : Fragment() {
                 shift = binding.shift.isChecked,
                 label = binding.label.text.toString().ifEmpty { null }
             )
-            findNavController().navigateUp()
         } else if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
-            val prevOrientation = viewModel.swHotkey!!.orientation
-            val currentOrientation = sharedViewModel.orientationSnapshot
-            debug("Hotkey orientation was $prevOrientation")
-            debug("Current orientation is $currentOrientation")
-
-            if (prevOrientation == currentOrientation) {
-                debug("Editing hotkey for orientation equal to the original")
-                sharedViewModel.edit(
-                    id = viewModel.swHotkeyId,
-                    key = key,
-                    alt = binding.alt.isChecked,
-                    altgr = binding.altgr.isChecked,
-                    ctrl = binding.ctrl.isChecked,
-                    meta = binding.meta.isChecked,
-                    shift = binding.shift.isChecked,
-                    label = binding.label.text.toString().ifEmpty { null }
-                )
-                findNavController().navigateUp()
-            }
-            else {
-                warn("Editing hotkey for orientation different from the original")
-
-                AlertDialog.Builder(requireActivity())
-                    .setTitle(R.string.sw_hotkeys_edit_different_orientation_confirmation_title)
-                    .setMessage(getString(R.string.sw_hotkeys_edit_different_orientation_confirmation_message, currentOrientation, prevOrientation))
-                    .setPositiveButton(R.string.ok) { _, _ ->
-                        sharedViewModel.edit(
-                            id = viewModel.swHotkeyId,
-                            key = key,
-                            alt = binding.alt.isChecked,
-                            altgr = binding.altgr.isChecked,
-                            ctrl = binding.ctrl.isChecked,
-                            meta = binding.meta.isChecked,
-                            shift = binding.shift.isChecked,
-                            label = binding.label.text.toString().ifEmpty { null }
-                        )
-                        findNavController().navigateUp()
-                    }
-                    .setNegativeButton(R.string.cancel, null)
-                    .show()
-            }
+            sharedViewModel.edit(
+                id = viewModel.swHotkeyId,
+                key = key,
+                alt = binding.alt.isChecked,
+                altgr = binding.altgr.isChecked,
+                ctrl = binding.ctrl.isChecked,
+                meta = binding.meta.isChecked,
+                shift = binding.shift.isChecked,
+                label = binding.label.text.toString().ifEmpty { null }
+            )
         }
 
-
-//        if (viewModel.mode == AddEditHotkeyViewModel.Mode.ADD) {
-//            Snackbar.make(
-//                requireParentFragment().requireView(),
-//                getString(R.string.hw_hotkey_added, hotkey.displayName()),
-//                Snackbar.LENGTH_LONG
-//            ).show()
-//        } else {
-//            // TODO
-//        }
+        findNavController().navigateUp()
     }
 
     private fun handleDeleteButton() {

@@ -1,5 +1,6 @@
 package org.docheinstein.minimotek.database.hotkey.sw
 
+import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.util.info
@@ -44,7 +45,10 @@ class SwHotkeyRepository @Inject constructor(private val swHotkeyDao: SwHotkeyDa
             swHotkeyDao.clear()
         else
             swHotkeyDao.clearForOrientation(orientation)
+    }
 
-
+    suspend fun replaceForOrientation(orientation: Orientation, hotkeys: List<SwHotkey>) {
+        info("Replacing hotkeys for orientation $orientation")
+        swHotkeyDao.replaceForOrientation(orientation, hotkeys)
     }
 }

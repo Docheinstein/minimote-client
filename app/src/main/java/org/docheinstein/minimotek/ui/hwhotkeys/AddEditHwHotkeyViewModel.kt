@@ -25,7 +25,7 @@ class AddEditHwHotkeyViewModel @Inject constructor(
 
     companion object {
         private const val HW_HOTKEY_ID_STATE_KEY = "hwHotkeyId"
-        const val HW_HOTKEY_ID_NONE = -1L
+        const val HW_HOTKEY_ID_NONE = Long.MIN_VALUE
     }
 
     enum class Mode {

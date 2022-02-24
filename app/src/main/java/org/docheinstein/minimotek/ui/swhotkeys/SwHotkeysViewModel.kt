@@ -33,7 +33,7 @@ class SwHotkeysViewModel @Inject constructor(
 
     companion object {
         private const val HOTKEY_ID_STATE_KEY = "hotkeyId"
-        const val HOTKEY_ID_NONE = -1L
+        const val HOTKEY_ID_NONE = Long.MIN_VALUE
     }
 
     // Hotkeys
@@ -68,6 +68,7 @@ class SwHotkeysViewModel @Inject constructor(
         for (h in __landscapeHotkeys)
             if (h.id == id)
                 return h
+        warn("No hotkey for id $id")
         return null
     }
 
@@ -131,14 +132,14 @@ class SwHotkeysViewModel @Inject constructor(
         debug("Would save ${__hotkeys(o).size} hotkeys for orientation $o")
 
         ioScope.launch {
-            swHotkeyRepository.clear(o)
+            val hotkeys = __hotkeys(o)
             for (h in __hotkeys(o)) {
                 assert(h.orientation == o)
                 // translate brand new hotkeys' ids to AUTO_ID before insert into the DB
                 if (h.id < 0)
                     h.id = AUTO_ID
-                swHotkeyRepository.save(h)
             }
+            swHotkeyRepository.replaceForOrientation(o, hotkeys) // update db in a transaction
             _hasPendingChanges(o).postValue(false) // no more pending changes
         }
     }
@@ -204,8 +205,6 @@ class SwHotkeysViewModel @Inject constructor(
         label: String?
     ): SwHotkey? {
         debug("Editing hotkey with id $id in-memory")
-        val o = orientationSnapshot // take a snapshot
-
         var hotkey: SwHotkey? = null
 
         val editHotkey: ((SwHotkey) -> SwHotkey) = { h ->
@@ -215,57 +214,27 @@ class SwHotkeysViewModel @Inject constructor(
             h.meta = meta
             h.shift = shift
             h.key = key
-            h.orientation = o
             h.label = label
             h
         }
 
-        var portraitUpdate = false
-        var landscapeUpdate = false
-
         for (h in __portraitHotkeys) { // look in both
             if (h.id == id) {
-                debug("Found hotkey with id $id, updating")
+                debug("Found hotkey with id $id in portrait hotkeys, updating")
                 hotkey = editHotkey(h)
-                portraitUpdate = true
-                break
+                triggerUpdate(Orientation.Portrait)
+                return hotkey
             }
         }
 
         for (h in __landscapeHotkeys) { // look in both
             if (h.id == id) {
-                debug("Found hotkey with id $id, updating")
+                debug("Found hotkey with id $id in landscape hotkeys, updating")
                 hotkey = editHotkey(h)
-                landscapeUpdate = true
-                break
+                triggerUpdate(Orientation.Landscape)
+                return hotkey
             }
         }
-
-        // Sanitize, since edit can move an hotkey from one orientation to the other
-
-        for (h in __portraitHotkeys) {
-            if (h.orientation != Orientation.Portrait) {
-                __landscapeHotkeys.add(h.copy())
-                landscapeUpdate = true
-                portraitUpdate = true
-            }
-        }
-
-        for (h in __landscapeHotkeys) {
-            if (h.orientation != Orientation.Portrait) {
-                __portraitHotkeys.add(h.copy())
-                landscapeUpdate = true
-                portraitUpdate = true
-            }
-        }
-
-        __portraitHotkeys.removeIf { h -> h.orientation != Orientation.Portrait }
-        __landscapeHotkeys.removeIf { h -> h.orientation != Orientation.Landscape }
-
-        if (portraitUpdate)
-            triggerUpdate(Orientation.Portrait)
-        if (landscapeUpdate)
-            triggerUpdate(Orientation.Landscape)
 
         return hotkey
     }

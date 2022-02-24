@@ -20,7 +20,7 @@ class AddEditServerViewModel @Inject constructor(
 
     companion object {
         private const val SERVER_ID_STATE_KEY = "serverId"
-        const val SERVER_ID_NONE = -1L
+        const val SERVER_ID_NONE = Long.MIN_VALUE
     }
 
     enum class Mode {
