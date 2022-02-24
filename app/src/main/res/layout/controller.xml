@@ -18,8 +18,8 @@
         <ImageView
                 android:id="@+id/separator0"
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/primary" />
+                android:layout_height="2dp"
+                android:background="@color/light_blue" />
 
         <LinearLayout
                 android:id="@+id/widgets_bar"
@@ -57,20 +57,19 @@
     </LinearLayout>
 
     <FrameLayout
-        android:id="@+id/main_content"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:background="#424242"
-        app:layout_constraintBottom_toTopOf="@id/touchpad_buttons_container"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+            android:id="@+id/main_content"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/controller"
+            app:layout_constraintBottom_toTopOf="@id/touchpad_buttons_container"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
         <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
                 android:id="@+id/touchpad_area"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="#424242" />
+                android:layout_height="match_parent" />
 
         <FrameLayout
                 android:id="@+id/hotkeys_container"
@@ -89,7 +88,6 @@
             android:id="@+id/touchpad_buttons_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/controller_background"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@id/widgets_bar_container"
             app:layout_constraintEnd_toEndOf="parent"
@@ -99,27 +97,21 @@
                 android:id="@+id/separator1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_marginBottom="4dp"
                 android:background="#C5C5C5" />
 
         <LinearLayout
                 android:id="@+id/touchpad_buttons_inner_container"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/touchpad_buttons_height"
-                android:orientation="horizontal"
-                android:paddingStart="8dp"
-                android:paddingTop="8dp"
-                android:paddingEnd="8dp"
-                android:paddingBottom="8dp">
+                android:orientation="horizontal">
 
-            <ImageView
+
+            <ImageButton
                     android:id="@+id/touchpad_left_button"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginEnd="6dp"
                     android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:background="@drawable/touchpad_button_selector"/>
 
             <ImageView
                     android:id="@+id/separator2"
@@ -129,14 +121,12 @@
                     android:layout_marginBottom="4dp"
                     android:background="#C5C5C5" />
 
-            <ImageView
+            <ImageButton
                     android:id="@+id/touchpad_right_button"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="6dp"
                     android:layout_weight="1"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:background="@drawable/touchpad_button_selector"/>
         </LinearLayout>
     </LinearLayout>
 

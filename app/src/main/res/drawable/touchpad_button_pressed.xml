@@ -1,6 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-    <stroke android:width="2dp" android:color="@color/light_blue" />
-    <solid android:color="@color/lightest_gray" />
-    <corners android:radius="6dp" />
+    <solid android:color="@color/controller_touchpad_button_pressed" />
 </shape>

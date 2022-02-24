@@ -41,12 +41,12 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
         // Touchpad
         binding.touchpadArea.listener = this
 
-        binding.touchpadLeftButton.setOnTouchListener { v, event ->
+        binding.touchpadRightButton.setOnTouchListener { v, event ->
             when(event?.actionMasked) {
                 MotionEvent.ACTION_DOWN -> { viewModel.leftDown() }
                 MotionEvent.ACTION_UP -> { viewModel.leftUp()}
             }
-            true
+            false
         }
 
         binding.touchpadRightButton.setOnTouchListener { v, event ->
@@ -54,7 +54,7 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
                 MotionEvent.ACTION_DOWN -> { viewModel.rightDown() }
                 MotionEvent.ACTION_UP -> { viewModel.rightUp()}
             }
-            true
+            false
         }
 
         // Splash Overlay
