@@ -219,7 +219,7 @@ class SwHotkeysFragment : Fragment() {
     private fun makeHotkeyView(hotkey: SwHotkey): View {
         val hotkeyIdStr = hotkey.id.toString()
 
-        val hotkeyView = SwHotkeyView(requireContext(), hotkey = hotkey)
+        val hotkeyView = SwHotkeyView(requireContext(), hotkey = SwHotkeyView.Hotkey.fromSwHotkey(hotkey))
         hotkeyView.tag = hotkeyIdStr
 
         val lp = FrameLayout.LayoutParams(

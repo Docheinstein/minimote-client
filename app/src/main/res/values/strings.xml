@@ -46,7 +46,8 @@
     <!-- Server -->
     <string name="server_address_placeholder">192.168.1.102</string>
     <string name="server_port_placeholder">50500</string>
-    <string name="server_optional_params">Optional</string>
+    <string name="server_connection_params">Connection</string>
+    <string name="server_style_params">Style</string>
 
 <!--    <string name="edit_server_display_name">Display name</string>-->
 <!--    <string name="edit_server_address">@string/address</string>-->
@@ -180,4 +181,10 @@
     <string name="portrait">Portrait</string>
     <string name="landscape">Landscape</string>
 
+    <string name="key">Key</string>
+    <string name="style">Style</string>
+    <string name="button">Button</string>
+    <string name="modifiers">Modifiers</string>
+    <string name="preview">Preview</string>
+    <string name="size">Size</string>
 </resources>

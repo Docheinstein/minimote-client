@@ -10,12 +10,18 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.databinding.AddEditHotkeyBinding
+import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
+import org.docheinstein.minimotek.databinding.AddEditSwHotkeyBinding
+import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
+import org.docheinstein.minimotek.extensions.setOnItemActuallySelectedListener
+import org.docheinstein.minimotek.extensions.setOnSeekbarProgressListener
 import org.docheinstein.minimotek.extensions.setSelection
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
+
+private const val SIZE_SLIDER_FACTOR = 2
 
 @AndroidEntryPoint
 class AddEditSwHotkeyFragment : Fragment() {
@@ -23,7 +29,7 @@ class AddEditSwHotkeyFragment : Fragment() {
     private val viewModel: AddEditSwHotkeyViewModel by viewModels()
     private val sharedViewModel: SwHotkeysViewModel by navGraphViewModels(R.id.nav_sw_hotkeys)
 //    private val sharedViewModel: SwHotkeysSharedViewModel by activityViewModels()
-    private lateinit var binding: AddEditHotkeyBinding
+    private lateinit var binding: AddEditSwHotkeyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +38,8 @@ class AddEditSwHotkeyFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        binding = AddEditHotkeyBinding.inflate(inflater, container, false)
+        binding = AddEditSwHotkeyBinding.inflate(inflater, container, false)
+        binding.size.text = (binding.sizeSlider.progress * SIZE_SLIDER_FACTOR).toString()
 
         debug("AddEditSwHotkeyFragment.onCreateView()")
 
@@ -50,12 +57,28 @@ class AddEditSwHotkeyFragment : Fragment() {
                 binding.ctrl.isChecked = hotkey.ctrl
                 binding.meta.isChecked = hotkey.meta
                 binding.shift.isChecked = hotkey.shift
+                binding.size.text = hotkey.size.toString()
                 if (hotkey.label != null)
                     binding.label.setText(hotkey.label)
             } else {
                 warn("No hotkey with id ${viewModel.swHotkeyId} in EDIT mode")
             }
         }
+
+        // Update preview on change
+        binding.key.setOnItemActuallySelectedListener { _, -> updatePreview() }
+        binding.alt.setOnCheckedChangeListener { _, _ -> updatePreview() }
+        binding.altgr.setOnCheckedChangeListener { _, _ -> updatePreview() }
+        binding.ctrl.setOnCheckedChangeListener { _, _ -> updatePreview() }
+        binding.meta.setOnCheckedChangeListener { _, _ -> updatePreview() }
+        binding.shift.setOnCheckedChangeListener { _, _ -> updatePreview() }
+        binding.label.addAfterTextChangedListener { _ -> updatePreview() }
+        binding.sizeSlider.setOnSeekbarProgressListener { progress ->
+            binding.size.text = (progress * SIZE_SLIDER_FACTOR).toString()
+            updatePreview()
+        }
+
+        updatePreview()
 
         return binding.root
     }
@@ -98,7 +121,8 @@ class AddEditSwHotkeyFragment : Fragment() {
                 ctrl = binding.ctrl.isChecked,
                 meta = binding.meta.isChecked,
                 shift = binding.shift.isChecked,
-                label = binding.label.text.toString().ifEmpty { null }
+                label = binding.label.text.toString().ifEmpty { null },
+                size = binding.size.text.toString().toInt()
             )
         } else if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
             sharedViewModel.edit(
@@ -109,7 +133,8 @@ class AddEditSwHotkeyFragment : Fragment() {
                 ctrl = binding.ctrl.isChecked,
                 meta = binding.meta.isChecked,
                 shift = binding.shift.isChecked,
-                label = binding.label.text.toString().ifEmpty { null }
+                label = binding.label.text.toString().ifEmpty { null },
+                size = binding.size.text.toString().toInt()
             )
         }
 
@@ -134,5 +159,28 @@ class AddEditSwHotkeyFragment : Fragment() {
 //            .show()
         sharedViewModel.remove(viewModel.swHotkeyId)
         findNavController().navigateUp()
+    }
+
+    private fun updatePreview() {
+        val key = MinimoteKeyType.byKeyString(binding.key.selectedItem.toString())
+        if (key == null) {
+            warn("Invalid key for keyString ${binding.key.selectedItem}")
+            return
+        }
+
+        val uiHotkey = SwHotkeyView.Hotkey(
+            key = key,
+            alt = binding.alt.isChecked,
+            altgr = binding.altgr.isChecked,
+            ctrl = binding.ctrl.isChecked,
+            meta = binding.meta.isChecked,
+            shift = binding.shift.isChecked,
+            label = binding.label.text.toString().ifEmpty { null },
+            size = binding.size.text.toString().toInt(),
+        )
+
+        debug("Updating hotkey preview")
+
+        binding.preview.set(uiHotkey)
     }
 }

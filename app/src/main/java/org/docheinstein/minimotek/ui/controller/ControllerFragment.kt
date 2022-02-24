@@ -148,7 +148,7 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
         debug("Updating hotkeys container with ${hotkeys.size} hotkeys")
 
         for (hotkey in hotkeys) {
-            val hotkeyView = SwHotkeyView(requireContext(), hotkey = hotkey)
+            val hotkeyView = SwHotkeyView(requireContext(), hotkey = SwHotkeyView.Hotkey.fromSwHotkey(hotkey))
             val lp = FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT

@@ -15,10 +15,15 @@
         <entry key="app/src/main/res/drawable/keyboard_preview.xml" value="0.2325" />
         <entry key="app/src/main/res/drawable/keyboard_text_preview.xml" value="0.2325" />
         <entry key="app/src/main/res/drawable/nav_item_selector.xml" value="0.1" />
+        <entry key="app/src/main/res/drawable/touchpad_button_pressed.xml" value="0.1995" />
         <entry key="app/src/main/res/drawable/touchpad_button_selector.xml" value="0.207" />
-        <entry key="app/src/main/res/layout/add_edit_hotkey.xml" value="0.22604166666666667" />
-        <entry key="app/src/main/res/layout/add_edit_hw_hotkey.xml" value="0.5" />
-        <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.33" />
+        <entry key="app/src/main/res/drawable/touchpad_button_unpressed.xml" value="0.1995" />
+        <entry key="app/src/main/res/layout/add_edit_hotkey.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/add_edit_hw_hotkey.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/add_edit_hw_hotkey_cop.xml" value="0.246875" />
+        <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/add_edit_sw_hotkey.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/add_edit_sw_hotkey_copy.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/add_server_dialog.xml" value="0.10280797101449275" />
         <entry key="app/src/main/res/layout/controller.xml" value="0.33" />
         <entry key="app/src/main/res/layout/discover_dialog.xml" value="0.33" />

@@ -37,6 +37,6 @@ class AddEditSwHotkeyViewModel @Inject constructor(
     var swHotkey: SwHotkey? = null
 
     init {
-        debug("AddEditHotkeyViewModel.init() for hotkeyId = $swHotkeyId")
+        debug("AddEditSwHotkeyViewModel.init() for hotkeyId = $swHotkeyId")
     }
 }

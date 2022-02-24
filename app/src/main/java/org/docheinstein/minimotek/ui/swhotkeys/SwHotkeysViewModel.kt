@@ -152,7 +152,8 @@ class SwHotkeysViewModel @Inject constructor(
         ctrl: Boolean,
         meta: Boolean,
         shift: Boolean,
-        label: String?
+        label: String?,
+        size: Int
     ): SwHotkey {
         debug("Adding hotkey in-memory")
         val o = orientationSnapshot // take a snapshot
@@ -169,6 +170,7 @@ class SwHotkeysViewModel @Inject constructor(
             orientation = o,
             x = DEFAULT_HOTKEY_X,
             y = DEFAULT_HOTKEY_Y,
+            size = size
         )
 
         __hotkeys(o).add(hotkey)
@@ -202,7 +204,8 @@ class SwHotkeysViewModel @Inject constructor(
         ctrl: Boolean,
         meta: Boolean,
         shift: Boolean,
-        label: String?
+        label: String?,
+        size: Int
     ): SwHotkey? {
         debug("Editing hotkey with id $id in-memory")
         var hotkey: SwHotkey? = null
@@ -215,6 +218,7 @@ class SwHotkeysViewModel @Inject constructor(
             h.shift = shift
             h.key = key
             h.label = label
+            h.size = size
             h
         }
 

@@ -6,30 +6,49 @@
         android:background="#E9E9E9"
         android:orientation="vertical">
 
-
     <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:fillViewport="true">
 
         <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" >
+                android:padding="@dimen/card_padding"
+                android:orientation="vertical">
 
             <androidx.cardview.widget.CardView
                     android:id="@+id/card_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_margin="12dp"
-                    card_view:cardCornerRadius="4dp"
-                    card_view:cardElevation="10dp">
+                    android:layout_marginBottom="@dimen/card_spacing"
+                    card_view:cardCornerRadius="@dimen/card_corner_radius"
+                    card_view:cardElevation="@dimen/card_elevation">
 
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="16dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                    <TextView
+                            android:id="@+id/textView3"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="@string/server_connection_params"
+                            android:textColor="@color/primary"
+                            android:textSize="20sp" />
+
+                    <View
+                            android:id="@+id/divider2"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="?android:attr/listDivider" />
+
 
                     <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/address_input_layout"
@@ -67,23 +86,31 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_margin="12dp"
-                    card_view:cardCornerRadius="4dp"
-                    card_view:cardElevation="10dp">
+                    card_view:cardCornerRadius="@dimen/card_corner_radius"
+                    card_view:cardElevation="@dimen/card_elevation">
 
                 <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_margin="16dp"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
 
                     <TextView
                             android:id="@+id/textView2"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center"
-                            android:text="@string/server_optional_params"
-                            android:textSize="16sp" />
+                            android:text="@string/server_style_params"
+                            android:textColor="@color/primary"
+                            android:textSize="20sp" />
+
+                    <View
+                            android:id="@+id/divider"
+                            android:layout_width="match_parent"
+                            android:layout_height="1dp"
+                            android:layout_marginTop="6dp"
+                            android:layout_marginBottom="6dp"
+                            android:background="?android:attr/listDivider" />
 
                     <com.google.android.material.textfield.TextInputLayout
                             android:layout_width="match_parent"
