@@ -1,8 +1,12 @@
 package org.docheinstein.minimotek.ui.servers
 
 import android.app.AlertDialog
+import android.content.ActivityNotFoundException
+import android.net.Uri
 import android.os.Bundle
 import android.view.*
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
@@ -15,15 +19,22 @@ import org.docheinstein.minimotek.util.NetUtils
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
+
 @AndroidEntryPoint
 class AddEditServerFragment : Fragment() {
 
     private val viewModel: AddEditServerViewModel by viewModels()
     private lateinit var binding: AddEditServerBinding
 
+    private lateinit var iconPicker: ActivityResultLauncher<Array<String>>
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        iconPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            handleIconChosen(uri)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -39,6 +50,15 @@ class AddEditServerFragment : Fragment() {
         binding.address.addAfterTextChangedListener { validateAddress() }
         binding.port.addAfterTextChangedListener { validatePort()}
 
+        binding.iconChooser.setOnClickListener {
+            debug("Clicked on server icon chooser")
+            openServerIconChooser()
+        }
+        binding.icon.setOnClickListener {
+            debug("Clicked on server icon")
+            openServerIconChooser()
+        }
+
         // Fetch server details (only the first time)
         if (viewModel.server?.value == null &&
             viewModel.mode == AddEditServerViewModel.Mode.EDIT
@@ -50,10 +70,15 @@ class AddEditServerFragment : Fragment() {
                     binding.address.setText(server.address)
                     binding.port.setText(server.port.toString())
                     binding.name.setText(server.name)
+                    setIconUI(server.icon)
                 } else {
                     warn("Invalid server")
                 }
             }
+        }
+
+        viewModel.icon.observe(viewLifecycleOwner) { newIcon ->
+            setIconUI(newIcon)
         }
 
         return binding.root
@@ -142,6 +167,35 @@ class AddEditServerFragment : Fragment() {
             .show()
     }
 
+    private fun openServerIconChooser() {
+        try {
+            debug("Opening file picker")
+            iconPicker.launch(arrayOf("image/*"))
+        } catch (e: ActivityNotFoundException) {
+            // TODO handle
+            warn("Cannot find any application able to choose an image")
+        }
+    }
+
+    private fun handleIconChosen(uri: Uri) {
+        debug("Icon has been chosen, uri = $uri")
+        viewModel.setIcon(uri)
+    }
+
+    // TODO bad
+    private fun setIconUI(uri: Uri?) {
+        debug("Setting icon to $uri")
+        if (uri == null) {
+            // default
+            binding.icon.setImageResource(R.drawable.host)
+            binding.icon.imageTintList = requireContext().getColorStateList(R.color.mid_gray)
+        } else {
+            binding.icon.setImageURI(uri)
+            binding.icon.imageTintList = null
+        }
+    }
+
+    // TODO bad
     private fun updateUI() {
         validateAddress()
         validatePort()

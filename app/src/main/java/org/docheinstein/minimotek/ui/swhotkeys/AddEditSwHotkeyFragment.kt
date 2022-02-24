@@ -58,6 +58,8 @@ class AddEditSwHotkeyFragment : Fragment() {
                 binding.meta.isChecked = hotkey.meta
                 binding.shift.isChecked = hotkey.shift
                 binding.size.text = hotkey.size.toString()
+                binding.sizeSlider.progress = hotkey.size.toString().toInt() / SIZE_SLIDER_FACTOR
+                assert(hotkey.size.toString().toInt() % SIZE_SLIDER_FACTOR == 0)
                 if (hotkey.label != null)
                     binding.label.setText(hotkey.label)
             } else {

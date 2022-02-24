@@ -24,7 +24,7 @@
         <entry key="app/src/main/res/layout/add_edit_hotkey.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_edit_hw_hotkey.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_edit_hw_hotkey_cop.xml" value="0.246875" />
-        <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/add_edit_server.xml" value="0.33" />
         <entry key="app/src/main/res/layout/add_edit_sw_hotkey.xml" value="0.25" />
         <entry key="app/src/main/res/layout/add_edit_sw_hotkey_copy.xml" value="0.246875" />
         <entry key="app/src/main/res/layout/add_server_dialog.xml" value="0.10280797101449275" />

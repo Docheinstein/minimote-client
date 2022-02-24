@@ -10,11 +10,10 @@
         android:foreground="?android:attr/selectableItemBackground">
 
     <ImageView
-            android:id="@+id/imageView2"
+            android:id="@+id/icon"
             android:layout_width="@dimen/server_list_item_icon"
             android:layout_height="@dimen/server_list_item_icon"
             android:layout_gravity="center_vertical"
-            app:tint="@color/mid_gray"
             app:srcCompat="@drawable/host" />
 
     <LinearLayout

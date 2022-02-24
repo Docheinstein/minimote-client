@@ -1,15 +1,20 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <style name="Theme.Minimote" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <style name="Theme.Minimote" parent="Theme.MaterialComponents.Light.NoActionBar">
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorSecondaryVariant">@color/secondary_dark</item>
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="android:actionMenuTextColor">@color/darkest_gray</item>
     </style>
 
     <style name="Theme.Minimote.Toolbar" parent="ThemeOverlay.AppCompat.Dark">
-        <item name="android:textColorPrimary">@android:color/holo_red_dark</item>
-        <item name="android:textColorSecondary">@android:color/holo_orange_dark</item>
+        <!-- Toolbar title -->
+<!--        <item name="android:textColorPrimary">@color/dark_white</item>-->
+
+        <!-- Toolbar back button and 3-dots -->
+<!--        <item name="android:textColorSecondary">@color/dark_white</item>-->
+
+        <!-- Other texts: e.g. menu items -->
+        <item name="android:textColor">@color/darkest_gray</item>
     </style>
 </resources>

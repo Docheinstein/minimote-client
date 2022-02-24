@@ -15,8 +15,9 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toTopOf="@id/keyboard_text">
 
-        <ImageView
-                android:id="@+id/separator0"
+
+        <View
+                android:id="@+id/divider5"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@color/light_blue" />
@@ -93,7 +94,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
+        <View
                 android:id="@+id/separator1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -113,7 +114,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/touchpad_button_selector"/>
 
-            <ImageView
+            <View
                     android:id="@+id/separator2"
                     android:layout_width="1dp"
                     android:layout_height="match_parent"

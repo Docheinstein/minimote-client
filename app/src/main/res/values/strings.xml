@@ -187,4 +187,6 @@
     <string name="modifiers">Modifiers</string>
     <string name="preview">Preview</string>
     <string name="size">Size</string>
+    <string name="icon">Icon</string>
+    <string name="browse">Browse</string>
 </resources>

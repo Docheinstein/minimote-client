@@ -33,7 +33,9 @@ class ServersFragment : Fragment() {
         }
 
         override fun areContentsTheSame(oldItem: Server, newItem: Server): Boolean {
-            return oldItem.address == newItem.address && oldItem.name == newItem.name // UI based equality
+            return oldItem.address == newItem.address &&
+                    oldItem.name == newItem.name &&
+                    oldItem.icon == newItem.icon // UI based equality
         }
     }
 
@@ -69,8 +71,19 @@ class ServersFragment : Fragment() {
 
         override fun doBindViewHolder(holder: ViewHolder, position: Int) {
             val server = getItem(position)
+            debug("Binding view for $server")
             holder.binding.address.text = server.address
             holder.binding.name.text = server.displayName()
+
+            // TODO helper
+            if (server.icon != null) {
+                holder.binding.icon.setImageURI(server.icon)
+                holder.binding.icon.imageTintList = null
+            } else {
+                holder.binding.icon.setImageResource(R.drawable.host)
+                holder.binding.icon.imageTintList = holder.itemView.context.getColorStateList(R.color.mid_gray)
+            }
+
             holder.binding.root.setOnClickListener {
                 debug("Click on server $server")
                 holder.itemView.findNavController().navigate(

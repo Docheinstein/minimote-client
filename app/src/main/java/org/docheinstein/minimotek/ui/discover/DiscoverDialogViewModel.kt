@@ -71,7 +71,7 @@ class DiscoverDialogViewModel @Inject constructor(
 
     fun insert(discoveredServer: DiscoveredServer) {
         ioScope.launch {
-            val s = Server(AUTO_ID, discoveredServer.address, discoveredServer.port, discoveredServer.hostname)
+            val s = Server(AUTO_ID, discoveredServer.address, discoveredServer.port, discoveredServer.hostname, null)
             serverRepository.save(s)
         }
     }

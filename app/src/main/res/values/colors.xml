@@ -7,6 +7,7 @@
     <color name="blue">#157DEC</color>
     <color name="dark_blue">#0B6CD5</color>
     <color name="lightest_gray">#B6B6B6</color>
+    <color name="very_light_gray">#9F9E9E</color>
     <color name="light_gray">#817F7F</color>
     <color name="mid_gray">#615F5F</color>
     <color name="middark_gray">#515050</color>

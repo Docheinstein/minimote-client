@@ -1,5 +1,6 @@
 package org.docheinstein.minimotek.database.server
 
+import android.net.Uri
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
@@ -11,6 +12,7 @@ const val COLUMN_ID = "id"
 const val COLUMN_ADDRESS = "address"
 const val COLUMN_PORT = "port"
 const val COLUMN_NAME = "name"
+const val COLUMN_ICON = "icon"
 
 @Entity(
     tableName = TABLE_NAME,
@@ -32,12 +34,15 @@ data class Server(
 
     @ColumnInfo(name = COLUMN_NAME)
     var name: String?,
+
+    @ColumnInfo(name = COLUMN_ICON)
+    var icon: Uri?,
 ) {
     fun displayName(): String {
         return name ?: address
     }
 
     override fun toString(): String {
-        return "(id=$id, address=$address, port=$port, name=$name)"
+        return "(id=$id, address=$address, port=$port, name=$name, icon=$icon)"
     }
 }
