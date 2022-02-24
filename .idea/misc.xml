@@ -8,6 +8,9 @@
         <entry key="app/src/main/res/drawable-v24/hotkey_button_unpressed.xml" value="0.1665" />
         <entry key="app/src/main/res/drawable-v24/touchpad_button_pressed.xml" value="0.207" />
         <entry key="app/src/main/res/drawable-v24/touchpad_button_unpressed.xml" value="0.207" />
+        <entry key="app/src/main/res/drawable/drawer_menu_item_pressed.xml" value="0.204" />
+        <entry key="app/src/main/res/drawable/drawer_menu_item_selector.xml" value="0.204" />
+        <entry key="app/src/main/res/drawable/drawer_menu_item_unselected.xml" value="0.204" />
         <entry key="app/src/main/res/drawable/hotkey.xml" value="0.207" />
         <entry key="app/src/main/res/drawable/hotkey_button_pressed.xml" value="0.1895" />
         <entry key="app/src/main/res/drawable/hotkey_button_selector.xml" value="0.1665" />

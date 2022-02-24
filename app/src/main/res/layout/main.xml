@@ -43,6 +43,8 @@
             android:layout_height="match_parent"
             android:layout_gravity="start"
             android:fitsSystemWindows="true"
+            app:itemTextColor="@drawable/drawer_menu_item_selector"
+            app:itemIconTint="@drawable/drawer_menu_item_selector"
             app:headerLayout="@layout/drawer_header"
             app:menu="@menu/drawer"/>
 </androidx.drawerlayout.widget.DrawerLayout>
