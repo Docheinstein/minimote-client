@@ -1,5 +1,6 @@
 package org.docheinstein.minimotek
 
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.Menu
@@ -16,7 +17,10 @@ import androidx.navigation.ui.*
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.buttons.ButtonEventBus
+import org.docheinstein.minimotek.orientation.Orientation
+import org.docheinstein.minimotek.orientation.OrientationEventBus
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.warn
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -29,10 +33,19 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     @Inject lateinit var buttonEventBus: ButtonEventBus
+    @Inject lateinit var orientationEventBus: OrientationEventBus
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         debug("MainActivity.onCreate()")
+
+        debug("Current orientation is ${if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) "portrait" else "landscape"}")
+        when (resources.configuration.orientation) {
+            Configuration.ORIENTATION_PORTRAIT -> orientationEventBus.publish(Orientation.Portrait)
+            Configuration.ORIENTATION_LANDSCAPE -> orientationEventBus.publish(Orientation.Landscape)
+            else -> warn("Unknown orientation")
+        }
+
         setContentView(R.layout.main)
 
         // toolbar
@@ -69,18 +82,18 @@ class MainActivity : AppCompatActivity() {
         // Automatically navigation to the fragment with the same id as the menu item's id
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
-//
-//    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-//        debug("Detected keyDown for $keyCode")
-//        var handled = false
-//
-//        val button = ButtonType.byKeyCode(keyCode)
-//        if (button != null) {
-//            handled = buttonEventBus.publish(button)
-//        }
-//
-//        return if (handled) true else super.onKeyDown(keyCode, event)
-//    }
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        debug("Detected keyDown for $keyCode")
+        var handled = false
+
+        val button = ButtonType.byKeyCode(keyCode)
+        if (button != null) {
+            handled = buttonEventBus.publish(button)
+        }
+
+        return if (handled) true else super.onKeyDown(keyCode, event)
+    }
 
     private fun navigateFromDrawerTo(dir: NavDirections) {
         navController.navigate(dir)

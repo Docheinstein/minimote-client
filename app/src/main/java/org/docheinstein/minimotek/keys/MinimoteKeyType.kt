@@ -4,7 +4,7 @@ import android.view.KeyEvent
 import org.docheinstein.minimotek.packet.MinimotePacketType
 
 enum class MinimoteKeyType(val value: Int, val keyCode: Int, val keyString: String) {
-    Up(0x00, KeyEvent.KEYCODE_DPAD_UP, "0"),
+    Up(0x00, KeyEvent.KEYCODE_DPAD_UP, "Up"),
     Down(0x01, KeyEvent.KEYCODE_DPAD_DOWN, "Down"),
     Left(0x02, KeyEvent.KEYCODE_DPAD_LEFT, "Left"),
     Right(0x03, KeyEvent.KEYCODE_DPAD_RIGHT, "Right"),

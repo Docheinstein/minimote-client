@@ -5,22 +5,24 @@ import android.content.ClipData
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
-import androidx.activity.OnBackPressedCallback
-import androidx.activity.addCallback
+import androidx.core.view.children
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
+import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.HotkeysBinding
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.warn
 
+
 @AndroidEntryPoint
 class SwHotkeysFragment : Fragment() {
-//    private val viewModel: SwHotkeysViewModel by viewModels()
+
     private val viewModel: SwHotkeysViewModel by hiltNavGraphViewModels(R.id.nav_sw_hotkeys)
+
     private lateinit var binding: HotkeysBinding
 
     private lateinit var clearButton: MenuItem
@@ -72,47 +74,70 @@ class SwHotkeysFragment : Fragment() {
         // Observe hw hotkeys list changes
         // TODO: prevent reloading/rotation change
         debug("Observing swHotkeys updates")
-        viewModel.swHotkeys.observe(viewLifecycleOwner) { hotkeys ->
-            debug("Received hotkeys update")
-            setMenuItemEnabled(clearButton, hotkeys.isNotEmpty())
-            if (hotkeys != null) {
-                handleHotkeysUpdate(hotkeys)
-            }
-        }
 
         binding.hotkeys.setOnDragListener { v, e ->
             handleHotkeyDragged(v, e)
             true
         }
 
+        viewModel.orientation.observe(viewLifecycleOwner) { orientation ->
+            debug("UI notified about orientation change")
+            binding.orientation.setText(if (orientation == Orientation.Landscape) R.string.landscape else R.string.portrait)
+        }
+
         return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.clear_add_save, menu)
+        debug("onCreateOptionsMenu")
+
+        inflater.inflate(R.menu.hotkeys, menu)
         clearButton = menu.findItem(R.id.clear_menu_item)
         saveButton = menu.findItem(R.id.save_menu_item)
 
         clearButton.icon.mutate()
         saveButton.icon.mutate()
 
-        viewModel.hasPendingChanges.observe(viewLifecycleOwner) { yes ->
+        val H = viewModel.hotkeys()
+        if (H.value == null) {
+            warn("NULL HOTKEYS")
+        } else {
+            debug("Current hotkeys is")
+            for (h in H.value!!)
+                debug("$h")
+        }
+
+        viewModel.hasPendingChanges().observe(viewLifecycleOwner) { yes ->
             debug("Pending changes = $yes")
             setMenuItemEnabled(saveButton, yes)
+        }
+
+        viewModel.hotkeys().observe(viewLifecycleOwner) { hotkeys ->
+            debug("Received hotkeys update: size is ${hotkeys.size}")
+            setMenuItemEnabled(clearButton, hotkeys.isNotEmpty())
+            if (hotkeys != null) {
+                handleHotkeysUpdate(hotkeys)
+            }
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.import_menu_item -> {
+                handleImportButton()
+                return true
+            }
             R.id.add_menu_item -> {
                 handleAddHotkeyButton()
                 return true
             }
             R.id.save_menu_item -> {
                 handleSaveHotkeysButton()
+                return true
             }
             R.id.clear_menu_item -> {
                 handleClearButton()
+                return true
             }
         }
         return super.onOptionsItemSelected(item)
@@ -206,6 +231,7 @@ class SwHotkeysFragment : Fragment() {
         hotkeyView.layoutParams = lp
 
         hotkeyView.setOnClickListener {
+            debug("Clicked on hotkey with id ${hotkey.id}")
             findNavController().navigate(
                 SwHotkeysFragmentDirections.actionAddEditSwHotkey(
                     hotkey.id,
@@ -233,22 +259,41 @@ class SwHotkeysFragment : Fragment() {
         debug("Clicked on save, saving ${binding.hotkeys.childCount} hotkeys")
 
         viewModel.commit()
-//        for (hotkeyView in binding.hotkeys.children) {
-//            if (hotkeyView !is SwHotkeyView) {
-//                warn("Child view is not an hotkey view!?")
-//                continue
-//            }
-//
-//            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
-//            val id = (hotkeyView.tag as String).toLong()
-//            val x = lp.leftMargin
-//            val y = lp.topMargin
-//
-//            debug("Updating hotkey $id to position ($x,$y)")
-//            viewModel.updatePosition(id, x, y)
-//        }
+        for (hotkeyView in binding.hotkeys.children) {
+            if (hotkeyView !is SwHotkeyView) {
+                warn("Child view is not an hotkey view!?")
+                continue
+            }
 
-        findNavController().navigateUp()
+            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
+            val id = (hotkeyView.tag as String).toLong()
+            val x = lp.leftMargin
+            val y = lp.topMargin
+
+            debug("Updating hotkey $id to position ($x,$y)")
+            viewModel.updatePosition(id, x, y)
+        }
+
+        // do not navigate up!
+    // otherwise the hotkeys for the other orientation are lost
+//        findNavController().navigateUp()
+    }
+
+    private fun handleImportButton() {
+        val currentOrientation = viewModel.orientationSnapshot
+        val otherOrientation = if (currentOrientation == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait
+
+        debug("Proposing to import hotkeys from $currentOrientation to $otherOrientation")
+
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.sw_hotkeys_import_confirmation_title)
+            .setMessage(getString(R.string.sw_hotkeys_import_confirmation_message, currentOrientation, otherOrientation))
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // actually delete
+                viewModel.import()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     private fun handleAddHotkeyButton() {
@@ -263,7 +308,7 @@ class SwHotkeysFragment : Fragment() {
     private fun handleClearButton() {
         AlertDialog.Builder(requireActivity())
             .setTitle(R.string.sw_hotkeys_clear_confirmation_title)
-            .setMessage(R.string.sw_hotkeys_clear_confirmation_message)
+            .setMessage(getString(R.string.sw_hotkeys_clear_confirmation_message, viewModel.orientationSnapshot))
             .setPositiveButton(R.string.ok) { _, _ ->
                 // actually delete
                 viewModel.clear()

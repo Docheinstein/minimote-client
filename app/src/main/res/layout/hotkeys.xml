@@ -26,4 +26,16 @@
                 tools:visibility="visible" />
 
     </FrameLayout>
+
+    <TextView
+            android:id="@+id/orientation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:textColor="@color/light_gray"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="@string/portrait" />
 </androidx.constraintlayout.widget.ConstraintLayout>

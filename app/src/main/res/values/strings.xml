@@ -5,6 +5,7 @@
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="clear">Clear</string>
+    <string name="import_">Import</string>
     <string name="add">Add</string>
     <string name="edit">Edit</string>
 
@@ -168,6 +169,15 @@
 
 
     <string name="sw_hotkeys_clear_confirmation_title">Clear hotkeys?</string>
-    <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys?</string>
+    <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys for %1$s mode?</string>
+
+    <string name="sw_hotkeys_import_confirmation_title">Import hotkeys?</string>
+    <string name="sw_hotkeys_import_confirmation_message">Do you really want to clear the hotkeys for %1$s mode and import them from %2$s mode?</string>
+
+    <string name="sw_hotkeys_edit_different_orientation_confirmation_title">Are you sure?</string>
+    <string name="sw_hotkeys_edit_different_orientation_confirmation_message">You are saving the hotkey for %1$s mode but it was intended for %2$s mode, would you proceed?</string>
+
+    <string name="portrait">Portrait</string>
+    <string name="landscape">Landscape</string>
 
 </resources>

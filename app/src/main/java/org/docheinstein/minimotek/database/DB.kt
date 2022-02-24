@@ -11,7 +11,7 @@ import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerDao
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 
-const val DATABASE_VERSION = 10
+const val DATABASE_VERSION = 11
 const val DATABASE_NAME = "minimote"
 
 @Database(

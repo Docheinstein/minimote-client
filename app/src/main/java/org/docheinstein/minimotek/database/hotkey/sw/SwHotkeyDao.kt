@@ -2,7 +2,7 @@ package org.docheinstein.minimotek.database.hotkey.sw
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow
-import org.docheinstein.minimotek.Orientation
+import org.docheinstein.minimotek.orientation.Orientation
 
 
 @Dao
@@ -17,13 +17,13 @@ interface SwHotkeyDao {
     fun loadAllForOrientation(orientation: Orientation): Flow<List<SwHotkey>>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
-    fun get(id: Long): SwHotkey
+    suspend fun get(id: Long): SwHotkey
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun getAll(): List<SwHotkey>
+    suspend fun getAll(): List<SwHotkey>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ORIENTATION = :orientation")
-    fun getAllForOrientation(orientation: Orientation): List<SwHotkey>
+    suspend fun getAllForOrientation(orientation: Orientation): List<SwHotkey>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(hotkey: SwHotkey): Long
@@ -33,6 +33,9 @@ interface SwHotkeyDao {
 
     @Query("DELETE FROM $TABLE_NAME")
     suspend fun clear(): Int
+
+    @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_ORIENTATION = :orientation")
+    suspend fun clearForOrientation(orientation: Orientation): Int
 
     // UPDATE
     @Query("UPDATE $TABLE_NAME SET $COLUMN_X = :x, $COLUMN_Y = :y WHERE $COLUMN_ID = :id")

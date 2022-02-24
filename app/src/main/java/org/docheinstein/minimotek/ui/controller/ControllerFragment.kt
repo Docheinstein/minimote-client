@@ -135,7 +135,9 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
             }
         }
 
-        viewModel.hotkeysX.observe(viewLifecycleOwner) { hotkeys ->
+        debug("Observing hotkeys")
+        viewModel.currentOrientationHotkeys.observe(viewLifecycleOwner) { hotkeys ->
+            debug("Received hotkeys update")
             updateHotkeysContainer(hotkeys)
         }
 

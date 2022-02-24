@@ -2,6 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
+        android:id="@+id/import_menu_item"
+        android:icon="@drawable/sync"
+        android:title="@string/import_"
+        app:showAsAction="ifRoom" />
+    <item
         android:id="@+id/clear_menu_item"
         android:icon="@drawable/clear"
         android:title="@string/clear"

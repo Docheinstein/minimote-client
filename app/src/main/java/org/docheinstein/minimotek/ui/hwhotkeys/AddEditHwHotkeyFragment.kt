@@ -40,13 +40,13 @@ class AddEditHwHotkeyFragment : Fragment() {
                 debug("LiveData sent update for hwHotkey $hwHotkey, eventually updating UI")
                 if (hwHotkey != null) {
                     debug("Fetched hwHotkey is valid")
-                    binding.button.setSelection(hwHotkey.button.name)
+                    binding.button.setSelection(hwHotkey.button.keyString)
                     binding.alt.isChecked = hwHotkey.alt
                     binding.altgr.isChecked = hwHotkey.altgr
                     binding.ctrl.isChecked = hwHotkey.ctrl
                     binding.meta.isChecked = hwHotkey.meta
                     binding.shift.isChecked = hwHotkey.shift
-                    binding.key.setSelection(hwHotkey.key.name)
+                    binding.key.setSelection(hwHotkey.key.keyString)
                 } else {
                     warn("Invalid server")
                 }

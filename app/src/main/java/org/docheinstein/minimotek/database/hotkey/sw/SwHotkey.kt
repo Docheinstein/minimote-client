@@ -3,7 +3,7 @@ package org.docheinstein.minimotek.database.hotkey.sw
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import org.docheinstein.minimotek.Orientation
+import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
@@ -83,7 +83,7 @@ data class SwHotkey (
 
 
     override fun toString(): String {
-        return "(id=$id, shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, key=${key.keyString}, label=$label)"
+        return "(id=$id, shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, key=${key.keyString}, label=$label, orientation=$orientation, x=$x, y=$y)"
     }
 
     fun toHotkey(): Hotkey {

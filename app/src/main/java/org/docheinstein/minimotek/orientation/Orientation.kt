@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek
+package org.docheinstein.minimotek.orientation
 
 enum class Orientation {
     Portrait,

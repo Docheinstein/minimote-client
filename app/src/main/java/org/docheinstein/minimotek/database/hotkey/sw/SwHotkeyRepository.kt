@@ -1,7 +1,7 @@
 package org.docheinstein.minimotek.database.hotkey.sw
 
 import kotlinx.coroutines.flow.Flow
-import org.docheinstein.minimotek.Orientation
+import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.util.info
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -15,6 +15,13 @@ class SwHotkeyRepository @Inject constructor(private val swHotkeyDao: SwHotkeyDa
 
     fun load(id: Long): Flow<SwHotkey> {
         return swHotkeyDao.load(id)
+    }
+
+    suspend fun getAll(orientation: Orientation? = null): List<SwHotkey> {
+        return if (orientation == null)
+            swHotkeyDao.getAll()
+        else
+            swHotkeyDao.getAllForOrientation(orientation)
     }
 
     suspend fun updatePosition(id: Long, x: Int, y: Int) {
@@ -31,8 +38,13 @@ class SwHotkeyRepository @Inject constructor(private val swHotkeyDao: SwHotkeyDa
         swHotkeyDao.delete(hotkey)
     }
 
-    suspend fun clear() {
-        info("Clearing hotkeys")
-        swHotkeyDao.clear()
+    suspend fun clear(orientation: Orientation? = null) {
+        info("Clearing hotkeys for orientation $orientation")
+        if (orientation == null)
+            swHotkeyDao.clear()
+        else
+            swHotkeyDao.clearForOrientation(orientation)
+
+
     }
 }

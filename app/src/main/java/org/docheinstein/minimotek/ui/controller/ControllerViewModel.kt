@@ -18,6 +18,8 @@ import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.di.IODispatcher
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.orientation.Orientation
+import org.docheinstein.minimotek.orientation.OrientationEventBus
 import org.docheinstein.minimotek.packet.MinimotePacket
 import org.docheinstein.minimotek.packet.MinimotePacketFactory
 import org.docheinstein.minimotek.settings.SettingsManager
@@ -34,6 +36,7 @@ class ControllerViewModel @Inject constructor(
     private val hwHotkeyRepository: HwHotkeyRepository,
     private val swHotkeyRepository: SwHotkeyRepository,
     private val buttonEventBus: ButtonEventBus,
+    private val orientationEventBus: OrientationEventBus,
     private val settingsManager: SettingsManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel(), ButtonEventBus.ButtonEventListener {
@@ -93,7 +96,16 @@ class ControllerViewModel @Inject constructor(
         get() = _hotkeys
 
 
-    val hotkeysX = swHotkeyRepository.hotkeys.asLiveData()
+    private val portraitHotkeys = swHotkeyRepository.portraitHotkeys.asLiveData()
+    private val landscapeHotkeys = swHotkeyRepository.landscapeHotkeys.asLiveData()
+    val currentOrientationHotkeys: LiveData<List<SwHotkey>>
+        get() {
+            debug("currentOrientationHotkeys required for ${orientationEventBus.orientation.value}")
+            if (orientationEventBus.orientation.value == Orientation.Portrait)
+                return portraitHotkeys
+            else
+                return landscapeHotkeys
+        }
 
     // Hardware hotkeys
     // We have to keep those cached and up to date since we have
@@ -203,7 +215,7 @@ class ControllerViewModel @Inject constructor(
             checkConnectionAndSendUdp(MinimotePacketFactory.newRightUp())
         }
     }
-    
+
     fun touchpadDown(ev: MotionEvent) {
         if (!isConnected)
             return
@@ -217,13 +229,13 @@ class ControllerViewModel @Inject constructor(
             return
 
         if (lastClickTouchEventId == currentTouchEventId)
-            // prevent duplicate click
+        // prevent duplicate click
             return
 
         // check click area
         if (abs(ev.x.roundToInt() - lastDownX) > CLICK_AREA ||
             abs(ev.y.roundToInt() - lastDownY) > CLICK_AREA)
-                return
+            return
 
         lastClickTouchEventId = currentTouchEventId
 
@@ -246,7 +258,7 @@ class ControllerViewModel @Inject constructor(
             return
 
         if (lastClickTouchEventId == currentTouchEventId)
-            // prevent duplicate click
+        // prevent duplicate click
             return
 
         if (ev.pointerCount <= 1)
@@ -273,7 +285,7 @@ class ControllerViewModel @Inject constructor(
             return
         if (ev.pointerCount > 1) {
             if (ev.eventTime - lastScrollTime < SCROLL_MIN_TIME_BETWEEN_SAMPLES)
-                // do not exceed the sample rate
+            // do not exceed the sample rate
                 return
 
             val deltaScroll = lastScrollY - ev.y.roundToInt()
@@ -297,7 +309,7 @@ class ControllerViewModel @Inject constructor(
             }
         } else {
             if (ev.eventTime - lastMovementSampleTime < MOVEMENT_MIN_TIME_BETWEEN_SAMPLES)
-                // do not exceed the sample rate
+            // do not exceed the sample rate
                 return
 
             lastMovementSampleTime = ev.eventTime
@@ -342,8 +354,8 @@ class ControllerViewModel @Inject constructor(
         // Intercept hotkeys (e.g. VolumeUp with keyboard open)
         val button = ButtonType.byKeyCode(keyCode)
         if (button != null && buttonsMapping.contains(button))
-            // key handled, publish the event
-            // (so that this ViewModel will handle it since we are also listeners of the bus)
+        // key handled, publish the event
+        // (so that this ViewModel will handle it since we are also listeners of the bus)
             return buttonEventBus.publish(button)
 
         // Standard case: other key pressed
@@ -367,8 +379,8 @@ class ControllerViewModel @Inject constructor(
         // Intercept hotkeys (e.g. VolumeUp with keyboard open)
         val button = ButtonType.byKeyCode(keyCode)
         if (button != null && buttonsMapping.contains(button))
-            // key handled, but do not publish since
-            // we have already published it in keyDown
+        // key handled, but do not publish since
+        // we have already published it in keyDown
             return true
 
         // Standard case: other key pressed
