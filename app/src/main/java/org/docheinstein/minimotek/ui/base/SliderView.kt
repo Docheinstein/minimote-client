@@ -83,7 +83,7 @@ class SliderView @JvmOverloads constructor(
     }
 
     private fun updateUI() {
-        debug("Updating slider UI")
+        debug("Updating Slider UI")
         binding.seek.progress = progress
         binding.text.text = (progress * scaling).toString()
     }

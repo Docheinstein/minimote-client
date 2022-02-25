@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:card_view="http://schemas.android.com/apk/res-auto"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
+        xmlns:titled_card="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#E9E9E9"
@@ -19,38 +19,18 @@
                 android:padding="@dimen/card_padding"
                 android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
-                    android:id="@+id/card_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:layout_marginBottom="@dimen/card_spacing"
-                    card_view:cardCornerRadius="@dimen/card_corner_radius"
-                    card_view:cardElevation="@dimen/card_elevation">
+            <org.docheinstein.minimotek.ui.base.TitledCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_spacing"
+                titled_card:elevation="@dimen/card_elevation"
+                titled_card:radius="@dimen/card_corner_radius"
+                titled_card:title="@string/connection">
 
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:padding="@dimen/card_padding">
-
-                    <TextView
-                            android:id="@+id/textView3"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:text="@string/server_connection_params"
-                            android:textColor="@color/primary"
-                            android:textSize="20sp" />
-
-                    <View
-                            android:id="@+id/divider2"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="6dp"
-                            android:layout_marginBottom="6dp"
-                            android:background="?android:attr/listDivider" />
-
+               <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
                             android:id="@+id/address_input_layout"
@@ -80,39 +60,20 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
+            </org.docheinstein.minimotek.ui.base.TitledCardView>
 
-            </androidx.cardview.widget.CardView>
+            <org.docheinstein.minimotek.ui.base.TitledCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/card_spacing"
+                titled_card:elevation="@dimen/card_elevation"
+                titled_card:radius="@dimen/card_corner_radius"
+                titled_card:title="@string/style">
 
-            <androidx.cardview.widget.CardView
-                    android:id="@+id/card_view2"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    card_view:cardCornerRadius="@dimen/card_corner_radius"
-                    card_view:cardElevation="@dimen/card_elevation">
-
-                <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical"
-                        android:padding="@dimen/card_padding">
-
-                    <TextView
-                            android:id="@+id/textView2"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center"
-                            android:text="@string/server_style_params"
-                            android:textColor="@color/primary"
-                            android:textSize="20sp" />
-
-                    <View
-                            android:id="@+id/divider"
-                            android:layout_width="match_parent"
-                            android:layout_height="1dp"
-                            android:layout_marginTop="6dp"
-                            android:layout_marginBottom="6dp"
-                            android:background="?android:attr/listDivider" />
+               <LinearLayout
+                       android:layout_width="match_parent"
+                       android:layout_height="wrap_content"
+                       android:orientation="vertical">
 
                     <LinearLayout
                             android:layout_width="match_parent"
@@ -173,8 +134,7 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+            </org.docheinstein.minimotek.ui.base.TitledCardView>
 
         </LinearLayout>
     </ScrollView>
