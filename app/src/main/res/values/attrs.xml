@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="Slider">
+        <!-- Defines the minimum value. -->
+        <attr name="min" format="integer" />
+        <!-- Defines the maximum value. -->
+        <attr name="max" format="integer" />
+        <!-- Defines the default progress value, between 0 and max. -->
+        <attr name="progress" format="integer" />
+        <!-- Defines the multiplicative factor between the seek bar and the text shown -->
+        <attr name="scaling" format="integer" />
+    </declare-styleable>
+</resources>

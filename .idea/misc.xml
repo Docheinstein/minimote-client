@@ -41,6 +41,7 @@
         <entry key="app/src/main/res/layout/server_list.xml" value="0.22" />
         <entry key="app/src/main/res/layout/server_list_item.xml" value="0.33" />
         <entry key="app/src/main/res/layout/servers.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/slider.xml" value="0.22" />
         <entry key="app/src/main/res/menu/add.xml" value="0.1359375" />
         <entry key="app/src/main/res/menu/add_edit_server.xml" value="0.13125" />
         <entry key="app/src/main/res/menu/add_save.xml" value="0.22604166666666667" />
