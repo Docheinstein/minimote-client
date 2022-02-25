@@ -33,6 +33,7 @@ class AddEditServerFragment : Fragment() {
         setHasOptionsMenu(true)
 
         iconPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            debug("Got result = $uri")
             handleIconChosen(uri)
         }
     }
@@ -50,6 +51,10 @@ class AddEditServerFragment : Fragment() {
         binding.address.addAfterTextChangedListener { validateAddress() }
         binding.port.addAfterTextChangedListener { validatePort()}
 
+        binding.iconClearer.setOnClickListener {
+            debug("Clicked on server icon clearer")
+            viewModel.setIcon(null)
+        }
         binding.iconChooser.setOnClickListener {
             debug("Clicked on server icon chooser")
             openServerIconChooser()
@@ -70,7 +75,7 @@ class AddEditServerFragment : Fragment() {
                     binding.address.setText(server.address)
                     binding.port.setText(server.port.toString())
                     binding.name.setText(server.name)
-                    setIconUI(server.icon)
+                    binding.icon.setIcon(server.icon)
                 } else {
                     warn("Invalid server")
                 }
@@ -78,7 +83,7 @@ class AddEditServerFragment : Fragment() {
         }
 
         viewModel.icon.observe(viewLifecycleOwner) { newIcon ->
-            setIconUI(newIcon)
+            binding.icon.setIcon(newIcon)
         }
 
         return binding.root
@@ -180,19 +185,6 @@ class AddEditServerFragment : Fragment() {
     private fun handleIconChosen(uri: Uri) {
         debug("Icon has been chosen, uri = $uri")
         viewModel.setIcon(uri)
-    }
-
-    // TODO bad
-    private fun setIconUI(uri: Uri?) {
-        debug("Setting icon to $uri")
-        if (uri == null) {
-            // default
-            binding.icon.setImageResource(R.drawable.host)
-            binding.icon.imageTintList = requireContext().getColorStateList(R.color.mid_gray)
-        } else {
-            binding.icon.setImageURI(uri)
-            binding.icon.imageTintList = null
-        }
     }
 
     // TODO bad

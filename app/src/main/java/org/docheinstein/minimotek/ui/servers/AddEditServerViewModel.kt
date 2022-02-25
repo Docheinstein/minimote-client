@@ -33,8 +33,8 @@ class AddEditServerViewModel @Inject constructor(
     val mode = if (serverId == SERVER_ID_NONE) Mode.ADD else Mode.EDIT
     val server = if (mode == Mode.EDIT) serverRepository.load(serverId).asLiveData() else null
 
-    private val _icon = MutableLiveData<Uri>()
-    val icon: LiveData<Uri>
+    private val _icon = MutableLiveData<Uri?>()
+    val icon: LiveData<Uri?>
         get() = _icon
 
     init {
@@ -55,7 +55,7 @@ class AddEditServerViewModel @Inject constructor(
         }
     }
 
-    fun setIcon(uri: Uri) {
+    fun setIcon(uri: Uri?) {
         _icon.postValue(uri)
     }
 }
