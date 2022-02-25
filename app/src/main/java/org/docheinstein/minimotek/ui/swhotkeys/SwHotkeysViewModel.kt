@@ -7,6 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
+import org.docheinstein.minimotek.BuildConfig
 import org.docheinstein.minimotek.buttons.ButtonEventBus
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.orientation.Orientation
@@ -133,14 +134,29 @@ class SwHotkeysViewModel @Inject constructor(
 
         ioScope.launch {
             val hotkeys = __hotkeys(o)
+
+        if (BuildConfig.DEBUG)
+            assert(hotkeys.associateBy { h -> h.id }.size == hotkeys.size)
+
             for (h in __hotkeys(o)) {
+                debug("Will save $h")
                 assert(h.orientation == o)
                 // translate brand new hotkeys' ids to AUTO_ID before insert into the DB
                 if (h.id < 0)
                     h.id = AUTO_ID
             }
             swHotkeyRepository.replaceForOrientation(o, hotkeys) // update db in a transaction
-            _hasPendingChanges(o).postValue(false) // no more pending changes
+
+            // retrieve the new ids
+            debug("Retrieving the new hotkeys from db")
+            hotkeys.clear()
+            for (h in swHotkeyRepository.getAll(o)) {
+                debug("$h")
+                hotkeys.add(h.copy()) // deep copy
+            }
+
+            triggerUpdate(o, false) // must update hotkeys too since auto inserted ids are different from before
+//            _hasPendingChanges(o).postValue(false) // no more pending changes
         }
     }
 
@@ -250,12 +266,18 @@ class SwHotkeysViewModel @Inject constructor(
         debug("Would update hotkey $id")
 
         var found = false
+        val hotkeys = __hotkeys(o)
+
+        if (BuildConfig.DEBUG)
+            assert(hotkeys.associateBy { h -> h.id }.size == hotkeys.size)
+
         for (h in __hotkeys(o)) {
             if (h.id == id) {
                 debug("Actually updating pos for hotkey ${h.id}")
                 h.x = x
                 h.y = y
                 found = true
+//                break
             }
         }
 
@@ -310,7 +332,7 @@ class SwHotkeysViewModel @Inject constructor(
     }
 
     private fun triggerUpdate(o: Orientation = orientationSnapshot, pendingChanges: Boolean = true) {
-        debug("Triggering update for orientation $o, size is = ${__hotkeys(o).size}")
+        debug("Triggering hotkeys update for orientation $o, size is = ${__hotkeys(o).size}, pending changes = $pendingChanges")
         _hotkeys(o).postValue(__hotkeys(o))
         _hasPendingChanges(o).postValue(pendingChanges)
     }

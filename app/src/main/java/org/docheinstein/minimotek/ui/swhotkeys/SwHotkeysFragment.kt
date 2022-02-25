@@ -260,21 +260,22 @@ class SwHotkeysFragment : Fragment() {
     private fun handleSaveHotkeysButton() {
         debug("Clicked on save, saving ${binding.hotkeys.childCount} hotkeys")
 
+//        for (hotkeyView in binding.hotkeys.children) {
+//            if (hotkeyView !is SwHotkeyView) {
+//                warn("Child view is not an hotkey view!?")
+//                continue
+//            }
+//
+//            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
+//            val id = (hotkeyView.tag as String).toLong()
+//            val x = lp.leftMargin
+//            val y = lp.topMargin
+//
+//            debug("Updating hotkey $id to position ($x,$y)")
+//            viewModel.updatePosition(id, x, y)
+//        }
+
         viewModel.commit()
-        for (hotkeyView in binding.hotkeys.children) {
-            if (hotkeyView !is SwHotkeyView) {
-                warn("Child view is not an hotkey view!?")
-                continue
-            }
-
-            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
-            val id = (hotkeyView.tag as String).toLong()
-            val x = lp.leftMargin
-            val y = lp.topMargin
-
-            debug("Updating hotkey $id to position ($x,$y)")
-            viewModel.updatePosition(id, x, y)
-        }
 
         // do not navigate up!
     // otherwise the hotkeys for the other orientation are lost

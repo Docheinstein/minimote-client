@@ -56,7 +56,7 @@ class AddEditSwHotkeyFragment : Fragment() {
                 binding.ctrl.isChecked = hotkey.ctrl
                 binding.meta.isChecked = hotkey.meta
                 binding.shift.isChecked = hotkey.shift
-                binding.size.progress = hotkey.size
+                binding.size.progressScaled = hotkey.size
                 if (hotkey.label != null)
                     binding.label.setText(hotkey.label)
             } else {

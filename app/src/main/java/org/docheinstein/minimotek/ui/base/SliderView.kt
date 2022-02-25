@@ -31,13 +31,19 @@ class SliderView @JvmOverloads constructor(
 
     var progress: Int = 0
         set(value) {
-            debug("SliderView.progress setter")
+            debug("SliderView.progress setter for value = $value")
             field = value
             updateUI()
         }
 
-    val progressScaled: Int
+    var progressScaled: Int
         get() = progress * scaling
+        set(value) {
+            progress = value / scaling
+            if (value % scaling != 0) {
+                warn("progressScaled % scaling should be == 0")
+            }
+        }
 
     init {
         debug("SliderView()")
