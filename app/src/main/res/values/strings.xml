@@ -151,6 +151,7 @@
     <string name="discover_helper">Click on a server to add it</string>
     <string name="discover_failed">Discover failed</string>
 
+    <string name="server_saved">%1$s has been saved</string>
     <string name="server_added">%1$s has been added</string>
     <string name="server_removed">%1$s has been removed</string>
 
@@ -165,9 +166,12 @@
     <string name="delete_hw_hotkey_confirmation_title">Remove physical hotkey?</string>
     <string name="delete_hw_hotkey_confirmation_message">Do you really want to remove the physical hotkey?</string>
 
-    <string name="hw_hotkey_added">%1$s has been added</string>
+<!--    <string name="hw_hotkey_added">%1$s has been added</string>-->
+    <string name="hw_hotkey_saved">%1$s has been saved</string>
     <string name="hw_hotkey_removed">%1$s has been removed</string>
 
+
+    <string name="sw_hotkeys_saved">%1$s hotkeys have been saved</string>
 
     <string name="sw_hotkeys_clear_confirmation_title">Clear hotkeys?</string>
     <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys for %1$s mode?</string>

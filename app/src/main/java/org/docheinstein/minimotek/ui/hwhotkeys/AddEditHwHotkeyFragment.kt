@@ -102,15 +102,11 @@ class AddEditHwHotkeyFragment : Fragment() {
             key = key
         )
 
-        if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.ADD) {
-            Snackbar.make(
-                requireParentFragment().requireView(),
-                getString(R.string.hw_hotkey_added, hwHotkey.button.name),
-                Snackbar.LENGTH_LONG
-            ).show()
-        } else {
-            // TODO
-        }
+        Snackbar.make(
+            requireParentFragment().requireView(),
+            getString(R.string.server_saved, hwHotkey.button.keyString),
+            Snackbar.LENGTH_LONG
+        ).show()
 
         findNavController().navigateUp()
     }

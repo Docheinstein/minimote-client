@@ -3,9 +3,11 @@ package org.docheinstein.minimotek.ui.base
 import android.content.Context
 import android.content.res.ColorStateList
 import android.net.Uri
+import android.os.Bundle
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
-import androidx.core.content.ContentProviderCompat.requireContext
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.util.debug
 
@@ -16,8 +18,15 @@ class IconView @JvmOverloads constructor(
     defStyle: Int = 0
 ) : AppCompatImageView(context, attrs, defStyle) {
 
+    companion object {
+        private const val STATE_KEY_URI = "IconView.uri"
+    }
+
     private var defaultResourceId: Int? = null
     private var defaultColor: Int? = null
+
+    var icon: Uri? = null
+        private set
 
     init {
         debug("IconView()")
@@ -50,6 +59,7 @@ class IconView @JvmOverloads constructor(
      */
     fun setIcon(uri: Uri?) {
         debug("IconView.setIcon() for uri = $uri")
+        icon = uri
         if (uri != null) {
             // Valid URI, use it
             setImageURI(uri)
@@ -63,5 +73,35 @@ class IconView @JvmOverloads constructor(
                 setImageURI(null) // clear, no image to provide
             }
         }
+    }
+
+    // Handle orientation change internally
+
+    // https://charlesharley.com/2012/programming/views-saving-instance-state-in-android
+    // https://stackoverflow.com/questions/14891434/overriding-view-onsaveinstancestate-and-view-onrestoreinstancestate-using-vi
+
+    class SavedState(superState: Parcelable?, val uri: Uri?) : BaseSavedState(superState) {
+        override fun writeToParcel(out: Parcel?, flags: Int) {
+            debug("SavedState.writeToParcel")
+            super.writeToParcel(out, flags)
+            out?.writeString(uri.toString())
+        }
+    }
+
+    override fun onSaveInstanceState(): Parcelable? {
+        debug("IconView.onSaveInstanceState()")
+        debug("Saving uri = $icon")
+
+        val superState = super.onSaveInstanceState()
+        return SavedState(superState, icon)
+    }
+
+    override fun onRestoreInstanceState(state: Parcelable?) {
+        debug("IconView.onRestoreInstanceState()")
+        val savedState = state as SavedState
+        super.onRestoreInstanceState(savedState.superState)
+
+        debug("Restored uri = ${savedState.uri}")
+        setIcon(savedState.uri)
     }
 }

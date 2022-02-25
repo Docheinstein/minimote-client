@@ -10,6 +10,7 @@ import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.R
@@ -276,6 +277,12 @@ class SwHotkeysFragment : Fragment() {
 //        }
 
         viewModel.commit()
+
+        Snackbar.make(
+            requireParentFragment().requireView(),
+            getString(R.string.sw_hotkeys_saved, viewModel.orientationSnapshot.name),
+            Snackbar.LENGTH_LONG
+        ).show()
 
         // do not navigate up!
     // otherwise the hotkeys for the other orientation are lost

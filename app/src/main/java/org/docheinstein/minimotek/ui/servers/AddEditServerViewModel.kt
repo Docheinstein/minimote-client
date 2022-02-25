@@ -33,16 +33,16 @@ class AddEditServerViewModel @Inject constructor(
     val mode = if (serverId == SERVER_ID_NONE) Mode.ADD else Mode.EDIT
     val server = if (mode == Mode.EDIT) serverRepository.load(serverId).asLiveData() else null
 
-    private val _icon = MutableLiveData<Uri?>()
-    val icon: LiveData<Uri?>
-        get() = _icon
+//    private val _icon = MutableLiveData<Uri?>()
+//    val icon: LiveData<Uri?>
+//        get() = _icon
 
     init {
         debug("AddEditServerViewModel.init() for serverId = $serverId")
     }
 
-    fun save(address: String, port: Int, name: String?): Server {
-        val s = Server(if (mode == Mode.ADD) AUTO_ID else server?.value!!.id, address, port, name, _icon.value)
+    fun save(address: String, port: Int, name: String?, icon: Uri?): Server {
+        val s = Server(if (mode == Mode.ADD) AUTO_ID else server?.value!!.id, address, port, name, icon)
         ioScope.launch {
             serverRepository.save(s)
         }
@@ -53,9 +53,5 @@ class AddEditServerViewModel @Inject constructor(
         ioScope.launch {
             serverRepository.delete(server?.value!!)
         }
-    }
-
-    fun setIcon(uri: Uri?) {
-        _icon.postValue(uri)
     }
 }

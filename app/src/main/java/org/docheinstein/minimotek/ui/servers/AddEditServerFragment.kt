@@ -53,7 +53,8 @@ class AddEditServerFragment : Fragment() {
 
         binding.iconClearer.setOnClickListener {
             debug("Clicked on server icon clearer")
-            viewModel.setIcon(null)
+//            viewModel.setIcon(null)
+            binding.icon.setIcon(null)
         }
         binding.iconChooser.setOnClickListener {
             debug("Clicked on server icon chooser")
@@ -82,9 +83,9 @@ class AddEditServerFragment : Fragment() {
             }
         }
 
-        viewModel.icon.observe(viewLifecycleOwner) { newIcon ->
-            binding.icon.setIcon(newIcon)
-        }
+//        viewModel.icon.observe(viewLifecycleOwner) { newIcon ->
+//            binding.icon.setIcon(newIcon)
+//        }
 
         return binding.root
     }
@@ -121,6 +122,7 @@ class AddEditServerFragment : Fragment() {
         val address = binding.address.text.toString()
         val port = binding.port.text.toString()
         val name = binding.name.text.toString().ifEmpty { null }
+        val icon = binding.icon.icon
         debug("Address: $address")
         debug("Port: $port")
 
@@ -140,17 +142,14 @@ class AddEditServerFragment : Fragment() {
 
         // Address and port are valid, actually add/update the server
         debug("Valid address and port, proceeding")
-        val server = viewModel.save(address, portInt, name)
-        if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
-            Snackbar.make(
-                requireParentFragment().requireView(),
-                getString(R.string.server_added, server.displayName()),
-                Snackbar.LENGTH_LONG
-            ).show()
-        } else {
-            // TODO
-        }
-        
+        val server = viewModel.save(address, portInt, name, icon)
+
+        Snackbar.make(
+            requireParentFragment().requireView(),
+            getString(R.string.server_saved, server.displayName()),
+            Snackbar.LENGTH_LONG
+        ).show()
+
         findNavController().navigateUp()
     }
 
@@ -184,7 +183,8 @@ class AddEditServerFragment : Fragment() {
 
     private fun handleIconChosen(uri: Uri) {
         debug("Icon has been chosen, uri = $uri")
-        viewModel.setIcon(uri)
+//        viewModel.setIcon(uri)
+        binding.icon.setIcon(uri)
     }
 
     // TODO bad
