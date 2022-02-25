@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
 import androidx.core.view.children
+import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
@@ -84,6 +85,7 @@ class SwHotkeysFragment : Fragment() {
             debug("UI notified about orientation change")
             binding.orientation.setText(if (orientation == Orientation.Landscape) R.string.landscape else R.string.portrait)
         }
+
 
         return binding.root
     }
@@ -289,8 +291,10 @@ class SwHotkeysFragment : Fragment() {
             .setTitle(R.string.sw_hotkeys_import_confirmation_title)
             .setMessage(getString(R.string.sw_hotkeys_import_confirmation_message, currentOrientation, otherOrientation))
             .setPositiveButton(R.string.ok) { _, _ ->
-                // actually delete
-                viewModel.import()
+                // actually import
+                val w = binding.hotkeys.width
+                val h = binding.hotkeys.height
+                viewModel.import(w, h)
             }
             .setNegativeButton(R.string.cancel, null)
             .show()

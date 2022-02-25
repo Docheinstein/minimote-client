@@ -9,10 +9,10 @@
 
     <style name="Theme.Minimote.Toolbar" parent="ThemeOverlay.AppCompat.Dark">
         <!-- Toolbar title -->
-<!--        <item name="android:textColorPrimary">@color/dark_white</item>-->
+        <item name="android:textColorPrimary">@color/mid_white</item>
 
         <!-- Toolbar back button and 3-dots -->
-<!--        <item name="android:textColorSecondary">@color/dark_white</item>-->
+        <item name="android:textColorSecondary">@color/mid_white</item>
 
         <!-- Other texts: e.g. menu items -->
         <item name="android:textColor">@color/darkest_gray</item>

@@ -50,7 +50,11 @@ class IconView @JvmOverloads constructor(
      */
     fun setIcon(uri: Uri?) {
         debug("IconView.setIcon() for uri = $uri")
-        if (uri == null) {
+        if (uri != null) {
+            // Valid URI, use it
+            setImageURI(uri)
+            imageTintList = null
+        } else {
             // Use default resource and color, if provided
             if (defaultResourceId != null) {
                 defaultResourceId?.let { setImageResource(it) }
@@ -58,9 +62,6 @@ class IconView @JvmOverloads constructor(
             } else {
                 setImageURI(null) // clear, no image to provide
             }
-        } else {
-            setImageURI(uri)
-            imageTintList = null
         }
     }
 }

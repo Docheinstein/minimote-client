@@ -267,13 +267,45 @@ class SwHotkeysViewModel @Inject constructor(
         }
     }
 
-    fun import() {
+    fun import(maxX: Int?, maxY: Int?) {
         val o = orientationSnapshot
-        debug("Import hotkeys to $o from ${if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait}")
+        debug("Importing hotkeys from ${if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait} to $o ")
 
         __hotkeys(o).clear()
-        for (h in __hotkeys(if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait))
-            __hotkeys(o).add(h.copy(id = getNextId(), orientation = o)) // deep copy, but change orientation
+        for (h in __hotkeys(if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait)) {
+            debug("Importing $h")
+            var offscreen = false
+            val MIN_AREA_FOR_GRAB_HOTKEY = 50
+            if (maxX != null && h.x + MIN_AREA_FOR_GRAB_HOTKEY > maxX) {
+                warn("Hotkey ${h.key} will probably be off-screen (x=${h.x}, maxX=$maxX), MIN_AREA_FOR_GRAB_HOTKEY=$MIN_AREA_FOR_GRAB_HOTKEY")
+                offscreen = true
+            }
+            if (maxY != null && h.y + MIN_AREA_FOR_GRAB_HOTKEY > maxY) {
+                warn("Hotkey ${h.key} will probably be off-screen (y=${h.y}, maxY=$maxY), MIN_AREA_FOR_GRAB_HOTKEY=$MIN_AREA_FOR_GRAB_HOTKEY")
+                offscreen = true
+            }
+
+//            if (o == Orientation.Portrait) {
+//                if (h.x > h.y) {
+//                    warn("Hotkey will probably be off-screen in Portrait: $h ")
+//                }
+//            } else if (o == Orientation.Landscape) {
+//                if (h.y > h.x) {
+//                    warn("Hotkey will probably be off-screen in Landscape: $h ")
+//                }
+//            }
+            val x = if (!offscreen) h.x else DEFAULT_HOTKEY_X
+            val y = if (!offscreen) h.y else DEFAULT_HOTKEY_Y
+
+            __hotkeys(o).add(
+                h.copy(
+                    id = getNextId(),
+                    orientation = o,
+                    x = x,
+                    y = y
+                )
+            ) // deep copy, but change orientation
+        }
         triggerUpdate(o)
     }
 
