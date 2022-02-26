@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.AttributeSet
+import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.util.debug
@@ -79,21 +80,67 @@ class IconView @JvmOverloads constructor(
 
     // https://charlesharley.com/2012/programming/views-saving-instance-state-in-android
     // https://stackoverflow.com/questions/14891434/overriding-view-onsaveinstancestate-and-view-onrestoreinstancestate-using-vi
+    // https://mateuszteteruk.pl/how-to-implement-saved-state-of-android-custom-view-in-kotlin/
+    // https://medium.com/android-news/keddit-part-8-orientation-change-with-kotlin-parcelable-data-classes-f28136e8a6a8
 
-    class SavedState(superState: Parcelable?, val uri: Uri?) : BaseSavedState(superState) {
+    // TODO: this ain't easy to test since writeToParcel usually is not even called on rotation changes due to optimizations
+    class SavedState : BaseSavedState {
+        var uri: Uri? = null
+
+        constructor(source: Parcel) : super(source) {
+            debug("SavedState(source: Parcel)")
+            val uriStr = source.readString()
+            uri = if (uriStr != null) Uri.parse(uriStr) else uriStr
+            debug("Restored uri = $uri")
+        }
+
+        constructor(source: Parcel?, loader: ClassLoader?) : super(source, loader) {
+            debug("SavedState(source: Parcel?, loader: ClassLoader?)")
+        }
+        constructor(superState: Parcelable?) : super(superState) {
+            debug("SavedState(superState: Parcelable?)")
+        }
+
+
         override fun writeToParcel(out: Parcel?, flags: Int) {
-            debug("SavedState.writeToParcel")
+            debug("SavedState.writeToParcel, saving uri = $uri")
             super.writeToParcel(out, flags)
-            out?.writeString(uri.toString())
+            out?.writeString(uri?.toString())
+        }
+
+        companion object {
+            @JvmField
+            val CREATOR: Parcelable.ClassLoaderCreator<SavedState> = object :
+                Parcelable.ClassLoaderCreator<SavedState> {
+                override fun createFromParcel(source: Parcel): SavedState = SavedState(source, null)
+                override fun newArray(size: Int): Array<SavedState?> = arrayOfNulls(size)
+                override fun createFromParcel(source: Parcel, loader: ClassLoader): SavedState =
+                    SavedState(source, loader)
+            }
         }
     }
+
+//
+//    class SavedState(superState: Parcelable?, val uri: Uri?) : BaseSavedState(superState) {
+//
+//        constructor(parcel: Parcel) : super(parcel) {
+//
+//        }
+//        override fun writeToParcel(out: Parcel?, flags: Int) {
+//            debug("SavedState.writeToParcel")
+//            super.writeToParcel(out, flags)
+//            out?.writeString(uri.toString())
+//        }
+//    }
 
     override fun onSaveInstanceState(): Parcelable? {
         debug("IconView.onSaveInstanceState()")
         debug("Saving uri = $icon")
 
         val superState = super.onSaveInstanceState()
-        return SavedState(superState, icon)
+        val savedState = SavedState(superState)
+        savedState.uri = icon
+        return savedState
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {

@@ -21,7 +21,10 @@ const val COLUMN_META = "meta"
 const val COLUMN_ORIENTATION = "orientation"
 const val COLUMN_X = "x"
 const val COLUMN_Y = "y"
-const val COLUMN_SIZE = "size"
+const val COLUMN_TEXT_SIZE = "text_size"
+const val COLUMN_HORIZONTAL_PADDING = "horizontal_padding"
+const val COLUMN_VERTICAL_PADDING = "vertical_padding"
+
 
 
 @Entity(
@@ -59,8 +62,14 @@ data class SwHotkey (
     @ColumnInfo(name = COLUMN_Y)
     var y: Int,
 
-    @ColumnInfo(name = COLUMN_SIZE)
-    var size: Int,
+    @ColumnInfo(name = COLUMN_TEXT_SIZE)
+    var textSize: Int,
+
+    @ColumnInfo(name = COLUMN_HORIZONTAL_PADDING)
+    var horizontalPadding: Int,
+
+    @ColumnInfo(name = COLUMN_VERTICAL_PADDING)
+    var verticalPadding: Int,
 
     @ColumnInfo(name = COLUMN_LABEL)
     var label: String?,
@@ -70,7 +79,10 @@ data class SwHotkey (
         return "(id=$id, " +
                 "shift=$shift, ctrl=$ctrl, alt=$alt, altgr=$altgr, meta=$meta, " +
                 "key=${key.keyString}, " +
-                "label=$label, orientation=$orientation, x=$x, y=$y, size=$size)"
+                "label=$label, " +
+                "orientation=$orientation, x=$x, y=$y, " +
+                "textSize=$textSize, " +
+                "horizontalPadding=$horizontalPadding, verticalPadding=$verticalPadding)"
     }
 
     fun toHotkey(): Hotkey {

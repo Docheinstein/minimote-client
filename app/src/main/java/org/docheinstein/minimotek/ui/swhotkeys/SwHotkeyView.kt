@@ -24,7 +24,9 @@ class SwHotkeyView @JvmOverloads constructor(
         var altgr: Boolean,
         var meta: Boolean,
         var label: String?,
-        var size: Int,
+        var textSize: Int,
+        var horizontalPadding: Int,
+        var verticalPadding: Int,
     ) {
         companion object {
             fun fromSwHotkey(swHotkey: SwHotkey): Hotkey {
@@ -36,7 +38,9 @@ class SwHotkeyView @JvmOverloads constructor(
                     altgr = swHotkey.altgr,
                     meta = swHotkey.meta,
                     label = swHotkey.label,
-                    size = swHotkey.size,
+                    textSize = swHotkey.textSize,
+                    horizontalPadding = swHotkey.horizontalPadding,
+                    verticalPadding = swHotkey.verticalPadding,
                 )
             }
         }
@@ -64,7 +68,6 @@ class SwHotkeyView @JvmOverloads constructor(
     init {
         background = ResourcesCompat.getDrawable(context.resources,
             R.drawable.hotkey_button_selector, null)
-        setPadding(18, 10, 18, 10)
         updateUI()
     }
 
@@ -77,7 +80,8 @@ class SwHotkeyView @JvmOverloads constructor(
 
     private fun updateUI() {
         hotkey?.let {
-            textSize = it.size.toFloat()
+            textSize = it.textSize.toFloat()
+            setPadding(it.horizontalPadding, it.verticalPadding, it.horizontalPadding, it.verticalPadding)
             text = it.displayName()
         }
     }

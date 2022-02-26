@@ -56,7 +56,9 @@ class AddEditSwHotkeyFragment : Fragment() {
                 binding.ctrl.isChecked = hotkey.ctrl
                 binding.meta.isChecked = hotkey.meta
                 binding.shift.isChecked = hotkey.shift
-                binding.size.progressScaled = hotkey.size
+                binding.textSize.progressScaled = hotkey.textSize
+                binding.horizontalPadding.progressScaled = hotkey.horizontalPadding
+                binding.verticalPadding.progressScaled = hotkey.verticalPadding
                 if (hotkey.label != null)
                     binding.label.setText(hotkey.label)
             } else {
@@ -72,9 +74,9 @@ class AddEditSwHotkeyFragment : Fragment() {
         binding.meta.setOnCheckedChangeListener { _, _ -> updatePreview() }
         binding.shift.setOnCheckedChangeListener { _, _ -> updatePreview() }
         binding.label.addAfterTextChangedListener { _ -> updatePreview() }
-        binding.size.setOnProgressListener {
-            updatePreview()
-        }
+        binding.textSize.setOnProgressListener { updatePreview() }
+        binding.horizontalPadding.setOnProgressListener { updatePreview() }
+        binding.verticalPadding.setOnProgressListener { updatePreview() }
 
         updatePreview()
 
@@ -120,7 +122,9 @@ class AddEditSwHotkeyFragment : Fragment() {
                 meta = binding.meta.isChecked,
                 shift = binding.shift.isChecked,
                 label = binding.label.text.toString().ifEmpty { null },
-                size = binding.size.progressScaled
+                textSize = binding.textSize.progressScaled,
+                horizontalPadding = binding.horizontalPadding.progressScaled,
+                verticalPadding = binding.verticalPadding.progressScaled
             )
         } else if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
             sharedViewModel.edit(
@@ -132,7 +136,9 @@ class AddEditSwHotkeyFragment : Fragment() {
                 meta = binding.meta.isChecked,
                 shift = binding.shift.isChecked,
                 label = binding.label.text.toString().ifEmpty { null },
-                size = binding.size.progressScaled
+                textSize = binding.textSize.progressScaled,
+                horizontalPadding = binding.horizontalPadding.progressScaled,
+                verticalPadding = binding.verticalPadding.progressScaled
             )
         }
 
@@ -174,7 +180,9 @@ class AddEditSwHotkeyFragment : Fragment() {
             meta = binding.meta.isChecked,
             shift = binding.shift.isChecked,
             label = binding.label.text.toString().ifEmpty { null },
-            size = binding.size.progressScaled
+            textSize = binding.textSize.progressScaled,
+            horizontalPadding = binding.horizontalPadding.progressScaled,
+            verticalPadding = binding.verticalPadding.progressScaled
         )
 
         debug("Updating hotkey preview")
