@@ -75,7 +75,7 @@ class Discoverer @Inject constructor() {
 
                 val hostname = String(discoverResponseMinimotePacket.payload)
                 val discoveredServer = DiscoveredServer(
-                    response.address.hostname,
+                    response.address.addr,
                     response.address.port,
                     hostname
                 )
