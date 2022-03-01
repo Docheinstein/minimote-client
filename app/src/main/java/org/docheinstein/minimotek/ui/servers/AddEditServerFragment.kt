@@ -2,6 +2,7 @@ package org.docheinstein.minimotek.ui.servers
 
 import android.app.AlertDialog
 import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.*
@@ -14,11 +15,20 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.databinding.AddEditServerBinding
-import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
-import org.docheinstein.minimotek.util.NetUtils
-import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.warn
+import org.docheinstein.minimotek.util.addAfterTextChangedListener
+import org.docheinstein.minimotek.util.*
 
+/**
+ * Fragment that handles the addition of a new server or the editing of an existing one.
+ * The mode of the fragment depends on the parameter "serverId" used to create this fragment.
+ * The screen allows the modification of the address/port of the server (which are validated),
+ * the display name, and the icon associated with the server, which could be picked from
+ * the filesystem using the implicit intent ACTION_OPEN_DOCUMENT.
+ *
+ *  The actions that can be performed on this screen are:
+ * - Save the server
+ * - Delete the server (only in EDIT mode)
+ */
 
 @AndroidEntryPoint
 class AddEditServerFragment : Fragment() {
@@ -26,143 +36,134 @@ class AddEditServerFragment : Fragment() {
     private val viewModel: AddEditServerViewModel by viewModels()
     private lateinit var binding: AddEditServerBinding
 
-    private lateinit var iconPicker: ActivityResultLauncher<Array<String>>
+    /*
+     * NOTE
+     * using startActivityForResult is deprecated right now, this is
+     * the recommended way to start an implicit intent right now.
+     * (https://developer.android.com/training/basics/intents/result#launch)
+     */
+    private lateinit var iconPickerIntent: ActivityResultLauncher<Array<String>>
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("AddEditServerFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        iconPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
-            debug("Got result = $uri")
-            handleIconChosen(uri)
+        iconPickerIntent = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+            debug("Icon picker result is: $uri")
+            handleIconPicked(uri)
         }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val serverId = AddEditServerFragmentArgs.fromBundle(
-            requireArguments()
-        ).serverId
-        debug("AddEditServerFragment.onCreateView() for serverId = $serverId")
+        verbose("AddEditServerFragment.onCreateView()")
 
         binding = AddEditServerBinding.inflate(inflater, container, false)
 
-        // Listen to fields change for real-time validation
+        // Listen to address/ports changes for real-time validation
         binding.address.addAfterTextChangedListener { validateAddress() }
         binding.port.addAfterTextChangedListener { validatePort()}
 
-        binding.iconClearer.setOnClickListener {
-            debug("Clicked on server icon clearer")
-//            viewModel.setIcon(null)
-            binding.icon.setIcon(null)
-        }
-        binding.iconChooser.setOnClickListener {
-            debug("Clicked on server icon chooser")
-            openServerIconChooser()
-        }
-        binding.icon.setOnClickListener {
-            debug("Clicked on server icon")
-            openServerIconChooser()
-        }
+        // Icon selection buttons
+        binding.iconClearer.setOnClickListener { handleClearIconAction() }
+        binding.iconChooser.setOnClickListener { handlePickIconAction() }
+        binding.icon.setOnClickListener { handlePickIconAction() }
 
-        // Fetch server details (only the first time)
-        if (viewModel.server?.value == null &&
-            viewModel.mode == AddEditServerViewModel.Mode.EDIT
-        ) {
+        // Fetch hw hotkey (only in EDIT mode and only the first time)
+        if (viewModel.mode == AddEditServerViewModel.Mode.EDIT && !viewModel.fetched) {
             viewModel.server?.observe(viewLifecycleOwner) { server ->
                 debug("LiveData sent update for server $server, eventually updating UI")
-                if (server != null) {
-                    debug("Fetched server is valid")
-                    binding.address.setText(server.address)
-                    binding.port.setText(server.port.toString())
-                    binding.name.setText(server.name)
-                    binding.icon.setIcon(server.icon)
-                } else {
-                    warn("Invalid server")
+                if (server == null) {
+                    error("Invalid server")
+                    return@observe
                 }
+
+                if (viewModel.fetched) {
+                    warn("Already fetched, ignoring update")
+                    return@observe
+                }
+
+                viewModel.fetched = true
+
+                binding.address.setText(server.address)
+                binding.port.setText(server.port.toString())
+                binding.name.setText(server.name)
+                binding.icon.icon = server.icon
             }
         }
 
-//        viewModel.icon.observe(viewLifecycleOwner) { newIcon ->
-//            binding.icon.setIcon(newIcon)
-//        }
-
         return binding.root
     }
-//
-//    override fun onSaveInstanceState(outState: Bundle) {
-//        outState.putBoolean("new", false)
-//        super.onSaveInstanceState(outState)
-//    }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.save_delete, menu)
-        if (viewModel.mode == AddEditServerViewModel.Mode.ADD) {
-            menu.removeItem(R.id.delete_menu_item)
+        when (viewModel.mode) {
+            AddEditServerViewModel.Mode.ADD -> inflater.inflate(R.menu.save, menu)
+            AddEditServerViewModel.Mode.EDIT -> inflater.inflate(R.menu.save_delete, menu)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_menu_item -> {
-                handleSaveButton()
+                handleSaveAction()
                 return true
             }
             R.id.delete_menu_item -> {
-                handleDeleteButton()
+                handleDeleteAction()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun handleSaveButton() {
-        debug("Clicked on uiSaveServerMenuItem")
+    private fun handleSaveAction() {
+        verbose("AddEditServerFragment.handleSaveAction()")
 
         val address = binding.address.text.toString()
         val port = binding.port.text.toString()
         val name = binding.name.text.toString().ifEmpty { null }
         val icon = binding.icon.icon
-        debug("Address: $address")
-        debug("Port: $port")
 
-        if (!NetUtils.isValidIPv4(address)) {
-            updateUI()
+        debug("Going to save server (address=$address, port=$port, name=$name, icon=$icon")
+
+        // Check whether address and port are valid
+        if (!validateAddress()) {
             showInvalidAddressAlert()
             return
         }
 
-        if (!NetUtils.isValidPort(port)) {
-            updateUI()
+        if (!validatePort()) {
             showInvalidPortAlert()
             return
         }
 
         val portInt = port.toInt()
 
-        // Address and port are valid, actually add/update the server
-        debug("Valid address and port, proceeding")
+        // Address and port are valid, actually save the server
         val server = viewModel.save(address, portInt, name, icon)
 
         Snackbar.make(
             requireParentFragment().requireView(),
-            getString(R.string.server_saved, server.displayName()),
+            getString(R.string.saved, server.displayName),
             Snackbar.LENGTH_LONG
         ).show()
 
         findNavController().navigateUp()
     }
 
-    private fun handleDeleteButton() {
+    private fun handleDeleteAction() {
+        verbose("AddEditServerFragment.handleDeleteAction()")
+
         AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.delete_server_confirmation_title)
-            .setMessage(R.string.delete_server_confirmation_message)
+            .setTitle(R.string.delete_server_confirmation_dialog_title)
+            .setMessage(getString(R.string.delete_server_confirmation_dialog_message, viewModel.server?.value?.displayName ?: ""))
             .setPositiveButton(R.string.ok) { _, _ ->
-                // actually delete
+                // Actually delete
                 viewModel.delete()
                 Snackbar.make(
                     requireParentFragment().requireView(),
-                    getString(R.string.server_removed, viewModel.server?.value?.displayName()),
+                    getString(R.string.removed, viewModel.server?.value?.displayName),
                     Snackbar.LENGTH_LONG
                 ).show()
                 findNavController().navigateUp()
@@ -171,58 +172,73 @@ class AddEditServerFragment : Fragment() {
             .show()
     }
 
-    private fun openServerIconChooser() {
+
+    private fun handleClearIconAction() {
+        verbose("AddEditServerFragment.handleClearIconAction()")
+        binding.icon.icon = null
+    }
+
+    private fun handlePickIconAction() {
+        verbose("AddEditServerFragment.handlePickIconAction()")
+
         try {
             debug("Opening file picker")
-            iconPicker.launch(arrayOf("image/*"))
+            iconPickerIntent.launch(arrayOf("image/*"))
         } catch (e: ActivityNotFoundException) {
-            // TODO handle
             warn("Cannot find any application able to choose an image")
+            AlertDialog.Builder(requireActivity())
+                .setTitle(R.string.icon_picker_failed_dialog_title)
+                .setMessage(R.string.icon_picker_failed_dialog_message)
+                .setPositiveButton(R.string.ok, null)
+                .show();
         }
     }
 
-    private fun handleIconChosen(uri: Uri) {
-        debug("Icon has been chosen, uri = $uri")
-//        viewModel.setIcon(uri)
-        binding.icon.setIcon(uri)
+    private fun handleIconPicked(uri: Uri?) {
+        verbose("AddEditServerFragment.handleIconPicked(uri=$uri)")
+        if (uri != null) {
+            // Must take a persistable uri permission for use the same uri across reboots
+            debug("Taking a persistable uri")
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            requireActivity().contentResolver.takePersistableUriPermission(uri, takeFlags)
+            binding.icon.icon = uri
+        }
     }
 
-    // TODO bad
-    private fun updateUI() {
-        validateAddress()
-        validatePort()
-    }
-
-    private fun validateAddress() {
-        if (NetUtils.isValidIPv4(binding.address.text.toString())) {
+    private fun validateAddress(): Boolean {
+        return if (NetUtils.isValidIPv4(binding.address.text.toString())) {
             binding.addressInputLayout.isErrorEnabled = false
+            true
         } else {
             binding.addressInputLayout.isErrorEnabled = true
-            binding.addressInputLayout.error = resources.getString(R.string.add_edit_server_invalid_address)
+            binding.addressInputLayout.error = resources.getString(R.string.add_edit_server_invalid_address_form_message)
+            false
         }
     }
 
-    private fun validatePort() {
-        if (NetUtils.isValidPort(binding.port.text.toString())) {
+    private fun validatePort(): Boolean {
+        return if (NetUtils.isValidPort(binding.port.text.toString())) {
             binding.portInputLayout.isErrorEnabled = false
+            true
         } else {
             binding.portInputLayout.isErrorEnabled = true
-            binding.portInputLayout.error = resources.getString(R.string.add_edit_server_invalid_port)
+            binding.portInputLayout.error = resources.getString(R.string.add_edit_server_invalid_port_form_message)
+            false
         }
     }
 
     private fun showInvalidAddressAlert() {
         AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.add_server_failed_address_dialog_title)
-            .setMessage(R.string.add_server_failed_address_dialog_message)
+            .setTitle(R.string.add_edit_server_invalid_address_dialog_title)
+            .setMessage(R.string.add_edit_server_invalid_address_dialog_message)
             .setPositiveButton(R.string.ok, null)
             .show();
     }
 
     private fun showInvalidPortAlert() {
         AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.add_server_failed_port_dialog_title)
-            .setMessage(R.string.add_server_failed_port_dialog_message)
+            .setTitle(R.string.add_edit_server_invalid_port_dialog_title)
+            .setMessage(R.string.add_edit_server_invalid_port_dialog_message)
             .setPositiveButton(R.string.ok, null)
             .show();
     }

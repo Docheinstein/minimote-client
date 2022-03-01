@@ -1,7 +1,16 @@
 package org.docheinstein.minimotek.packet
 
+/**
+ * Protocol's packet types.
+ * There are three categories of packets
+ * - mouse packets (movement, click)
+ * - keyboard packets (keys, hotkeys)
+ * - other (ping, discover)
+ */
 enum class MinimotePacketType(val value: Int) {
     None(0x00),
+
+    // Mouse
     LeftDown(0x01),
     LeftUp(0x02),
     LeftClick(0x03),
@@ -14,12 +23,15 @@ enum class MinimotePacketType(val value: Int) {
     ScrollDown(0x0A),
     ScrollUp(0x0B),
     Move(0x0C),
+
+    // Keyboard
     Write(0x0D),
     KeyDown(0x0E),
     KeyUp(0x0F),
     KeyClick(0x10),
     Hotkey(0x11),
 
+    // Other
     Ping(0xFC),
     Pong(0xFD),
     DiscoverRequest(0xFE),

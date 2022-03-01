@@ -1,8 +1,10 @@
 package org.docheinstein.minimotek.keys
 
 import android.view.KeyEvent
-import org.docheinstein.minimotek.packet.MinimotePacketType
 
+/**
+ * Keyboard's keys recognized by the server.
+ */
 enum class MinimoteKeyType(val value: Int, val keyCode: Int, val keyString: String) {
     Up(0x00, KeyEvent.KEYCODE_DPAD_UP, "Up"),
     Down(0x01, KeyEvent.KEYCODE_DPAD_DOWN, "Down"),
@@ -78,7 +80,7 @@ enum class MinimoteKeyType(val value: Int, val keyCode: Int, val keyString: Stri
     Z(0x47, KeyEvent.KEYCODE_Z, "Z");
 
     companion object {
-        private val valueMap = values().associateBy(MinimoteKeyType::keyCode)
+        private val valueMap = values().associateBy(MinimoteKeyType::value)
         private val keyCodeMap = values().associateBy(MinimoteKeyType::keyCode)
         private val keyStringMap = values().associateBy(MinimoteKeyType::keyString)
 

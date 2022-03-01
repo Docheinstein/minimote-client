@@ -9,7 +9,7 @@
         app:showAsAction="ifRoom" />
     <item
         android:id="@+id/clear_menu_item"
-        android:icon="@drawable/clear"
+        android:icon="@drawable/delete_all"
         android:title="@string/clear"
         android:orderInCategory="3"
         app:showAsAction="ifRoom" />

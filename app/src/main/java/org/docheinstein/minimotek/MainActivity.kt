@@ -3,114 +3,92 @@ package org.docheinstein.minimotek
 import android.content.res.Configuration
 import android.os.Bundle
 import android.view.KeyEvent
-import android.view.Menu
 import android.view.MenuItem
-import androidx.activity.addCallback
-import com.google.android.material.navigation.NavigationView
 import androidx.navigation.findNavController
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
 import androidx.navigation.NavController
-import androidx.navigation.NavDirections
 import androidx.navigation.ui.*
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.buttons.ButtonEventBus
+import org.docheinstein.minimotek.databinding.MainBinding
 import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.orientation.OrientationEventBus
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
 import javax.inject.Inject
 
+/** Main activity. */
+/*
+ * This is the only activity of the app, all the UI belongs to Fragments.
+ * The transitions between fragment are handled using the android navigation component
+ * (https://developer.android.com/guide/navigation).
+ *
+ * The only responsibilities of this activity, apart from setting
+ * the navigation view and the drawer, are publish the following events
+ * - orientation state change (cause the activity is the first UI component to see the change)
+ * - button events (cause only the activity gets notified)
+ */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var appBarConfiguration: AppBarConfiguration
-    private lateinit var toolbar: Toolbar
-    private lateinit var drawer: DrawerLayout
-    private lateinit var navView: NavigationView
-    private lateinit var navController: NavController
 
     @Inject lateinit var buttonEventBus: ButtonEventBus
     @Inject lateinit var orientationEventBus: OrientationEventBus
 
+    private lateinit var navController: NavController
+    private lateinit var appBarConfig: AppBarConfiguration
+
+    private lateinit var binding: MainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        debug("MainActivity.onCreate()")
+        verbose("MainActivity.onCreate()")
 
-        debug("Current orientation is ${if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) "portrait" else "landscape"}")
+        // Publish the current orientation state
+        // Doing this on MainActivity.onCreate() ensure that every other UI component
+        // (created after this activity) will see the same consistent orientation state
         when (resources.configuration.orientation) {
             Configuration.ORIENTATION_PORTRAIT -> orientationEventBus.publish(Orientation.Portrait)
             Configuration.ORIENTATION_LANDSCAPE -> orientationEventBus.publish(Orientation.Landscape)
             else -> warn("Unknown orientation")
         }
 
-        setContentView(R.layout.main)
+        binding = MainBinding.inflate(layoutInflater)
 
-        // toolbar
-        toolbar = findViewById(R.id.toolbar)
-        setSupportActionBar(toolbar)
+        setContentView(binding.root)
 
-        drawer = findViewById(R.id.drawer_layout)
-
-        navView = findViewById(R.id.navigation_view)
+        setSupportActionBar(binding.toolbar)
         navController = findNavController(R.id.navigation_controller)
+        appBarConfig = AppBarConfiguration(setOf(R.id.nav_servers), binding.drawerLayout)
+        setupActionBarWithNavController(navController, appBarConfig)
+        binding.navigationView.setupWithNavController(navController)
 
-        appBarConfiguration = AppBarConfiguration(
-            setOf(R.id.nav_servers),
-            drawer
-        )
-
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)
-
-        navController.addOnDestinationChangedListener { ctrl, dest, args ->
-            debug("Destination changed to: ${dest.id}")
-        }
-
-//        onBackPressedDispatcher.addCallback(this) {
-//            // Handle the back button event
-//            debug("OnBack")
-//        }
-
-        debug("MainActivity.onCreate() DONE")
+        verbose("MainActivity.onCreate() DONE")
     }
 
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Automatically navigation to the fragment with the same id as the menu item's id
+        /* Automatically navigate to the fragment with the same id as the menu item's id.
+         * The requirement for this to work is having the ids of the drawer equal
+         * to the ids in the nav graph: doing so allows the framework to handle
+         * everything correctly, even the selected item menu of the drawer */
         return item.onNavDestinationSelected(navController) || super.onOptionsItemSelected(item)
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
         debug("Detected keyDown for $keyCode")
+
         var handled = false
 
         val button = ButtonType.byKeyCode(keyCode)
-        if (button != null) {
+        if (button != null)
+            // Publish the button event
             handled = buttonEventBus.publish(button)
-        }
 
-        return if (handled) true else super.onKeyDown(keyCode, event)
+        return handled || super.onKeyDown(keyCode, event)
     }
-
-    private fun navigateFromDrawerTo(dir: NavDirections) {
-        navController.navigate(dir)
-        drawer.closeDrawers()
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        return true
-    }
-
-//    override fun onNavigateUp(): Boolean {
-//        debug("onNavigateUp")
-//        return navController.navigateUp(appBarConfiguration) || super.onNavigateUp()
-//    }
 
     override fun onSupportNavigateUp(): Boolean {
-        debug("onSupportNavigateUp")
-        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        return navController.navigateUp(appBarConfig) || super.onSupportNavigateUp()
     }
 }

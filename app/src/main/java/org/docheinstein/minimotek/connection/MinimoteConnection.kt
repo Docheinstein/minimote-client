@@ -1,15 +1,21 @@
 package org.docheinstein.minimotek.connection
 
-import org.docheinstein.minimotek.net.TcpSocket
-import org.docheinstein.minimotek.net.UdpSocket
+import org.docheinstein.minimotek.sockets.TcpSocket
+import org.docheinstein.minimotek.sockets.UdpSocket
 import org.docheinstein.minimotek.packet.MinimotePacket
 import org.docheinstein.minimotek.packet.MinimotePacketFactory
 import org.docheinstein.minimotek.packet.MinimotePacketType
-import org.docheinstein.minimotek.util.asMessage
-import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.error
-import org.docheinstein.minimotek.util.warn
+import org.docheinstein.minimotek.util.*
 
+/**
+ * Connection with the minimote server.
+ * It consists of both a TCP socket (for packets not to lose, e.g. keyboard events)
+ * and an UDP socket (for packets that could be lost, e.g. mouse movement).
+ * Connection can be tested by sending a PING packet to the server on the TCP socket
+ * and waiting for a PONG packet on the UDP socket (this allows to test both sockets).
+ * By the way, the server accepts every events on both the sockets, therefore the client
+ * may choose to use the UDP or the TCP autonomously for each packet.
+ */
 class MinimoteConnection(
     val address: String,
     val port: Int
@@ -41,20 +47,22 @@ class MinimoteConnection(
     }
 
     suspend fun ensureConnection(): Boolean {
-        // Check socket health
-        if (!tcpSocket.isOpen() || !udpSocket.isOpen())
+        // Check sockets health
+        if (!tcpSocket.isOpen || !udpSocket.isOpen)
             return false
 
         // Actually check connection with ping/pong packets
         try {
+            // Send PING on TCP socket
             debug("Sending PING")
-
             tcpSocket.send(MinimotePacketFactory.newPing(udpSocket.boundLocalPort).toBytes())
 
+            // Wait for PONG on UDP socket
             debug("Waiting for PONG...")
             val response = udpSocket.recv()
             debug("Received a response for PING")
 
+            // Check whether the packet received is actually a PONG
             val pongMinimotePacket: MinimotePacket
             try {
                 pongMinimotePacket = MinimotePacket.fromBytes(response)
@@ -68,7 +76,8 @@ class MinimoteConnection(
                 return false
             }
 
-            debug("Received packet is a PONG, connection is healthy")
+            // Legal PONG received, connection is ok
+            debug("Received packet is a valid PONG, connection is healthy")
             return true
         } catch (e: Exception) {
             error("Failed to ensure connection: ${e.asMessage()}", e)
@@ -78,6 +87,10 @@ class MinimoteConnection(
 
     suspend fun sendTcp(packet: MinimotePacket): Boolean {
         return try {
+            if (packet.payload.isEmpty())
+                debug("TCP >> ${packet.packetType}")
+            else
+                debug("TCP >> ${packet.packetType} : ${packet.payload.toBinaryString(pretty = true)}")
             tcpSocket.send(packet.toBytes())
             true
         } catch (e: Exception) {
@@ -88,6 +101,10 @@ class MinimoteConnection(
 
     suspend fun sendUdp(packet: MinimotePacket): Boolean {
         return try {
+            if (packet.payload.isEmpty())
+                debug("UDP >> ${packet.packetType}")
+            else
+                debug("UDP >> ${packet.packetType} : ${packet.payload.toBinaryString(pretty = true)}")
             udpSocket.send(packet.toBytes(), address, port)
             true
         } catch (e: Exception) {
@@ -103,6 +120,7 @@ class MinimoteConnection(
             udpSocket.disconnect()
             true
         } catch (e: Exception) {
+            warn("Disconnection failed: ${e.asMessage()}")
             false
         }
     }

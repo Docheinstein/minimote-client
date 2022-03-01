@@ -1,24 +1,20 @@
 package org.docheinstein.minimotek.util
 
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.widget.EditText
 import org.docheinstein.minimotek.BuildConfig
 
-// LOGGING
+
+/*
+ * LOGGING.
+ * Defines error(), warn(), info(), debug(), verbose()
+ * for any class, using the class' name as TAG.
+ */
 
 private fun formatLogMessage(message: String): String {
-    if (!BuildConfig.DEBUG)
-        return message
-    val th = Thread.currentThread()
-    val thStr = "[${th.name}]"
-//    val thStr = if (th.threadGroup != null)
-//        "[${th.name},${th.threadGroup!!.name}]"
-//    else
-//        "[${th.name}]"
-
-    return "$thStr $message"
+    return if (!BuildConfig.DEBUG)
+        message
+    else
+        "[${Thread.currentThread().name}] $message"
 }
 
 val Any.TAG: String
@@ -38,8 +34,11 @@ fun Any.error(message: String, throwable: Throwable? = null) {
         Log.e(TAG, formatLogMessage(message))
 }
 
-fun Any.warn(message: String) {
-    Log.w(TAG, formatLogMessage(message))
+fun Any.warn(message: String, throwable: Throwable? = null) {
+    if (throwable != null)
+        Log.w(TAG, formatLogMessage(message), throwable)
+    else
+        Log.w(TAG, formatLogMessage(message))
 }
 
 fun Any.debug(message: String) {
@@ -52,7 +51,9 @@ fun Any.verbose(message: String) {
         Log.v(TAG, formatLogMessage(message))
 }
 
-// EXCEPTIONS
+/*
+ * EXCEPTIONS.
+ */
 
 fun Exception.asMessage(): String {
     return message ?: toString()

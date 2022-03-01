@@ -6,14 +6,20 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ServerDao {
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
-    fun load(id: Long): Flow<Server>
+    fun observe(id: Long): Flow<Server>
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun loadAll(): Flow<List<Server>>
+    fun observeAll(): Flow<List<Server>>
+
+    @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
+    suspend fun get(id: Long): Server?
+
+    @Query("SELECT * FROM $TABLE_NAME")
+    suspend fun getAll(): List<Server>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(server: Server): Long
 
-    @Delete
-    suspend fun delete(server: Server): Int
+    @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
+    suspend fun delete(id: Long): Int
 }

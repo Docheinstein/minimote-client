@@ -1,10 +1,14 @@
 package org.docheinstein.minimotek.packet
 
-import org.docheinstein.minimotek.extensions.set16
-import org.docheinstein.minimotek.extensions.set32
-import org.docheinstein.minimotek.extensions.set8
-import org.docheinstein.minimotek.keys.MinimoteKeyType
 
+import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.util.set16
+import org.docheinstein.minimotek.util.set32
+import org.docheinstein.minimotek.util.set8
+
+/**
+ * Factory of [MinimotePacket]s for each possible [MinimotePacketType].
+ */
 object MinimotePacketFactory {
     fun newLeftDown(): MinimotePacket {
         return MinimotePacket(MinimotePacketType.LeftDown)
@@ -111,5 +115,4 @@ object MinimotePacketFactory {
         payload.set16(recvPort)
         return MinimotePacket(MinimotePacketType.Ping, payload)
     }
-
 }

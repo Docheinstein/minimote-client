@@ -1,54 +1,66 @@
 package org.docheinstein.minimotek.ui.swhotkeys
 
-import android.app.AlertDialog
 import android.os.Bundle
+import android.text.TextWatcher
 import android.view.*
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.AddEditSwHotkeyBinding
-import org.docheinstein.minimotek.extensions.addAfterTextChangedListener
-import org.docheinstein.minimotek.extensions.setOnItemActuallySelectedListener
-import org.docheinstein.minimotek.extensions.setOnSeekbarProgressListener
-import org.docheinstein.minimotek.extensions.setSelection
 import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.warn
+import org.docheinstein.minimotek.ui.base.SliderView
+import org.docheinstein.minimotek.util.*
 
 
-private const val SIZE_SLIDER_FACTOR = 2
+/**
+ * Fragment that handles the addition of a new software hotkey or the editing of an existing one.
+ * The mode of the fragment depends on the parameter "swHotkeyId" used to create this fragment.
+ * Note that, as opposed to the other AddEdit fragments, this Fragment performs actions in-memory
+ * through the shared view model SwHotkeysViewModel, instead of committing them to the DB.
+ *
+ *  The actions that can be performed on this screen are:
+ * - Save the software hotkey [in-memory]
+ * - Delete the software hotkey (only in EDIT mode) [in-memory]
+ */
 
 @AndroidEntryPoint
 class AddEditSwHotkeyFragment : Fragment() {
 
+    /* In order to share a view model between SwHotkeysFragment and AddEditSwHotkeyFragment
+     * it is necessary to use hiltNavGraphViewModels (navGraphViewModels with Hilt injection support)
+     * for a nested nav graph, in this way the lifetime of the view model is bound to the lifetime
+     * of the nav graph on the navigation stack.
+     * NOTE: by androidViewModels is not ideal because the lifetime of the view model would be
+     * bound to the lifetime of the activity, therefore when reentering this fragment we would
+     * still have the old data in the view model. */
+    private val sharedViewModel: SwHotkeysViewModel by hiltNavGraphViewModels(R.id.nav_sw_hotkeys)
+
+    // In addition to the shared view model, use a traditional fragment-bound view model too
     private val viewModel: AddEditSwHotkeyViewModel by viewModels()
-    private val sharedViewModel: SwHotkeysViewModel by navGraphViewModels(R.id.nav_sw_hotkeys)
-//    private val sharedViewModel: SwHotkeysSharedViewModel by activityViewModels()
+
     private lateinit var binding: AddEditSwHotkeyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("AddEditSwHotkeyFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        verbose("AddEditSwHotkeyFragment.onCreateView()")
         binding = AddEditSwHotkeyBinding.inflate(inflater, container, false)
 
-        debug("AddEditSwHotkeyFragment.onCreateView()")
-
-        // Fetch details (only the first time)
-        if (viewModel.swHotkey == null &&
-            viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT) {
+        // Fetch details from the shared view model, in-memory (only the first time)
+        if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.EDIT &&
+                viewModel.swHotkey == null) {
             debug("Fetching details for hotkey ${viewModel.swHotkeyId}")
 
             val hotkey = sharedViewModel.hotkey(viewModel.swHotkeyId)
-            viewModel.swHotkey = hotkey
+            viewModel.swHotkey = hotkey // set the hotkey in the fragment view model
             if (hotkey != null) {
                 binding.key.setSelection(viewModel.swHotkey!!.key.keyString)
                 binding.alt.isChecked = hotkey.alt
@@ -66,7 +78,7 @@ class AddEditSwHotkeyFragment : Fragment() {
             }
         }
 
-        // Update preview on change
+        // Update preview when something changes
         binding.key.setOnItemActuallySelectedListener { _, -> updatePreview() }
         binding.alt.setOnCheckedChangeListener { _, _ -> updatePreview() }
         binding.altgr.setOnCheckedChangeListener { _, _ -> updatePreview() }
@@ -74,9 +86,9 @@ class AddEditSwHotkeyFragment : Fragment() {
         binding.meta.setOnCheckedChangeListener { _, _ -> updatePreview() }
         binding.shift.setOnCheckedChangeListener { _, _ -> updatePreview() }
         binding.label.addAfterTextChangedListener { _ -> updatePreview() }
-        binding.textSize.setOnProgressListener { updatePreview() }
-        binding.horizontalPadding.setOnProgressListener { updatePreview() }
-        binding.verticalPadding.setOnProgressListener { updatePreview() }
+        binding.textSize.callback = { _ -> updatePreview() }
+        binding.horizontalPadding.callback = { updatePreview() }
+        binding.verticalPadding.callback = { updatePreview() }
 
         updatePreview()
 
@@ -84,28 +96,28 @@ class AddEditSwHotkeyFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.save_delete_alt, menu)
-        if (viewModel.mode == AddEditSwHotkeyViewModel.Mode.ADD) {
-            menu.removeItem(R.id.delete_menu_item)
+        when (viewModel.mode) {
+            AddEditSwHotkeyViewModel.Mode.ADD -> inflater.inflate(R.menu.save_alt, menu)
+            AddEditSwHotkeyViewModel.Mode.EDIT -> inflater.inflate(R.menu.save_delete_alt, menu)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_menu_item -> {
-                handleSaveButton()
+                handleSaveAction()
                 return true
             }
             R.id.delete_menu_item -> {
-                handleDeleteButton()
+                handleDeleteAction()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun handleSaveButton() {
-        debug("Handling save button")
+    private fun handleSaveAction() {
+        verbose("AddEditSwHotkeyFragment.handleSaveAction()")
 
         val key = MinimoteKeyType.byKeyString(binding.key.selectedItem.toString())
         if (key == null) {
@@ -145,22 +157,11 @@ class AddEditSwHotkeyFragment : Fragment() {
         findNavController().navigateUp()
     }
 
-    private fun handleDeleteButton() {
-//        AlertDialog.Builder(requireActivity())
-//            .setTitle(R.string.delete_hw_hotkey_confirmation_title)
-//            .setMessage(R.string.delete_hw_hotkey_confirmation_message)
-//            .setPositiveButton(R.string.ok) { _, _ ->
-//                // actually delete
-//                viewModel.delete()
-//                Snackbar.make(
-//                    requireParentFragment().requireView(),
-//                    getString(R.string.hw_hotkey_removed, viewModel.swHotkey?.value?.displayName()),
-//                    Snackbar.LENGTH_LONG
-//                ).show()
-//                findNavController().navigateUp()
-//            }
-//            .setNegativeButton(R.string.cancel, null)
-//            .show()
+    private fun handleDeleteAction() {
+        verbose("AddEditSwHotkeyFragment.handleDeleteAction()")
+
+        // Alert is probably too verbose, since this is an in-memory change
+
         sharedViewModel.remove(viewModel.swHotkeyId)
         findNavController().navigateUp()
     }
@@ -187,6 +188,6 @@ class AddEditSwHotkeyFragment : Fragment() {
 
         debug("Updating hotkey preview")
 
-        binding.preview.set(uiHotkey)
+        binding.preview.hotkey = uiHotkey
     }
 }

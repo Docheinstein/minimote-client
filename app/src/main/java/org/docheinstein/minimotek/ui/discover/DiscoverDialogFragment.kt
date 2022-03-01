@@ -1,7 +1,6 @@
 package org.docheinstein.minimotek.ui.discover
 
 import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.*
 import androidx.core.view.isVisible
@@ -19,6 +18,12 @@ import org.docheinstein.minimotek.databinding.DiscoverDialogBinding
 import org.docheinstein.minimotek.databinding.ServerListItemBinding
 import org.docheinstein.minimotek.util.TAG
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
+
+/**
+ * Fragment representing the discover procedure.
+ * It contains the discovered server list.
+ */
 
 @AndroidEntryPoint
 class DiscoverDialogFragment : DialogFragment() {
@@ -35,7 +40,10 @@ class DiscoverDialogFragment : DialogFragment() {
         }
 
         override fun areContentsTheSame(oldItem: DiscoveredServer, newItem: DiscoveredServer): Boolean {
-            return oldItem == newItem
+             // UI based equality
+            return oldItem.address == newItem.address &&
+                    oldItem.port == newItem.port &&
+                    oldItem.hostname == newItem.hostname
         }
     }
 
@@ -56,8 +64,12 @@ class DiscoverDialogFragment : DialogFragment() {
 
         override fun onBindViewHolder(holder: DiscoveredServerListItemViewHolder, position: Int) {
             val server = getItem(position)
+
+            // Texts
             holder.binding.address.text = server.address
             holder.binding.name.text = server.hostname
+
+            // Click listener: invoke callback (which adds server to the server list)
             holder.binding.root.setOnClickListener {
                 debug("Click on server $server")
                 addServerCallback.invoke(server)
@@ -66,6 +78,7 @@ class DiscoverDialogFragment : DialogFragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("DiscoverDialogFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setStyle(STYLE_NORMAL, R.style.StandardDialog);
     }
@@ -75,14 +88,16 @@ class DiscoverDialogFragment : DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        debug("DiscoveryDialogFragment.onCreateView()")
+        verbose("DiscoveryDialogFragment.onCreateView()")
         binding = DiscoverDialogBinding.inflate(inflater, container, false)
+
+        // Discovered server list adapter
         adapter = DiscoveredServerListAdapter { server ->
             debug("Server to add $server")
             viewModel.insert(server)
             Snackbar.make(
                 requireParentFragment().requireView(),
-                getString(R.string.server_added, server.hostname),
+                getString(R.string.added, server.hostname),
                 Snackbar.LENGTH_LONG
             ).show()
             dismiss()
@@ -93,26 +108,27 @@ class DiscoverDialogFragment : DialogFragment() {
             dismiss()
         }
 
+        // Observe new discovered servers
         viewModel.discoveredServers.observe(viewLifecycleOwner) { servers ->
-            debug("New discovered servers list: $servers")
-            adapter.submitList(servers.toList())
-            debug("Current size = ${adapter.currentList.size} ${adapter.itemCount}")
+            debug("New discovered servers list (size = ${servers.size})")
+            adapter.submitList(servers.toList()) // must make a copy for perform a diff
         }
 
+        // Observe discover errors
         viewModel.discoverError.observe(viewLifecycleOwner) { errorString ->
             if (errorString != null) {
                 debug("Error occurred while discovering: $errorString")
                 AlertDialog.Builder(requireActivity())
-                    .setTitle(R.string.discover_failed)
-                    .setMessage("Failure reason: $errorString")
+                    .setTitle(R.string.discover_failed_dialog_title)
+                    .setMessage(getString(R.string.discover_failed_dialog_message, errorString))
                     .setPositiveButton(R.string.ok, null)
                     .show()
                 dismiss()
             }
         }
 
+        // Observe discover procedure state
         viewModel.isDiscovering.observe(viewLifecycleOwner) { isDiscovering ->
-            // Update UI when discover is completed
             binding.progressText.setText(if (isDiscovering) R.string.discover_discovering else R.string.discover_completed)
             binding.progressBar.isVisible = isDiscovering
         }
@@ -120,13 +136,7 @@ class DiscoverDialogFragment : DialogFragment() {
         return binding.root
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        debug("DiscoveryDialogFragment.onAttach()")
-    }
-
     fun show(manager: FragmentManager) {
-        debug("DiscoveryDialogFragment.show()")
         show(manager, TAG)
     }
 }

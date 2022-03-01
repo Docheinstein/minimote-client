@@ -8,9 +8,11 @@ import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
-import org.docheinstein.minimotek.ui.hwhotkeys.AddEditHwHotkeyViewModel
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.error
+import org.docheinstein.minimotek.util.verbose
 import javax.inject.Inject
+
 
 @HiltViewModel
 class AddEditServerViewModel @Inject constructor(
@@ -20,7 +22,7 @@ class AddEditServerViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
-        private const val SERVER_ID_STATE_KEY = "serverId"
+        const val SERVER_ID_STATE_KEY = "serverId"
         const val SERVER_ID_NONE = Long.MIN_VALUE
     }
 
@@ -31,18 +33,32 @@ class AddEditServerViewModel @Inject constructor(
 
     private val serverId: Long = savedStateHandle[SERVER_ID_STATE_KEY] ?: SERVER_ID_NONE
     val mode = if (serverId == SERVER_ID_NONE) Mode.ADD else Mode.EDIT
-    val server = if (mode == Mode.EDIT) serverRepository.load(serverId).asLiveData() else null
 
-//    private val _icon = MutableLiveData<Uri?>()
-//    val icon: LiveData<Uri?>
-//        get() = _icon
+    var fetched = false
+    val server = if (mode == Mode.EDIT) serverRepository.observe(serverId).asLiveData() else null
 
     init {
-        debug("AddEditServerViewModel.init() for serverId = $serverId")
+        verbose("AddEditServerViewModel.init() for serverId = $serverId")
     }
 
-    fun save(address: String, port: Int, name: String?, icon: Uri?): Server {
-        val s = Server(if (mode == Mode.ADD) AUTO_ID else server?.value!!.id, address, port, name, icon)
+    override fun onCleared() {
+        verbose("AddEditServerViewModel.onCleared()")
+    }
+
+    fun save(
+        address: String,
+        port: Int,
+        name: String?,
+        icon: Uri?
+    ): Server {
+        val s = Server(
+            id = if (mode == Mode.ADD) AUTO_ID else serverId,
+            address = address,
+            port = port,
+            name = name,
+            icon = icon
+        )
+
         ioScope.launch {
             serverRepository.save(s)
         }
@@ -50,8 +66,13 @@ class AddEditServerViewModel @Inject constructor(
     }
 
     fun delete() {
+        if (serverId == SERVER_ID_NONE) {
+            error("Cannot delete, invalid serverId")
+            return
+        }
+
         ioScope.launch {
-            serverRepository.delete(server?.value!!)
+            serverRepository.delete(serverId)
         }
     }
 }

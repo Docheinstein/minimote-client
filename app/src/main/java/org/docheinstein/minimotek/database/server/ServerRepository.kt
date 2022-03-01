@@ -1,30 +1,34 @@
 package org.docheinstein.minimotek.database.server
 
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import org.docheinstein.minimotek.util.info
+import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.roundToLong
-import kotlin.random.Random
 
 @Singleton
 class ServerRepository @Inject constructor(private val serverDao: ServerDao) {
-    val servers: Flow<List<Server>> = serverDao.loadAll()
+    fun observe(id: Long): Flow<Server> {
+        debug("ServerRepository.observe($id)")
+        return serverDao.observe(id)
+    }
 
-    fun load(id: Long): Flow<Server> {
-        return serverDao.load(id)
+    fun observeAll(): Flow<List<Server>> {
+        debug("ServerRepository.observeAll()")
+        return serverDao.observeAll()
+    }
+
+    suspend fun get(id: Long): Server? {
+        debug("ServerRepository.get($id)")
+        return serverDao.get(id)
     }
 
     suspend fun save(server: Server) {
-        info("Saving server $server")
-        delay((2000 * Random.nextFloat()).roundToLong()) // simulate latency
+        debug("ServerRepository.save($server)")
         serverDao.save(server)
     }
 
-    suspend fun delete(server: Server) {
-        info("Deleting server $server")
-        delay((2000 * Random.nextFloat()).roundToLong()) // simulate latency
-        serverDao.delete(server)
+    suspend fun delete(id: Long) {
+        debug("ServerRepository.delete($id)")
+        serverDao.delete(id)
     }
 }

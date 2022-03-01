@@ -1,5 +1,6 @@
-package org.docheinstein.minimotek.ui.controller.touchpad
+package org.docheinstein.minimotek.ui.controller
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.MotionEvent
@@ -7,6 +8,9 @@ import android.view.View
 import org.docheinstein.minimotek.util.debug
 import kotlin.math.roundToInt
 
+/**
+ * View that detects touch events and dispatches them to a [TouchpadListener].
+ */
 class TouchpadAreaView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
@@ -23,6 +27,7 @@ class TouchpadAreaView @JvmOverloads constructor(
 
     var listener: TouchpadListener? = null
 
+    @SuppressLint("ClickableViewAccessibility")
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         if (event == null || listener == null)
             return super.onTouchEvent(event)
@@ -53,10 +58,5 @@ class TouchpadAreaView @JvmOverloads constructor(
             }
         }
         return true
-    }
-
-    override fun performClick(): Boolean {
-        debug("Click event")
-        return super.performClick()
     }
 }

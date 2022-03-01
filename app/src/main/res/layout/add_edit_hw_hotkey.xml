@@ -1,113 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:titled_card="http://schemas.android.com/apk/res-auto"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/dark_white"
-        android:orientation="vertical">
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:titled_card="http://schemas.android.com/apk/res-auto"
+    android:background="@color/dark_white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
 
-    <ScrollView
+    <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fillViewport="true">
+            android:layout_height="wrap_content"
+            android:padding="@dimen/card_padding"
+            android:orientation="vertical">
 
-        <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="@dimen/card_padding"
-                android:orientation="vertical">
+        <org.docheinstein.minimotek.ui.base.TitledCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/card_spacing"
+            titled_card:elevation="@dimen/card_elevation"
+            titled_card:radius="@dimen/card_corner_radius"
+            titled_card:title="@string/button">
 
-            <org.docheinstein.minimotek.ui.base.TitledCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_spacing"
-                titled_card:elevation="@dimen/card_elevation"
-                titled_card:radius="@dimen/card_corner_radius"
-                titled_card:title="@string/button">
+           <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="vertical">
 
-               <LinearLayout
+               <Spinner
+                       android:id="@+id/button"
+                       style="@android:style/Widget.DeviceDefault.Light.Spinner"
                        android:layout_width="match_parent"
-                       android:layout_height="wrap_content"
-                       android:orientation="vertical">
+                       android:layout_height="@dimen/spinner_height"
+                       android:entries="@array/buttons" />
+            </LinearLayout>
+        </org.docheinstein.minimotek.ui.base.TitledCardView>
 
-                   <Spinner
-                           android:id="@+id/button"
-                           style="@android:style/Widget.DeviceDefault.Light.Spinner"
-                           android:layout_width="match_parent"
-                           android:layout_height="@dimen/spinner_height"
-                           android:entries="@array/buttons" />
-                </LinearLayout>
-            </org.docheinstein.minimotek.ui.base.TitledCardView>
+        <org.docheinstein.minimotek.ui.base.TitledCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/card_spacing"
+            titled_card:elevation="@dimen/card_elevation"
+            titled_card:radius="@dimen/card_corner_radius"
+            titled_card:title="@string/modifiers">
 
-            <org.docheinstein.minimotek.ui.base.TitledCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_spacing"
-                titled_card:elevation="@dimen/card_elevation"
-                titled_card:radius="@dimen/card_corner_radius"
-                titled_card:title="@string/modifiers">
+           <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="vertical">
 
-               <LinearLayout
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content"
-                       android:orientation="vertical">
+                <CheckBox
+                        android:id="@+id/ctrl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/ctrl" />
 
-                    <CheckBox
-                            android:id="@+id/ctrl"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/edit_hotkey_ctrl" />
+                <CheckBox
+                        android:id="@+id/altgr"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/altgr" />
 
-                    <CheckBox
-                            android:id="@+id/altgr"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/edit_hotkey_altgr" />
+                <CheckBox
+                        android:id="@+id/meta"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/meta" />
 
-                    <CheckBox
-                            android:id="@+id/meta"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/edit_hotkey_meta" />
+                <CheckBox
+                        android:id="@+id/alt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/alt" />
 
-                    <CheckBox
-                            android:id="@+id/alt"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/edit_hotkey_alt" />
+                <CheckBox
+                        android:id="@+id/shift"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/shift" />
+            </LinearLayout>
+        </org.docheinstein.minimotek.ui.base.TitledCardView>
 
-                    <CheckBox
-                            android:id="@+id/shift"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="@string/edit_hotkey_shift" />
-                </LinearLayout>
-            </org.docheinstein.minimotek.ui.base.TitledCardView>
+        <org.docheinstein.minimotek.ui.base.TitledCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="@dimen/card_spacing"
+            titled_card:elevation="@dimen/card_elevation"
+            titled_card:radius="@dimen/card_corner_radius"
+            titled_card:title="@string/key">
 
-            <org.docheinstein.minimotek.ui.base.TitledCardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/card_spacing"
-                titled_card:elevation="@dimen/card_elevation"
-                titled_card:radius="@dimen/card_corner_radius"
-                titled_card:title="@string/key">
+           <LinearLayout
+                   android:layout_width="match_parent"
+                   android:layout_height="wrap_content"
+                   android:orientation="vertical">
 
-               <LinearLayout
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content"
-                       android:orientation="vertical">
-
-                    <Spinner
-                            android:id="@+id/key"
-                            style="@android:style/Widget.DeviceDefault.Light.Spinner"
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/spinner_height"
-                            android:entries="@array/keys" />
-                </LinearLayout>
-            </org.docheinstein.minimotek.ui.base.TitledCardView>
-        </LinearLayout>
-    </ScrollView>
-
-
-</LinearLayout>
+                <Spinner
+                        android:id="@+id/key"
+                        style="@android:style/Widget.DeviceDefault.Light.Spinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/spinner_height"
+                        android:entries="@array/keys" />
+            </LinearLayout>
+        </org.docheinstein.minimotek.ui.base.TitledCardView>
+    </LinearLayout>
+</ScrollView>

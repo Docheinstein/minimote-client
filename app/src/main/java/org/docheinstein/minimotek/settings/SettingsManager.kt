@@ -9,6 +9,9 @@ import org.docheinstein.minimotek.R
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * Global manager of app's settings.
+ */
 @Singleton
 class SettingsManager @Inject constructor(
     @ApplicationContext val context: Context
@@ -40,8 +43,7 @@ class SettingsManager @Inject constructor(
         return ctx.getSharedPreferences(getDefaultSharedPreferencesName(ctx), Context.MODE_PRIVATE)
     }
 
-    // Taken from androix.preference
     private fun getDefaultSharedPreferencesName(ctx: Context): String {
-        return ctx.packageName + "_preferences"
+        return ctx.packageName + "_preferences" // as expressed in androix.preference
     }
 }

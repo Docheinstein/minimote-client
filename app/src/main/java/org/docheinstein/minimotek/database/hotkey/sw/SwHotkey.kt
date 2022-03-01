@@ -3,10 +3,15 @@ package org.docheinstein.minimotek.database.hotkey.sw
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
+/**
+ * Software hotkey.
+ * i.e. [Hotkey] associated with a graphical button.
+ */
 
 const val TABLE_NAME = "swhotkey"
 
@@ -24,7 +29,6 @@ const val COLUMN_Y = "y"
 const val COLUMN_TEXT_SIZE = "text_size"
 const val COLUMN_HORIZONTAL_PADDING = "horizontal_padding"
 const val COLUMN_VERTICAL_PADDING = "vertical_padding"
-
 
 
 @Entity(

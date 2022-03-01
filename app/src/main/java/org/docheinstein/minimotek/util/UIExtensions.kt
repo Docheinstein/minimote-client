@@ -1,9 +1,11 @@
-package org.docheinstein.minimotek.extensions
+package org.docheinstein.minimotek.util
 
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
 import android.widget.*
+
+/* EditText */
 
 fun EditText.addAfterTextChangedListener(cb: (String) -> Unit) {
     this.addTextChangedListener(object : TextWatcher {
@@ -15,6 +17,8 @@ fun EditText.addAfterTextChangedListener(cb: (String) -> Unit) {
     })
 }
 
+/* Spinner */
+
 fun Spinner.setOnItemActuallySelectedListener(cb: (Int) -> Unit) {
     this.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -25,6 +29,13 @@ fun Spinner.setOnItemActuallySelectedListener(cb: (Int) -> Unit) {
     }
 }
 
+@Suppress("UNCHECKED_CAST")
+fun Spinner.setSelection(value: String) {
+    setSelection((adapter as ArrayAdapter<String>).getPosition(value))
+}
+
+/* SeekBar */
+
 fun SeekBar.setOnSeekbarProgressListener(cb: (progress: Int) -> Unit) {
     this.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -34,8 +45,4 @@ fun SeekBar.setOnSeekbarProgressListener(cb: (progress: Int) -> Unit) {
         override fun onStartTrackingTouch(seekBar: SeekBar?) {}
         override fun onStopTrackingTouch(seekBar: SeekBar?) {}
     })
-}
-
-fun Spinner.setSelection(value: String) {
-    setSelection((adapter as ArrayAdapter<String>).getPosition(value))
 }

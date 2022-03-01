@@ -1,4 +1,4 @@
-package org.docheinstein.minimotek.ui.controller.keyboard
+package org.docheinstein.minimotek.ui.controller
 
 import android.app.Activity
 import android.content.Context
@@ -10,16 +10,24 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.view.isVisible
+import org.docheinstein.minimotek.ui.controller.TouchpadAreaView.TouchpadListener
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
 
-
+/**
+ * EditText that detects both software and hardware key events
+ * and dispatches them to a [KeyboardListener].
+ * This view's visibility is bound to the keyboard, therefore this EditText is shown if the
+ * keyboard is opened and it's hidden if the keyboard is closed (either programmatically or
+ * by the user, reason for which we must listen to the keyboards close events too)
+ */
 class KeyboardEditText @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : AppCompatEditText(context, attrs, defStyle),
-    TextWatcher, /* for soft keyboard chars and backspace */
+    TextWatcher, /* for soft keyboard chars */
     View.OnKeyListener /* for physical keyboards and special chars on soft keyboards */{
 
     interface KeyboardListener {
@@ -29,18 +37,26 @@ class KeyboardEditText @JvmOverloads constructor(
         fun onKeyboardHidden()
     }
 
-    var isKeyboardOpen = false
-        private set
+    val isKeyboardOpen: Boolean
+        get() = isVisible
 
     var listener: KeyboardListener? = null
 
     init {
-        debug("KeyboardEditText.init() ${hashCode()}")
+        verbose("KeyboardEditText.init()")
+
         isVisible = false
 
-        // View.OnKeyListener must be set, but
-        // TextWatcher events are already received
+        // Not interested in saving/restore the text of this view.
+        // Furthermore, if we don't set this to false, onTextChanged will be triggered
+        // after every orientation change (eventually sending a packet to the connection
+        // for no reason)
+        isSaveEnabled = false
+
+        // View.OnKeyListener must be set
         setOnKeyListener(this)
+
+        // TextWatcher events are already received
     }
 
     override fun onKeyPreIme(keyCode: Int, event: KeyEvent?): Boolean {
@@ -58,9 +74,7 @@ class KeyboardEditText @JvmOverloads constructor(
     }
 
     private fun onKeyboardHiddenByUser() {
-        debug("Keyboard has been hidden, hiding EditText")
-
-        isKeyboardOpen = false
+        debug("Keyboard has been hidden by the user, hiding EditText")
 
         // Hide this view
         isVisible = false
@@ -91,14 +105,13 @@ class KeyboardEditText @JvmOverloads constructor(
 
         debug("Opening keyboard")
 
-        isKeyboardOpen = true
-
         // Show this view
         isVisible = true
 
         // Require focus
         if (!requestFocus()) {
             warn("KeyboardEditText failed to acquire focus")
+            isVisible = false
             return
         }
 
@@ -117,7 +130,6 @@ class KeyboardEditText @JvmOverloads constructor(
         }
 
         debug("Closing keyboard")
-        isKeyboardOpen = false
 
         // Hide this view
         isVisible = false

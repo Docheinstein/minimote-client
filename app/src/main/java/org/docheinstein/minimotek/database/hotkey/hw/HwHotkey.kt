@@ -8,6 +8,10 @@ import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
+/**
+ * Hardware hotkey.
+ * i.e. [Hotkey] associated with a physical button [ButtonType]
+ */
 
 const val TABLE_NAME = "hwhotkey"
 

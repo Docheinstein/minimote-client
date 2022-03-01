@@ -10,9 +10,12 @@ import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerDao
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 
+/** Database. */
+/* Implemented using the android room library (recommended way to interact with SQLite right now)
+ * (https://developer.android.com/training/data-storage/room/) */
+
 const val DATABASE_VERSION = 14
 const val DATABASE_NAME = "minimote"
-
 
 @Database(
     version = DATABASE_VERSION,
@@ -41,7 +44,6 @@ abstract class DB : RoomDatabase() {
     abstract fun hwHotkeyDao(): HwHotkeyDao
     abstract fun swHotkeyDao(): SwHotkeyDao
 
-    // Singleton
     companion object {
         private var instance: DB? = null
 

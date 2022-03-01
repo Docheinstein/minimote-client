@@ -15,12 +15,27 @@ import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.ControllerBinding
-import org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
-import org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
 import org.docheinstein.minimotek.ui.swhotkeys.SwHotkeyView
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
 
+/**
+ * Fragment representing the screen that allows the remote control of the server.
+ * It's composed by several components that are able to detects events,
+ * based on which a different type of packet is sent to the server.
+ * Right now, the components are the following:
+ * - Touchpad area: mouse movements and mouse clicks
+ *      1 finger movement: mouse movement
+ *      2 fingers movement: scroll
+ *      1 finger click: left click
+ *      2 fingers click: right click
+ *      3 fingers click: middle click
+ * - Touchpad buttons: mouse clicks (left, right)
+ * - Keyboard: keys and texts
+ * - Software hotkeys (buttons shown on the screen): hotkeys
+ * - Hardware hotkeys (physical phone buttons): hotkeys
+ */
 
 @AndroidEntryPoint
 class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, KeyboardEditText.KeyboardListener{
@@ -28,40 +43,48 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
     private val viewModel: ControllerViewModel by viewModels()
     private lateinit var binding: ControllerBinding
 
-
     @SuppressLint("ClickableViewAccessibility")
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        val address = ControllerFragmentArgs.fromBundle(requireArguments()).address
-        val port = ControllerFragmentArgs.fromBundle(requireArguments()).port
-        debug("ControllerFragment.onCreateView() for server = $address:$port")
+        verbose("ControllerFragment.onCreateView()")
 
         binding = ControllerBinding.inflate(inflater, container, false)
 
-        // Touchpad
+        // Touchpad area
         binding.touchpadArea.listener = this
 
-        binding.touchpadRightButton.setOnTouchListener { v, event ->
-            when(event?.actionMasked) {
-                MotionEvent.ACTION_DOWN -> { viewModel.leftDown() }
-                MotionEvent.ACTION_UP -> { viewModel.leftUp()}
+        // Touchpad buttons
+        binding.touchpadLeftButton.setOnTouchListener { _, event ->
+            when (event?.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    debug("Touchpad left down")
+                    viewModel.leftDown()
+                }
+                MotionEvent.ACTION_UP -> {
+                    debug("Touchpad left up")
+                    viewModel.leftUp()
+                }
             }
-            false
+            false // return false to make drawable selector work
         }
 
-        binding.touchpadRightButton.setOnTouchListener { v, event ->
-            when(event?.actionMasked) {
-                MotionEvent.ACTION_DOWN -> { viewModel.rightDown() }
-                MotionEvent.ACTION_UP -> { viewModel.rightUp()}
+        binding.touchpadRightButton.setOnTouchListener { _, event ->
+            when (event?.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    debug("Touchpad right down")
+                    viewModel.rightDown()
+                }
+                MotionEvent.ACTION_UP -> {
+                    debug("Touchpad right up")
+                    viewModel.rightUp()
+                }
             }
-            false
+            false // return false to make drawable selector work
         }
 
         // Splash Overlay
-
         binding.splash.setOnTouchListener { _, _ ->
-            // prevent propagation of touch events if splash screen is atop
-            true
+            true // prevent propagation of touch events if splash screen is atop
         }
 
         // Keyboard
@@ -69,83 +92,87 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
 
         // Widgets
         binding.keyboardWidget.setOnClickListener {
+            debug("Toggling keyboard widget")
             viewModel.toggleKeyboard()
         }
-
         binding.touchpadButtonsWidget.setOnClickListener {
+            debug("Toggling touchpad buttons widget")
             viewModel.toggleTouchpadButtons()
         }
-
         binding.hotkeysWidget.setOnClickListener {
+            debug("Toggling hotkeys widget")
             viewModel.toggleHotkeys()
         }
 
-        // Detect widgets state
-
-        // IMPORTANT
-        // use distinctUntilChanged to prevent emission of the same state,
-        // since it would lead to recursive call loop
-        // (since keyboard is closed also from UIHH
-        viewModel.keyboard.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
-            binding.keyboardWidget.setHighlight(enabled)
+        // Observe widgets state change
+        // (we have to follow this line, instead of updating widgets directly from the UI,
+        // mostly for keep the state in the viewModel in order to restore the same state
+        // on orientation changes).
+        // distinctUntilChanged must be used in order to prevent emission of the same state,
+        // since it would lead to recursive call loop (this would happen because keyboard is
+        // closed also from UI)
+        viewModel.isKeyboardWidgetEnabled.distinctUntilChanged().observe(viewLifecycleOwner) { enabled ->
+            binding.keyboardWidget.highlighted = enabled
             binding.keyboardText.setKeyboardOpen(requireActivity(), enabled)
         }
 
-        viewModel.touchpadButtons.observe(viewLifecycleOwner) { enabled ->
-            binding.touchpadButtonsWidget.setHighlight(enabled)
+        viewModel.isTouchpadButtonsWidgetEnabled.observe(viewLifecycleOwner) { enabled ->
+            binding.touchpadButtonsWidget.highlighted = enabled
             binding.touchpadButtonsContainer.isVisible = enabled
         }
 
-        viewModel.hotkeys.observe(viewLifecycleOwner) { enabled ->
-            binding.hotkeysWidget.setHighlight(enabled)
+        viewModel.isHotkeysWidgetEnabled.observe(viewLifecycleOwner) { enabled ->
+            binding.hotkeysWidget.highlighted = enabled
             binding.hotkeysContainer.isVisible = enabled
         }
 
-        // Detect connection state change
+        // Observe connection state change
         viewModel.connectionState.observe(viewLifecycleOwner) { state ->
             debug("UI notified about new connection state: $state")
             when (state) {
                 ControllerViewModel.ConnectionState.Connecting -> {
-                    // show splashOverlay
+                    // Show overlay (Connecting...)
+                    // No UI components can be used while the splash screen is atop
                     binding.splashOverlay.isVisible = true
                     binding.splashOverlay.alpha = 1.0f
 
                 }
                 ControllerViewModel.ConnectionState.Connected -> {
+                    // Fade out the splash overlay
                     if (binding.splashOverlay.isVisible) {
                         binding.splashOverlay.animate().alpha(0.0f).setListener(object : Animator.AnimatorListener {
                             override fun onAnimationStart(animation: Animator?) {}
                             override fun onAnimationCancel(animation: Animator?) {}
                             override fun onAnimationRepeat(animation: Animator?) {}
                             override fun onAnimationEnd(animation: Animator?) {
-                                // hide the splashOverlay so that it won't consume touch events anymore
+                                // Hide the overlay after the fade
+                                // so that it won't consume touch events anymore
                                 binding.splashOverlay.isVisible = false
                             }
                         })
                     }
                 }
                 ControllerViewModel.ConnectionState.Disconnected -> {
-                    debug("Quitting controller fragment since we are not connected")
+                    // Close the fragment since we are not connected anymore
+                    debug("Quitting controller fragment since we are not connected anymore")
                     showConnectionErrorAlert()
                     findNavController().navigateUp()
                 }
-                else -> {
-                    warn("Unknown connection state: $state")
-                }
+                else -> warn("Unknown connection state: $state")
             }
         }
 
-        debug("Observing hotkeys")
+        // Observe hotkeys for current orientation
         viewModel.currentOrientationHotkeys.observe(viewLifecycleOwner) { hotkeys ->
-            debug("Received hotkeys update")
-            updateHotkeysContainer(hotkeys)
+            updateHotkeys(hotkeys)
         }
 
         return binding.root
     }
 
-    private fun updateHotkeysContainer(hotkeys: List<SwHotkey>) {
-        debug("Updating hotkeys container with ${hotkeys.size} hotkeys")
+    private fun updateHotkeys(hotkeys: List<SwHotkey>) {
+        debug("Updating hotkeys with ${hotkeys.size} hotkeys")
+        binding.hotkeysContainer.removeAllViews()
 
         for (hotkey in hotkeys) {
             val hotkeyView = SwHotkeyView(requireContext(), hotkey = SwHotkeyView.Hotkey.fromSwHotkey(hotkey))
@@ -164,15 +191,6 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
 
             binding.hotkeysContainer.addView(hotkeyView)
         }
-    }
-
-    private fun showConnectionErrorAlert() {
-        AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.connection_error_dialog_title)
-            .setMessage(getString(R.string.connection_error_dialog_message,
-                viewModel.serverAddress, viewModel.serverPort))
-            .setPositiveButton(R.string.ok, null)
-            .show()
     }
 
     // Touchpad events
@@ -194,27 +212,36 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
     }
 
     override fun onKeyboardText(s: CharSequence, start: Int, before: Int, count: Int) {
-        debug("onTextChanged: (str = $s, start = $start, before = $before, count = $count)")
+        debug("Keyboard text: (str = $s, start = $start, before = $before, count = $count)")
 
         if (count > before) {
-            // insertion
+            // Insertion
             val c = s[start + before]
             debug("+ $c")
             viewModel.write(c)
         } else if (before > count) {
-            // deletion
+            // Deletion
             debug("<-")
             viewModel.keyClick(KeyEvent.KEYCODE_DEL)
         }
     }
 
     override fun onKeyboardKey(keyCode: Int, event: KeyEvent): Boolean {
-        debug("onKey: $keyCode")
+        debug("Key pressed: $keyCode")
 
         return when (event.action) {
-            KeyEvent.ACTION_DOWN -> { viewModel.keyDown(keyCode)}
-            KeyEvent.ACTION_UP -> { viewModel.keyUp(keyCode) }
-            else -> { false }
+            KeyEvent.ACTION_DOWN -> viewModel.keyDown(keyCode)
+            KeyEvent.ACTION_UP -> viewModel.keyUp(keyCode)
+            else -> false
         }
+    }
+
+    private fun showConnectionErrorAlert() {
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.connection_error_dialog_title)
+            .setMessage(getString(R.string.connection_error_dialog_message,
+                viewModel.serverAddress, viewModel.serverPort))
+            .setPositiveButton(R.string.ok, null)
+            .show()
     }
 }

@@ -15,6 +15,7 @@ import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.util.asMessage
 import org.docheinstein.minimotek.util.debug
 import org.docheinstein.minimotek.util.error
+import org.docheinstein.minimotek.util.verbose
 import java.io.IOException
 import javax.inject.Inject
 
@@ -26,27 +27,29 @@ class DiscoverDialogViewModel @Inject constructor(
     private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
-
+    // Discover state
     private val _isDiscovering = MutableLiveData(true)
     val isDiscovering: LiveData<Boolean> = _isDiscovering
 
     private val _discoverError = MutableLiveData<String?>()
     val discoverError: LiveData<String?> = _discoverError
 
+    // Discovered servers
     private val __discoveredServers = mutableListOf<DiscoveredServer>()
     private val _discoveredServers = MutableLiveData<List<DiscoveredServer>>()
     val discoveredServers: LiveData<List<DiscoveredServer>>
         get() = _discoveredServers
 
-//    private val discoverJob: Job
     init {
-        debug("DiscoveryDialogViewModel.init()")
-        // Launch on view model scope since the discover job makes sense only until this view is
+        verbose("DiscoveryDialogViewModel.init()")
+        // Launch on viewModelScope since the discover procedure makes sense only until this view is
         // valid, but perform the job on IO dispatcher since it is a network task that cannot be
         // performed on main thread
         viewModelScope.launch(ioDispatcher) {
             debug("Discovery coroutine launched")
             try {
+                // Start the discover procedure and push the discovered servers
+                // to the retrieved server list
                 serverDiscoverer.discoverServers().collect { discoveredServer ->
                     debug("DiscoverDialogViewModel received discoveredServer: $discoveredServer")
                     __discoveredServers.add(discoveredServer)
@@ -58,20 +61,23 @@ class DiscoverDialogViewModel @Inject constructor(
             }
         }
 
+        // Declare the discover procedure as finished after a certain time (actually
+        // it's never finished, since we could receive a response from a slow server
+        // at any time, but it's unlikely that we'll receive a response after ~10 seconds)
         viewModelScope.launch {
             delay(ESTIMATED_DISCOVER_TIME.toLong())
-            debug("$ESTIMATED_DISCOVER_TIME ms: discovery is probably over")
+            debug("$ESTIMATED_DISCOVER_TIME ms elapsed: discovery is probably over")
             _isDiscovering.value = false
         }
     }
 
     override fun onCleared() {
-        debug("DiscoveryDialogViewModel.onCleared()")
+        verbose("DiscoverDialogViewModel.onCleared()")
     }
 
-    fun insert(discoveredServer: DiscoveredServer) {
+    fun insert(server: DiscoveredServer) {
         ioScope.launch {
-            val s = Server(AUTO_ID, discoveredServer.address, discoveredServer.port, discoveredServer.hostname, null)
+            val s = Server(AUTO_ID, server.address, server.port, server.hostname, null)
             serverRepository.save(s)
         }
     }

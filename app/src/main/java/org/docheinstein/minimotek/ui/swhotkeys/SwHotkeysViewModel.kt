@@ -4,12 +4,9 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.docheinstein.minimotek.AUTO_ID
 import org.docheinstein.minimotek.BuildConfig
-import org.docheinstein.minimotek.buttons.ButtonEventBus
-import org.docheinstein.minimotek.database.hotkey.Hotkey
 import org.docheinstein.minimotek.orientation.Orientation
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkeyRepository
@@ -18,12 +15,19 @@ import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.orientation.OrientationEventBus
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
 import javax.inject.Inject
 
 private const val DEFAULT_HOTKEY_X = 48
 private const val DEFAULT_HOTKEY_Y = 48
+private const val MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY = 50
 
+/**
+ * This view model keeps and handles the current hotkeys for both orientation, separately.
+ * All the changes from the UI to the hotkeys are in-memory,
+ * apart from [commit] which actually pushes the changes to the DB.
+ */
 @HiltViewModel
 class SwHotkeysViewModel @Inject constructor(
     @IOGlobalScope private val ioScope: CoroutineScope,
@@ -32,12 +36,7 @@ class SwHotkeysViewModel @Inject constructor(
     private val orientationEventBus: OrientationEventBus,
 ) : ViewModel() {
 
-    companion object {
-        private const val HOTKEY_ID_STATE_KEY = "hotkeyId"
-        const val HOTKEY_ID_NONE = Long.MIN_VALUE
-    }
-
-    // Hotkeys
+    // Hotkeys (for both orientations)
 
     private val __portraitHotkeys = mutableListOf<SwHotkey>()
     private val _portraitHotkeys = MutableLiveData<List<SwHotkey>>()
@@ -73,7 +72,7 @@ class SwHotkeysViewModel @Inject constructor(
         return null
     }
 
-    // Pending changes
+    // Pending changes (for both orientations)
 
     private val _portraitHasPendingChanges = MutableLiveData(false)
     private val portraitHasPendingChanges: LiveData<Boolean>
@@ -91,9 +90,12 @@ class SwHotkeysViewModel @Inject constructor(
         return if (o == Orientation.Portrait) portraitHasPendingChanges else landscapeHasPendingChanges
     }
 
-    // in-memory id
-    // must be transled to AUTO_ID when the hotkeys are inserted into the db
+    // Next in-memory ID.
+    // This id goes backward so that it won't conflict with the DB generated IDs.
+    // All the negative IDs must be translated into AUTO_ID (0) when the
+    // hotkeys are inserted into the DB, so that they could acquire a positive ID automatically.
     private var nextId = -1L
+    private fun getNextId() = nextId--
 
     var orientation = orientationEventBus.orientation.asLiveData()
     
@@ -101,8 +103,11 @@ class SwHotkeysViewModel @Inject constructor(
         get() = orientationEventBus.orientation.value
 
     init {
-        debug("SwHotkeysSharedViewModel.init()")
+        verbose("SwHotkeysViewModel.init()")
+
         viewModelScope.launch(ioDispatcher) {
+            // Retrieve the hotkeys for both orientation, just the first time,
+            // and makes a copy so that DB updates won't be reflected to in-memory hotkeys
             for (h in swHotkeyRepository.getAll(Orientation.Portrait))
                 __portraitHotkeys.add(h.copy()) // deep copy
             for (h in swHotkeyRepository.getAll(Orientation.Landscape))
@@ -121,42 +126,43 @@ class SwHotkeysViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        debug("SwHotkeysSharedViewModel.onCleared()")
-        super.onCleared()
+        verbose("SwHotkeysViewModel.onCleared()")
     }
 
     fun commit() {
-        // DB update
+        // Push in-memory hotkeys to DB for the current orientation
 
         val o = orientationSnapshot // take a snapshot of the orientation
+        val H = __hotkeys(o)
 
-        debug("Would save ${__hotkeys(o).size} hotkeys for orientation $o")
+        debug("Going to save ${H.size} hotkeys for orientation $o in DB")
 
         ioScope.launch {
-            val hotkeys = __hotkeys(o)
+            if (BuildConfig.DEBUG)
+                assert(H.associateBy { h -> h.id }.size == H.size)
 
-        if (BuildConfig.DEBUG)
-            assert(hotkeys.associateBy { h -> h.id }.size == hotkeys.size)
-
-            for (h in __hotkeys(o)) {
-                debug("Will save $h")
+            for (h in H) {
+                debug("Will save hotkey $h")
                 assert(h.orientation == o)
-                // translate brand new hotkeys' ids to AUTO_ID before insert into the DB
+                // Translate brand new hotkeys' ids to AUTO_ID before insert them into the DB
                 if (h.id < 0)
                     h.id = AUTO_ID
             }
-            swHotkeyRepository.replaceForOrientation(o, hotkeys) // update db in a transaction
 
-            // retrieve the new ids
+            // Replace all the hotkeys for the current orientation in a transaction
+            swHotkeyRepository.replaceAllForOrientation(o, H)
+
+            // Invalidate the current hotkeys and retrieve the new
+            // hotkeys with the auto-generated IDs
             debug("Retrieving the new hotkeys from db")
-            hotkeys.clear()
+            H.clear()
             for (h in swHotkeyRepository.getAll(o)) {
                 debug("$h")
-                hotkeys.add(h.copy()) // deep copy
+                H.add(h.copy()) // deep copy
             }
 
-            triggerUpdate(o, false) // must update hotkeys too since auto inserted ids are different from before
-//            _hasPendingChanges(o).postValue(false) // no more pending changes
+            // Must trigger an update since hotkeys might have different ids then before
+            triggerUpdate(o, false)
         }
     }
 
@@ -173,8 +179,12 @@ class SwHotkeysViewModel @Inject constructor(
         horizontalPadding: Int,
         verticalPadding: Int
     ): SwHotkey {
-        debug("Adding hotkey in-memory")
-        val o = orientationSnapshot // take a snapshot
+        // Add in-memory hotkey for the current orientation
+
+        val o = orientationSnapshot // take a snapshot of the orientation
+        val H = __hotkeys(o)
+
+        debug("Adding hotkey in-memory to orientation $o")
 
         val hotkey = SwHotkey(
             id = getNextId(),
@@ -193,7 +203,7 @@ class SwHotkeysViewModel @Inject constructor(
             verticalPadding = verticalPadding
         )
 
-        __hotkeys(o).add(hotkey)
+        H.add(hotkey)
 
         triggerUpdate(o)
 
@@ -201,18 +211,31 @@ class SwHotkeysViewModel @Inject constructor(
     }
 
     fun remove(id: Long) {
-        debug("Removing hotkey in-memory")
-        if (__portraitHotkeys.removeIf { swHotkey -> swHotkey.id == id })
-            triggerUpdate(Orientation.Portrait)
+        // Remove in-memory hotkey
 
-        if (__landscapeHotkeys.removeIf { swHotkey -> swHotkey.id == id })
+        // Look in both orientation
+
+        debug("Removing hotkey $id in-memory")
+        if (__portraitHotkeys.removeIf { swHotkey -> swHotkey.id == id }) {
+            debug("Found hotkey with id $id in portrait hotkeys, updating")
+            triggerUpdate(Orientation.Portrait)
+        }
+
+        if (__landscapeHotkeys.removeIf { swHotkey -> swHotkey.id == id }) {
+            debug("Found hotkey with id $id in landscape hotkeys, updating")
             triggerUpdate(Orientation.Landscape)
+        }
     }
 
     fun clear() {
-        debug("Removing all in-memory hotkeys")
-        val o = orientationSnapshot // take a snapshot
-        __hotkeys(o).clear()
+        // Remove all the in-memory hotkeys for the current orientation
+
+        val o = orientationSnapshot // take a snapshot of the orientation
+        val H = __hotkeys(o)
+
+        debug("Removing all in-memory hotkeys for orientation $o")
+
+        H.clear()
         triggerUpdate(o)
     }
 
@@ -229,10 +252,13 @@ class SwHotkeysViewModel @Inject constructor(
         horizontalPadding: Int,
         verticalPadding: Int
     ): SwHotkey? {
-        debug("Editing hotkey with id $id in-memory")
+        // Update an in-memory hotkey
+
+        debug("Editing hotkey $id in-memory")
+
         var hotkey: SwHotkey? = null
 
-        val editHotkey: ((SwHotkey) -> SwHotkey) = { h ->
+        val doEditHotkey: ((SwHotkey) -> SwHotkey) = { h ->
             h.alt = alt
             h.altgr = altgr
             h.ctrl = ctrl
@@ -246,19 +272,21 @@ class SwHotkeysViewModel @Inject constructor(
             h
         }
 
-        for (h in __portraitHotkeys) { // look in both
+        // Look in both orientation
+
+        for (h in __portraitHotkeys) {
             if (h.id == id) {
                 debug("Found hotkey with id $id in portrait hotkeys, updating")
-                hotkey = editHotkey(h)
+                hotkey = doEditHotkey(h)
                 triggerUpdate(Orientation.Portrait)
                 return hotkey
             }
         }
 
-        for (h in __landscapeHotkeys) { // look in both
+        for (h in __landscapeHotkeys) {
             if (h.id == id) {
                 debug("Found hotkey with id $id in landscape hotkeys, updating")
-                hotkey = editHotkey(h)
+                hotkey = doEditHotkey(h)
                 triggerUpdate(Orientation.Landscape)
                 return hotkey
             }
@@ -268,84 +296,83 @@ class SwHotkeysViewModel @Inject constructor(
     }
 
     fun updatePosition(id: Long, x: Int, y: Int) {
-        // Memory update
-        val o = orientationSnapshot // take a snapshot
+        // Update hotkey position in-memory
 
-        debug("Would update hotkey $id")
+        val o = orientationSnapshot // take a snapshot of the orientation
+        val H = __hotkeys(o)
+
+        debug("Updating hotkey $id position to (X=$x,Y=$y) $id for orientation $o")
 
         var found = false
-        val hotkeys = __hotkeys(o)
 
         if (BuildConfig.DEBUG)
-            assert(hotkeys.associateBy { h -> h.id }.size == hotkeys.size)
+            assert(H.associateBy { h -> h.id }.size == H.size)
 
-        for (h in __hotkeys(o)) {
+        for (h in H) {
             if (h.id == id) {
-                debug("Actually updating pos for hotkey ${h.id}")
+                debug("Found hotkey with id $id, updating position")
                 h.x = x
                 h.y = y
                 found = true
-//                break
+                break
             }
         }
 
         if (found) {
             debug("Hotkey $id position has been updated, triggering update")
             triggerUpdate(o)
-        } else {
-            warn("Failed to find hotkey with id $id, not triggering update")
         }
     }
 
     fun import(maxX: Int?, maxY: Int?) {
-        val o = orientationSnapshot
-        debug("Importing hotkeys from ${if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait} to $o ")
+        // Import hotkeys from the opposite orientation to the current orientation
 
-        __hotkeys(o).clear()
-        for (h in __hotkeys(if (o == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait)) {
-            debug("Importing $h")
-            var offscreen = false
-            val MIN_AREA_FOR_GRAB_HOTKEY = 50
-            if (maxX != null && h.x + MIN_AREA_FOR_GRAB_HOTKEY > maxX) {
-                warn("Hotkey ${h.key} will probably be off-screen (x=${h.x}, maxX=$maxX), MIN_AREA_FOR_GRAB_HOTKEY=$MIN_AREA_FOR_GRAB_HOTKEY")
-                offscreen = true
+        val o = orientationSnapshot // take a snapshot of the orientation
+        val notO = !o
+        val H = __hotkeys(o)
+        val notH = __hotkeys(notO)
+
+        debug("Importing hotkeys from $notO to $o ")
+
+        H.clear()
+        for (h in notH) {
+            debug("Importing hotkey $h")
+
+            // Before importing brainless, check whether the the coordinates of the hotkey
+            // in the other orientation are still legal in the current orientation.
+            // If not, set a default x,y for the hotkeys offscreen (e.g. top left corner)
+
+            var isOffscreen = false
+            if (maxX != null && h.x + MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY > maxX) {
+                warn("Hotkey ${h.key} will probably be off-screen " +
+                        "(x=${h.x}, maxX=$maxX, MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY=$MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY)")
+                isOffscreen = true
             }
-            if (maxY != null && h.y + MIN_AREA_FOR_GRAB_HOTKEY > maxY) {
-                warn("Hotkey ${h.key} will probably be off-screen (y=${h.y}, maxY=$maxY), MIN_AREA_FOR_GRAB_HOTKEY=$MIN_AREA_FOR_GRAB_HOTKEY")
-                offscreen = true
+            if (maxY != null && h.y + MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY > maxY) {
+                warn("Hotkey ${h.key} will probably be off-screen " +
+                        "(y=${h.y}, maxY=$maxY, MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY=$MIN_ESTIMATED_AREA_FOR_GRAB_HOTKEY)")
+                isOffscreen = true
             }
 
-//            if (o == Orientation.Portrait) {
-//                if (h.x > h.y) {
-//                    warn("Hotkey will probably be off-screen in Portrait: $h ")
-//                }
-//            } else if (o == Orientation.Landscape) {
-//                if (h.y > h.x) {
-//                    warn("Hotkey will probably be off-screen in Landscape: $h ")
-//                }
-//            }
-            val x = if (!offscreen) h.x else DEFAULT_HOTKEY_X
-            val y = if (!offscreen) h.y else DEFAULT_HOTKEY_Y
+            val x = if (!isOffscreen) h.x else DEFAULT_HOTKEY_X
+            val y = if (!isOffscreen) h.y else DEFAULT_HOTKEY_Y
 
-            __hotkeys(o).add(
+            H.add(
                 h.copy(
                     id = getNextId(),
                     orientation = o,
                     x = x,
                     y = y
                 )
-            ) // deep copy, but change orientation
+            ) // deep copy, but change orientation and coordinates
         }
         triggerUpdate(o)
     }
 
     private fun triggerUpdate(o: Orientation = orientationSnapshot, pendingChanges: Boolean = true) {
-        debug("Triggering hotkeys update for orientation $o, size is = ${__hotkeys(o).size}, pending changes = $pendingChanges")
+        debug("Triggering hotkeys update for orientation $o, " +
+                "size is = ${__hotkeys(o).size}, pending changes = $pendingChanges")
         _hotkeys(o).postValue(__hotkeys(o))
         _hasPendingChanges(o).postValue(pendingChanges)
-    }
-
-    private fun getNextId(): Long {
-        return nextId--
     }
 }

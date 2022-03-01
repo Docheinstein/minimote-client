@@ -15,7 +15,8 @@
             android:layout_height="@dimen/hw_hotkey_list_item_icon"
             android:layout_gravity="center_vertical"
             app:tint="@color/mid_gray"
-            app:srcCompat="@drawable/volume_down" />
+            app:srcCompat="@drawable/volume_down"
+            android:contentDescription="@string/icon" />
 
     <LinearLayout
             android:layout_width="0dp"

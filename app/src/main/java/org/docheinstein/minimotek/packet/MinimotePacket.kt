@@ -1,15 +1,25 @@
 package org.docheinstein.minimotek.packet
 
-import io.ktor.util.date.*
-import org.docheinstein.minimotek.extensions.get64
-import org.docheinstein.minimotek.extensions.set64
-import org.docheinstein.minimotek.extensions.toBinaryString
+import org.docheinstein.minimotek.util.get64
+import org.docheinstein.minimotek.util.set64
+import org.docheinstein.minimotek.util.toBinaryString
 import java.lang.Exception
+import java.lang.System.currentTimeMillis
 
-/*
-    | --- packet length --- | --- packet type --- | --- event time --- | ---- payload ---- |
-    | ------- (1) --------- | ------ (1) -------- | ------- (6) -------| --- (variable) -- |
+
+/**
+ * Packet sent to and received from server.
+ * A packet consists of a fixed header of 8 bytes and eventually of a payload of variable length.
+ * Header (8 bytes)
+ * - 1 byte: length of the packet in bytes (header + payload)
+ * - 1 byte: packet type ([MinimotePacketType])
+ * - 6 byte: timestamp
+ * Payload (variable)
  */
+ /*
+  *  | --- packet length --- | --- packet type --- | --- event time --- | ---- payload ---- |
+  *  | ------- (1) --------- | ------ (1) -------- | ------- (6) -------| --- (variable) -- |
+  */
 class MinimotePacket(
     val packetLength: Int,
     val packetType: MinimotePacketType,
@@ -17,9 +27,7 @@ class MinimotePacket(
     val payload: ByteArray
 ) {
 
-    class InvalidPacketException(message: String) : Exception(message) {
-
-    }
+    class InvalidPacketException(message: String) : Exception(message)
 
     companion object {
         const val HEADER_SIZE = 8
@@ -50,11 +58,11 @@ class MinimotePacket(
     }
 
     constructor(packetType: MinimotePacketType, payload: ByteArray) : this(
-        HEADER_SIZE + payload.size, packetType, getTimeMillis(), payload
+        HEADER_SIZE + payload.size, packetType, currentTimeMillis(), payload
     )
 
     constructor(packetType: MinimotePacketType) : this(
-        HEADER_SIZE, packetType, getTimeMillis(), ByteArray(0)
+        HEADER_SIZE, packetType, currentTimeMillis(), ByteArray(0)
     )
 
 

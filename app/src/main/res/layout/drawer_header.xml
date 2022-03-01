@@ -13,21 +13,19 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
 
     <ImageView
-            android:id="@+id/imageView"
             android:layout_width="@dimen/nav_header_icon"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:contentDescription="@string/nav_header_description"
+            android:contentDescription="@string/nav_header_desc"
             app:srcCompat="@drawable/minimote" />
 
     <TextView
-            android:id="@+id/textView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center"
             android:text="@string/app_name"
-            android:textColor="#FFFFFF"
+            android:textColor="@color/white"
             android:textSize="@dimen/nav_header_text" />
 
 </LinearLayout>

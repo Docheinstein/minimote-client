@@ -5,8 +5,6 @@ import android.content.ClipData
 import android.os.Bundle
 import android.view.*
 import android.widget.FrameLayout
-import androidx.core.view.children
-import androidx.core.view.size
 import androidx.fragment.app.Fragment
 import androidx.hilt.navigation.fragment.hiltNavGraphViewModels
 import androidx.navigation.fragment.findNavController
@@ -17,129 +15,123 @@ import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.sw.SwHotkey
 import org.docheinstein.minimotek.databinding.HotkeysBinding
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
 
-
+/**
+ * Fragment representing the software hotkeys
+ * (hotkeys triggered with the pressure of graphical buttons).
+ * The actions that can be performed on this screen are:
+ * - Drag & Drop software hotkey around the screen, as desired [in-memory]
+ * - Add a software hotkey (opens AddEdit screen) [in-memory]
+ * - Edit a software hotkey (opens AddEdit screen) [in-memory]
+ * - Clear all the software hotkeys [in-memory]
+ * - Import the hotkeys from hotkeys of the opposite orientation [in-memory]
+ * - Save all the hotkeys [to the db]
+ *
+ * This screen has several differences from the other fragments.
+ * First of all, the hotkeys can be customized independently for each orientation,
+ * therefore the Portrait hotkeys could be different from the Landscape hotkeys.
+ * Furthermore, when the hotkeys are added/edited/deleted, the changes are not committed
+ * instantly to the DB, instead all the changes are transitory and are committed to the
+ * DB only when the user saves the changes with the appropriate save button
+ * (this lets the user to eventually discard changes).
+ */
 @AndroidEntryPoint
 class SwHotkeysFragment : Fragment() {
 
+    /* In order to share a view model between SwHotkeysFragment and AddEditSwHotkeyFragment
+     * it is necessary to use hiltNavGraphViewModels (navGraphViewModels with Hilt injection support)
+     * for a nested nav graph, in this way the lifetime of the view model is bound to the lifetime
+     * of the nav graph on the navigation stack.
+     * NOTE: by androidViewModels is not ideal because the lifetime of the view model would be
+     * bound to the lifetime of the activity, therefore when reentering this fragment we would
+     * still have the old data in the view model. */
     private val viewModel: SwHotkeysViewModel by hiltNavGraphViewModels(R.id.nav_sw_hotkeys)
-
     private lateinit var binding: HotkeysBinding
 
     private lateinit var clearButton: MenuItem
     private lateinit var saveButton: MenuItem
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("SwHotkeysFragment.onCreate()")
         super.onCreate(savedInstanceState)
-        debug("SwHotkeysFragment.onCreate")
         setHasOptionsMenu(true)
-    }
-
-
-    override fun onResume() {
-        debug("SwHotkeysFragment.onResume")
-        super.onResume()
-    }
-
-    override fun onPause() {
-        debug("SwHotkeysFragment.onPause")
-        super.onPause()
-    }
-
-    override fun onStop() {
-        debug("SwHotkeysFragment.onStop")
-        super.onStop()
-    }
-
-    override fun onStart() {
-        debug("SwHotkeysFragment.onStart")
-        super.onStart()
-    }
-
-    override fun onDestroy() {
-        debug("SwHotkeysFragment.onDestroy")
-        super.onDestroy()
-    }
-
-    override fun onDestroyView() {
-        debug("SwHotkeysFragment.onDestroyView")
-        super.onDestroyView()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        debug("SwHotkeysFragment.onCreateView")
+        verbose("SwHotkeysFragment.onCreateView()")
 
         binding = HotkeysBinding.inflate(inflater, container, false)
 
-        // Observe hw hotkeys list changes
-        // TODO: prevent reloading/rotation change
-        debug("Observing swHotkeys updates")
-
-        binding.hotkeys.setOnDragListener { v, e ->
-            handleHotkeyDragged(v, e)
+        // Drag listener: move the hotkey around the screen
+        binding.hotkeys.setOnDragListener { _, e ->
+            handleHotkeyDrag(e)
             true
         }
 
+        // Observe orientation change
         viewModel.orientation.observe(viewLifecycleOwner) { orientation ->
-            debug("UI notified about orientation change")
+            debug("UI notified about orientation change, new orientation is $orientation")
             binding.orientation.setText(if (orientation == Orientation.Landscape) R.string.landscape else R.string.portrait)
         }
-
 
         return binding.root
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        debug("onCreateOptionsMenu")
+        verbose("SwHotkeysFragment.onCreateOptionsMenu()")
 
         inflater.inflate(R.menu.hotkeys, menu)
+
+        // Keep a reference to the clear and the save buttons in order
+        // to enable/disable them programmatically as needed
         clearButton = menu.findItem(R.id.clear_menu_item)
         saveButton = menu.findItem(R.id.save_menu_item)
 
+        // Do not share the icons with other fragments
+        // (otherwise other fragments sharing these icons ends up with
+        // an icon with the same enabled/disabled state of the icons in
+        // this fragment, which doesn't make sense).
         clearButton.icon.mutate()
         saveButton.icon.mutate()
 
-        val H = viewModel.hotkeys()
-        if (H.value == null) {
-            warn("NULL HOTKEYS")
-        } else {
-            debug("Current hotkeys is")
-            for (h in H.value!!)
-                debug("$h")
-        }
-
+        // Observe pending changes
         viewModel.hasPendingChanges().observe(viewLifecycleOwner) { yes ->
             debug("Pending changes = $yes")
+
+            // Enable the save button if there are pending changes to the hotkeys
             setMenuItemEnabled(saveButton, yes)
         }
 
+        // Observe hotkeys changes
         viewModel.hotkeys().observe(viewLifecycleOwner) { hotkeys ->
-            debug("Received hotkeys update: size is ${hotkeys.size}")
+            debug("Software hotkeys update received in UI (size = ${hotkeys.size})")
+            // Enable the clear button if there are actually hotkeys
             setMenuItemEnabled(clearButton, hotkeys.isNotEmpty())
-            if (hotkeys != null) {
+
+            if (hotkeys != null)
                 handleHotkeysUpdate(hotkeys)
-            }
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.import_menu_item -> {
-                handleImportButton()
+                handleImportAction()
                 return true
             }
             R.id.add_menu_item -> {
-                handleAddHotkeyButton()
+                handleAddAction()
                 return true
             }
             R.id.save_menu_item -> {
-                handleSaveHotkeysButton()
+                handleSaveAction()
                 return true
             }
             R.id.clear_menu_item -> {
-                handleClearButton()
+                handleClearAction()
                 return true
             }
         }
@@ -148,8 +140,9 @@ class SwHotkeysFragment : Fragment() {
 
 
     private fun handleHotkeysUpdate(hotkeys: List<SwHotkey>) {
-        debug("Hotkey list updated, updating UI")
-        // TODO: update only changed views
+        verbose("SwHotkeysFragment.handleHotkeysUpdate(size = ${hotkeys.size})")
+
+        // TODO: update only the changed views, instead of invalidate everything
 
         binding.hotkeys.removeAllViews()
 
@@ -159,36 +152,31 @@ class SwHotkeysFragment : Fragment() {
         }
     }
 
+    private fun handleHotkeyDrag(ev: DragEvent) {
+        verbose("SwHotkeysFragment.handleHotkeyDragged()")
 
-    private fun handleHotkeyDragged(v: View, ev: DragEvent) {
         when (ev.action) {
-            DragEvent.ACTION_DRAG_STARTED -> {
-                debug("Drag event detected: ACTION_DRAG_STARTED")
-            }
-            DragEvent.ACTION_DRAG_ENTERED -> {
-                debug("Drag event detected: ACTION_DRAG_ENTERED")
-            }
-            DragEvent.ACTION_DRAG_EXITED -> {
-                debug("Drag event detected: ACTION_DRAG_EXITED")
-            }
-            DragEvent.ACTION_DRAG_LOCATION -> {
-                debug("Drag event detected: ACTION_DRAG_LOCATION")
-            }
-            DragEvent.ACTION_DRAG_ENDED -> {
-                debug("Drag event detected: ACTION_DRAG_ENDED")
-            }
+            DragEvent.ACTION_DRAG_STARTED -> debug("ACTION_DRAG_STARTED")
+            DragEvent.ACTION_DRAG_ENTERED -> debug("ACTION_DRAG_ENTERED")
+            DragEvent.ACTION_DRAG_EXITED -> debug("ACTION_DRAG_EXITED")
+            DragEvent.ACTION_DRAG_LOCATION -> debug("ACTION_DRAG_LOCATION")
+            DragEvent.ACTION_DRAG_ENDED -> debug("ACTION_DRAG_ENDED")
             DragEvent.ACTION_DROP -> {
-                debug("Drag event detected: ACTION_DROP")
+                debug("ACTION_DROP")
+
+                /* An hotkeys has been dropped in the container, figure out
+                 * which hotkey has been dropped and update the view model accordingly.
+                 * Note that instead of updating the UI directly, we update the
+                 * view model which dispatches the change back to us through LiveData,
+                 * in this way the changes will survive orientation changes. */
                 if (ev.clipData.itemCount < 1) {
                     warn("Invalid event data")
                     return
                 }
 
-                // TODO: update viewModel
-
                 val hotkeyIdStr: String = ev.clipData.getItemAt(0).text.toString()
 
-                debug("Dropped hotkey: $hotkeyIdStr")
+                debug("Dropped hotkey id: $hotkeyIdStr")
 
                 val hotkeyView: SwHotkeyView? = binding.hotkeys.findViewWithTag(hotkeyIdStr)
 
@@ -197,6 +185,8 @@ class SwHotkeysFragment : Fragment() {
                     return
                 }
 
+                // Update the position of the hotkey in the view model
+
                 val halfWidth = hotkeyView.width / 2
                 val halfHeight = hotkeyView.height / 2
 
@@ -204,25 +194,79 @@ class SwHotkeysFragment : Fragment() {
                 val y = (ev.y - halfHeight).toInt()
 
                 viewModel.updatePosition(hotkeyIdStr.toLong(), x, y)
-
-//                hotkeyView.updateLayoutParams<ViewGroup.MarginLayoutParams> {
-//                    val x = (ev.x - halfWidth).toInt()
-//                    val y = (ev.y - halfHeight).toInt()
-//                    debug("Updating X = $x, Y = $y")
-//                    this.leftMargin = x
-//                    this.topMargin = y
-//                }
-            }
-            else -> {
-                warn("Unknown rag event detected")
             }
         }
     }
 
+    private fun handleSaveAction() {
+        verbose("SwHotkeysFragment.handleSaveAction()")
+
+        // Commit the in-memory changes to DB (for current orientation)
+        viewModel.commit()
+
+        Snackbar.make(
+            requireParentFragment().requireView(),
+            getString(R.string.sw_hotkeys_saved, viewModel.orientationSnapshot.name),
+            Snackbar.LENGTH_LONG
+        ).show()
+
+        // Do not navigate up!,
+        // otherwise the hotkeys for the other orientation are lost
+    }
+
+    private fun handleImportAction() {
+        verbose("SwHotkeysFragment.handleImportAction()")
+
+        val currentOrientation = viewModel.orientationSnapshot
+        val otherOrientation = !currentOrientation
+
+        debug("Proposing to import hotkeys from $currentOrientation to $otherOrientation")
+
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.sw_hotkeys_import_confirmation_title)
+            .setMessage(getString(R.string.sw_hotkeys_import_confirmation_message, currentOrientation, otherOrientation))
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // Actually import the hotkeys from the other orientation
+                viewModel.import(binding.hotkeys.width, binding.hotkeys.height)
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+    private fun handleAddAction() {
+        verbose("SwHotkeysFragment.handleAddAction()")
+
+        findNavController().navigate(
+            SwHotkeysFragmentDirections.actionAddEditSwHotkey(
+                AddEditSwHotkeyViewModel.HOTKEY_ID_NONE,
+                getString(R.string.toolbar_title_add_sw_hotkey)
+            )
+        )
+    }
+
+    private fun handleClearAction() {
+        verbose("SwHotkeysFragment.handleClearAction()")
+
+        AlertDialog.Builder(requireActivity())
+            .setTitle(R.string.sw_hotkeys_clear_confirmation_title)
+            .setMessage(getString(R.string.sw_hotkeys_clear_confirmation_message, viewModel.orientationSnapshot))
+            .setPositiveButton(R.string.ok) { _, _ ->
+                // Actually delete all the hotkeys for the current orientation
+                viewModel.clear()
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
+    }
+
+
     private fun makeHotkeyView(hotkey: SwHotkey): View {
+        // Build a SwHotkeyView for the given hotkey
+
         val hotkeyIdStr = hotkey.id.toString()
 
         val hotkeyView = SwHotkeyView(requireContext(), hotkey = SwHotkeyView.Hotkey.fromSwHotkey(hotkey))
+
+        // Set the tag equals to the hotkey is, so that this can be retrieved with findViewWithTag
         hotkeyView.tag = hotkeyIdStr
 
         val lp = FrameLayout.LayoutParams(
@@ -233,111 +277,33 @@ class SwHotkeysFragment : Fragment() {
         lp.topMargin = hotkey.y
         hotkeyView.layoutParams = lp
 
+        // Click listener: open AddEditSwHotkey
         hotkeyView.setOnClickListener {
-            debug("Clicked on hotkey with id ${hotkey.id}")
+            debug("Single click on hotkey $hotkey")
             findNavController().navigate(
                 SwHotkeysFragmentDirections.actionAddEditSwHotkey(
                     hotkey.id,
-                    getString(R.string.toolbar_title_edit_hotkey)
+                    getString(R.string.toolbar_title_edit_sw_hotkey)
                 )
             )
         }
 
+        // Long click listener: start drag and drop
         hotkeyView.setOnLongClickListener {
             debug("Long click on hotkey $hotkey")
-
             it.startDragAndDrop(
                 ClipData.newPlainText(hotkeyIdStr, hotkeyIdStr),
                 View.DragShadowBuilder(hotkeyView),
                 hotkey, 0
             )
-
             true
         }
 
         return hotkeyView
     }
 
-    private fun handleSaveHotkeysButton() {
-        debug("Clicked on save, saving ${binding.hotkeys.childCount} hotkeys")
-
-//        for (hotkeyView in binding.hotkeys.children) {
-//            if (hotkeyView !is SwHotkeyView) {
-//                warn("Child view is not an hotkey view!?")
-//                continue
-//            }
-//
-//            val lp = hotkeyView.layoutParams as FrameLayout.LayoutParams
-//            val id = (hotkeyView.tag as String).toLong()
-//            val x = lp.leftMargin
-//            val y = lp.topMargin
-//
-//            debug("Updating hotkey $id to position ($x,$y)")
-//            viewModel.updatePosition(id, x, y)
-//        }
-
-        viewModel.commit()
-
-        Snackbar.make(
-            requireParentFragment().requireView(),
-            getString(R.string.sw_hotkeys_saved, viewModel.orientationSnapshot.name),
-            Snackbar.LENGTH_LONG
-        ).show()
-
-        // do not navigate up!
-    // otherwise the hotkeys for the other orientation are lost
-//        findNavController().navigateUp()
-    }
-
-    private fun handleImportButton() {
-        val currentOrientation = viewModel.orientationSnapshot
-        val otherOrientation = if (currentOrientation == Orientation.Portrait) Orientation.Landscape else Orientation.Portrait
-
-        debug("Proposing to import hotkeys from $currentOrientation to $otherOrientation")
-
-        AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.sw_hotkeys_import_confirmation_title)
-            .setMessage(getString(R.string.sw_hotkeys_import_confirmation_message, currentOrientation, otherOrientation))
-            .setPositiveButton(R.string.ok) { _, _ ->
-                // actually import
-                val w = binding.hotkeys.width
-                val h = binding.hotkeys.height
-                viewModel.import(w, h)
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
-    private fun handleAddHotkeyButton() {
-        findNavController().navigate(
-            SwHotkeysFragmentDirections.actionAddEditSwHotkey(
-                SwHotkeysViewModel.HOTKEY_ID_NONE,
-                getString(R.string.toolbar_title_add_hotkey)
-            )
-        )
-    }
-
-    private fun handleClearButton() {
-        AlertDialog.Builder(requireActivity())
-            .setTitle(R.string.sw_hotkeys_clear_confirmation_title)
-            .setMessage(getString(R.string.sw_hotkeys_clear_confirmation_message, viewModel.orientationSnapshot))
-            .setPositiveButton(R.string.ok) { _, _ ->
-                // actually delete
-                viewModel.clear()
-            }
-            .setNegativeButton(R.string.cancel, null)
-            .show()
-    }
-
     private fun setMenuItemEnabled(menuItem: MenuItem, enabled: Boolean) {
-        if (enabled) {
-            menuItem.isEnabled = true
-            menuItem.icon.alpha = 255
-        } else {
-            menuItem.isEnabled = false
-            menuItem.icon.alpha = 127
-        }
+        menuItem.isEnabled = enabled
+        menuItem.icon.alpha = if (enabled) 255 else 127
     }
-
-
 }

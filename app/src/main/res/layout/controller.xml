@@ -2,6 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:widget="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -17,48 +18,54 @@
 
 
         <View
-                android:id="@+id/divider5"
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
                 android:background="@color/light_blue" />
 
         <LinearLayout
-                android:id="@+id/widgets_bar"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/controller_widgets_bar_height"
                 android:background="@color/controller_widgets_bar"
                 android:orientation="horizontal">
 
-            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
+            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
                     android:id="@+id/keyboard_widget"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/controller_widget_size"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/keyboard" />
+                    app:srcCompat="@drawable/keyboard"
+                    tools:ignore="ImageContrastCheck"
+                    widget:highlight_color="@color/controller_widget_highlighted"
+                    widget:unhighlight_color="@color/controller_widget_unhighlighted" />
 
-            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
-                android:id="@+id/touchpad_buttons_widget"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/controller_widget_size"
-                android:layout_gravity="center"
-                android:layout_weight="1"
-                app:srcCompat="@drawable/touchpad_buttons" />
+            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
+                    android:id="@+id/touchpad_buttons_widget"
+                    android:layout_width="wrap_content"
+                    android:layout_height="@dimen/controller_widget_size"
+                    android:layout_gravity="center"
+                    android:layout_weight="1"
+                    app:srcCompat="@drawable/touchpad_buttons"
+                    tools:ignore="ImageContrastCheck"
+                    widget:highlight_color="@color/controller_widget_highlighted"
+                    widget:unhighlight_color="@color/controller_widget_unhighlighted" />
 
-            <org.docheinstein.minimotek.ui.controller.widget.ControllerWidgetView
+            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
                     android:id="@+id/hotkeys_widget"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/controller_widget_size"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    app:srcCompat="@drawable/hotkeys" />
+                    app:srcCompat="@drawable/swhotkeys"
+                    tools:ignore="ImageContrastCheck"
+                    widget:highlight_color="@color/controller_widget_highlighted"
+                    widget:unhighlight_color="@color/controller_widget_unhighlighted" />
 
         </LinearLayout>
 
     </LinearLayout>
 
     <FrameLayout
-            android:id="@+id/main_content"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:background="@color/controller"
@@ -67,7 +74,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <org.docheinstein.minimotek.ui.controller.touchpad.TouchpadAreaView
+        <org.docheinstein.minimotek.ui.controller.TouchpadAreaView
                 android:id="@+id/touchpad_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -95,15 +102,13 @@
             app:layout_constraintStart_toStartOf="parent">
 
         <View
-                android:id="@+id/separator1"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#C5C5C5" />
+                android:background="@color/lightest_gray" />
 
         <LinearLayout
-                android:id="@+id/touchpad_buttons_inner_container"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/touchpad_buttons_height"
+                android:layout_height="@dimen/controller_touchpad_buttons_height"
                 android:orientation="horizontal">
 
 
@@ -112,26 +117,28 @@
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/touchpad_button_selector"/>
+                    android:background="@drawable/touchpad_button_selector"
+                    android:contentDescription="@string/touchpad_left_button_desc" />
 
             <View
-                    android:id="@+id/separator2"
                     android:layout_width="1dp"
                     android:layout_height="match_parent"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="4dp"
-                    android:background="#C5C5C5" />
+                    android:background="@color/lightest_gray" />
 
             <ImageButton
                     android:id="@+id/touchpad_right_button"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
-                    android:background="@drawable/touchpad_button_selector"/>
+                    android:background="@drawable/touchpad_button_selector"
+                    android:contentDescription="@string/touchpad_right_button_desc" />
+
         </LinearLayout>
     </LinearLayout>
 
-    <org.docheinstein.minimotek.ui.controller.keyboard.KeyboardEditText
+    <org.docheinstein.minimotek.ui.controller.KeyboardEditText
             android:id="@+id/keyboard_text"
             style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"
@@ -142,6 +149,7 @@
             android:inputType="text"
             android:textSize="22sp"
             android:visibility="gone"
+            android:textColor="@color/dark_white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -179,18 +187,17 @@
                 app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                    android:id="@+id/textView3"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:text="@string/connecting"
                     android:textColor="@color/mid_gray"
-                    android:textSize="30sp" />
+                    android:textSize="@dimen/controller_connecting_text" />
 
             <ProgressBar
                     style="?android:attr/progressBarStyle"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
+                    android:layout_width="@dimen/controller_connecting_progress"
+                    android:layout_height="@dimen/controller_connecting_progress"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="10dp"
                     android:indeterminate="true"

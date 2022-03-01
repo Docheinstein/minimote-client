@@ -16,6 +16,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+
         <org.docheinstein.minimotek.ui.swhotkeys.SwHotkeyView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -23,7 +24,10 @@
                 android:layout_marginTop="50dp"
                 android:visibility="gone"
                 tools:text="CTRL+A"
-                tools:visibility="visible" />
+                tools:visibility="visible"
+                tools:ignore="TextContrastCheck"
+                tools:paddingHorizontal="12dp"
+                tools:textSize="40sp" />
 
     </FrameLayout>
 
@@ -37,5 +41,6 @@
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="TextContrastCheck"
             tools:text="@string/portrait" />
 </androidx.constraintlayout.widget.ConstraintLayout>

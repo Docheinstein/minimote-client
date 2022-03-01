@@ -13,9 +13,13 @@
         <attr name="radius" format="dimension" />
     </declare-styleable>
 
-
     <declare-styleable name="Icon">
         <attr name="default_src" format="reference" />
         <attr name="default_color" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="ControllerWidget">
+        <attr name="highlight_color" format="color" />
+        <attr name="unhighlight_color" format="color" />
     </declare-styleable>
 </resources>

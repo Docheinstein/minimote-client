@@ -6,6 +6,11 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Minimote server.
+ * Identified by the pair (address, port).
+ */
+
 const val TABLE_NAME = "server"
 
 const val COLUMN_ID = "id"
@@ -38,9 +43,9 @@ data class Server(
     @ColumnInfo(name = COLUMN_ICON)
     var icon: Uri?,
 ) {
-    fun displayName(): String {
-        return name ?: address
-    }
+
+    val displayName: String
+        get() = name ?: address
 
     override fun toString(): String {
         return "(id=$id, address=$address, port=$port, name=$name, icon=$icon)"

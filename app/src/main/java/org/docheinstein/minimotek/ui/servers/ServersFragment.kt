@@ -15,10 +15,19 @@ import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.databinding.ServerListItemBinding
 import org.docheinstein.minimotek.databinding.ServerListBinding
-import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
+import org.docheinstein.minimotek.ui.base.SelectableListAdapter
 import org.docheinstein.minimotek.ui.discover.DiscoverDialogFragment
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 
+/**
+ * Fragment representing the server list.
+ * The actions that can be performed on this screen are:
+ * - Add a server (opens AddEdit screen)
+ * - Edit a server (opens AddEdit screen)
+ * - Delete a server
+ * - Start the discover procedure
+ */
 @AndroidEntryPoint
 class ServersFragment : Fragment() {
 
@@ -33,20 +42,19 @@ class ServersFragment : Fragment() {
         }
 
         override fun areContentsTheSame(oldItem: Server, newItem: Server): Boolean {
+             // UI based equality
             return oldItem.address == newItem.address &&
                     oldItem.name == newItem.name &&
-                    oldItem.icon == newItem.icon // UI based equality
+                    oldItem.icon == newItem.icon
         }
     }
 
     class ServerListAdapter : SelectableListAdapter<Server, ServerListAdapter.ViewHolder>(ServerDiffCallback()) {
-        class ViewHolder(
-            val binding: ServerListItemBinding) :
-            RecyclerView.ViewHolder(binding.root),
-            View.OnCreateContextMenuListener {
-                init {
-                    binding.root.setOnCreateContextMenuListener(this)
-                }
+        class ViewHolder(val binding: ServerListItemBinding) :
+                RecyclerView.ViewHolder(binding.root), View.OnCreateContextMenuListener {
+            init {
+                binding.root.setOnCreateContextMenuListener(this)
+            }
 
             override fun onCreateContextMenu(
                 menu: ContextMenu?,
@@ -56,7 +64,7 @@ class ServersFragment : Fragment() {
                 if (view != null && menu != null) {
                     val menuInflater = MenuInflater(view.context)
                     menuInflater.inflate(R.menu.edit_delete, menu)
-                    menu.setHeaderTitle(view.context.getString(R.string.server_list_item_context_menu_title))
+                    menu.setHeaderTitle(view.context.getString(R.string.choose_an_action))
                 }
             }
         }
@@ -71,55 +79,49 @@ class ServersFragment : Fragment() {
 
         override fun doBindViewHolder(holder: ViewHolder, position: Int) {
             val server = getItem(position)
-            debug("Binding view for $server")
+
+            // Texts
             holder.binding.address.text = server.address
-            holder.binding.name.text = server.displayName()
+            holder.binding.name.text = server.displayName
 
-            // TODO helper
-            if (server.icon != null) {
-                holder.binding.icon.setImageURI(server.icon)
-                holder.binding.icon.imageTintList = null
-            } else {
-                holder.binding.icon.setImageResource(R.drawable.host)
-                holder.binding.icon.imageTintList = holder.itemView.context.getColorStateList(R.color.mid_gray)
-            }
+            // Icon
+            holder.binding.icon.icon = server.icon
 
+            // Click listener: open ControllerFragment
             holder.binding.root.setOnClickListener {
                 debug("Click on server $server")
                 holder.itemView.findNavController().navigate(
                     ServersFragmentDirections.actionController(
                         server.address,
                         server.port,
-                        server.displayName()
+                        server.displayName
                 ))
             }
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("ServersFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        debug("ServersFragment.onCreateView()")
+        verbose("ServersFragment.onCreateView()")
 
         binding = ServerListBinding.inflate(inflater, container, false)
 
-        // Discovery button
-        binding.discoverServersButton.setOnClickListener {
-            debug("uiDiscoverServersButton.onClick()")
-            handleDiscoverServersButtonClick()
-        }
-
-        // Server list
+        // Server list adapter
         adapter = ServerListAdapter()
         binding.serverList.adapter = adapter
 
-        // Observe server list changes
+        // Discover button
+        binding.discoverServersButton.setOnClickListener { handleDiscoverAction() }
+
+        // Observe servers changes
         viewModel.servers.observe(viewLifecycleOwner) { servers ->
-            debug("Server list update detected (new size = ${servers.size}, changing UI accordingly)")
+            debug("Servers update received in UI (size = ${servers.size})")
             adapter.submitList(servers)
         }
 
@@ -133,7 +135,7 @@ class ServersFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.add_menu_item -> {
-                handleAddServerButton()
+                handleAddAction()
                 return true
             }
         }
@@ -141,42 +143,31 @@ class ServersFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.edit_menu_item -> {
-                val server = adapter.selected()
-                debug("Going to edit server at position ${adapter.selection}: ${server?.id}")
-                if (server != null)
-                    findNavController().navigate(
-                        ServersFragmentDirections.actionAddEditServer(
-                            server.id,
-                            getString(R.string.toolbar_title_edit_server))
-                    )
+                handleEditAction()
+                return true
             }
             R.id.delete_menu_item -> {
-                val server = adapter.selected()
-                debug("Going to delete server at position ${adapter.selection}: ${server?.id}")
-                if (server != null) {
-                    AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.delete_server_confirmation_title)
-                        .setMessage(R.string.delete_server_confirmation_message)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            // actually delete
-                            viewModel.delete(server)
-                            Snackbar.make(
-                                requireParentFragment().requireView(),
-                                getString(R.string.server_removed, server.displayName()),
-                                Snackbar.LENGTH_LONG
-                            ).show()
-                        }
-                        .setNegativeButton(R.string.cancel, null)
-                        .show()
-                }
+                handleDeleteAction()
+                return true
             }
         }
+
         return super.onContextItemSelected(item)
     }
 
-    private fun handleAddServerButton() {
+    private fun handleDiscoverAction() {
+        verbose("ServersFragment.handleDiscoverServersAction()")
+
+        // Open the discover dialog
+        val discoveryFragment = DiscoverDialogFragment()
+        discoveryFragment.show(childFragmentManager)
+    }
+
+    private fun handleAddAction() {
+        verbose("ServersFragment.handleAddAction()")
+
         findNavController().navigate(
             ServersFragmentDirections.actionAddEditServer(
                 AddEditServerViewModel.SERVER_ID_NONE,
@@ -185,8 +176,41 @@ class ServersFragment : Fragment() {
         )
     }
 
-    private fun handleDiscoverServersButtonClick() {
-        val discoveryFragment = DiscoverDialogFragment()
-        discoveryFragment.show(childFragmentManager)
+    private fun handleEditAction() {
+        verbose("ServersFragment.handleEditAction()")
+
+        val server = adapter.selectedItem
+        debug("Going to edit server at position ${adapter.selectedPosition}: ${server?.id}")
+        if (server != null) {
+            findNavController().navigate(
+                ServersFragmentDirections.actionAddEditServer(
+                    server.id,
+                    getString(R.string.toolbar_title_edit_server)
+                )
+            )
+        }
+    }
+
+    private fun handleDeleteAction() {
+        verbose("ServersFragment.handleDeleteAction()")
+
+        val server = adapter.selectedItem
+        debug("Going to delete server at position ${adapter.selectedPosition}: ${server?.id}")
+        if (server != null) {
+            AlertDialog.Builder(requireActivity())
+                .setTitle(R.string.delete_server_confirmation_dialog_title)
+                .setMessage(getString(R.string.delete_server_confirmation_dialog_message, server.displayName))
+                .setPositiveButton(R.string.ok) { _, _ ->
+                    // actually delete
+                    viewModel.delete(server.id)
+                    Snackbar.make(
+                        requireParentFragment().requireView(),
+                        getString(R.string.removed, server.displayName),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.docheinstein.minimotek.buttons
 import android.view.KeyEvent
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 
+/** Physical button */
 enum class ButtonType(val keyCode: Int, val keyString: String) {
     VolumeUp(KeyEvent.KEYCODE_VOLUME_UP, "VolumeUp"),
     VolumeDown(KeyEvent.KEYCODE_VOLUME_DOWN, "VolumeDown");

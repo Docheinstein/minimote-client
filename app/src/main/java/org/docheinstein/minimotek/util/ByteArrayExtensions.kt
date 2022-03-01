@@ -1,25 +1,23 @@
-package org.docheinstein.minimotek.extensions
+package org.docheinstein.minimotek.util
 
-import kotlin.experimental.and
-
+/**
+ * Returns the binary representation of the ByteArray.
+ * If [pretty] is true the string is separated by bars (e.g.  01010101 | 01010101 | 01010101).
+ */
 fun ByteArray.toBinaryString(pretty: Boolean = false): String {
     val sb = StringBuilder()
-    for (b in this) {
+    for ((i, b) in this.withIndex()) {
         val block = java.lang.StringBuilder(Integer.toBinaryString(b.toInt() and 0xFF))
         while (block.length < 8)
             block.insert(0, "0")
         sb.append(block)
-        if (pretty)
+        if (pretty && i < size - 1)
             sb.append( " | ")
     }
     return sb.toString()
 }
 
-//fun ByteArray.toBinaryString(pretty: Boolean = false) = toBlockString(pretty, 2, 8)
-//fun ByteArray.toHexString(pretty: Boolean = false) = toBlockString(pretty, 16, 2)
-
-
-// get 8 bytes as long
+/** Converts 8 bytes starting from [offset] to a Long. */
 fun ByteArray.get64(offset: Int = 0): Long {
     return ((this[offset].toLong() and 0xFF) shl  56) or
         ((this[offset + 1].toLong() and 0xFF) shl  48) or
@@ -31,7 +29,7 @@ fun ByteArray.get64(offset: Int = 0): Long {
         ((this[offset + 7].toLong() and 0xFF))
 }
 
-// set 8 bytes from a long
+/** Set 8 bytes at [offset] from a Long. */
 fun ByteArray.set64(value: Long, offset: Int = 0) {
     this[offset] =     ((value ushr 56) and 0xFFL).toByte()
     this[offset + 1] = ((value ushr 48) and 0xFFL).toByte()
@@ -43,7 +41,7 @@ fun ByteArray.set64(value: Long, offset: Int = 0) {
     this[offset + 7] = ((value) and 0xFFL).toByte()
 }
 
-// set 4 bytes from an int
+/** Set 4 bytes at[offset] from an Int. */
 fun ByteArray.set32(value: Int, offset: Int = 0) {
     this[offset] =     ((value ushr 24) and 0xFF).toByte()
     this[offset + 1] = ((value ushr 16) and 0xFF).toByte()
@@ -51,13 +49,13 @@ fun ByteArray.set32(value: Int, offset: Int = 0) {
     this[offset + 3] = ((value)).toByte()
 }
 
-// set 2 bytes from an int
+/** Set 2 (least significant) bytes at [offset] from an Int. */
 fun ByteArray.set16(value: Int, offset: Int = 0) {
     this[offset] =     ((value ushr 8) and 0xFF).toByte()
     this[offset + 1] = ((value) and 0xFF).toByte()
 }
 
-// set 1 bytes from an int
+/** Set 1 (least significant) byte at [offset] from an Int. */
 fun ByteArray.set8(value: Int, offset: Int = 0) {
     this[offset] = (value and 0xFF).toByte()
 }

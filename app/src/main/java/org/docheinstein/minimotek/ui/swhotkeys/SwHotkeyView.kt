@@ -7,15 +7,23 @@ import androidx.core.content.res.ResourcesCompat
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.database.hotkey.sw.*
 import org.docheinstein.minimotek.keys.MinimoteKeyType
+import org.docheinstein.minimotek.util.verbose
 
+/**
+ * View similar to a button representing a software hotkey.
+ * Exposes the attribute [hotkey] which can be changed to update
+ * the aspect of this view automatically.
+ */
 
 class SwHotkeyView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0,
-    var hotkey: Hotkey? = null
+    hotkey: Hotkey? = null
 ) : AppCompatTextView(context, attrs, defStyle) {
 
+    // UI hotkey class
+    // contains only the UI relevant information of SwHotkey
     data class Hotkey(
         var key: MinimoteKeyType,
         var shift: Boolean,
@@ -44,45 +52,49 @@ class SwHotkeyView @JvmOverloads constructor(
                 )
             }
         }
-        fun displayName(): String {
-            if (label != null)
-                return label!!
 
-            val tokens = mutableListOf<String>()
-            if (ctrl)
-                tokens.add("CTRL")
-            if (alt)
-                tokens.add("ALT")
-            if (altgr)
-                tokens.add("ALT GR")
-            if (meta)
-                tokens.add("META")
-            if (shift)
-                tokens.add("SHIFT")
-            tokens.add(key.keyString)
+        val displayName: String
+            get() {
+                if (label != null)
+                    return label!!
 
-            return tokens.joinToString(separator = "+")
-        }
+                val tokens = mutableListOf<String>()
+                if (ctrl)
+                    tokens.add("CTRL")
+                if (alt)
+                    tokens.add("ALT")
+                if (altgr)
+                    tokens.add("ALT GR")
+                if (meta)
+                    tokens.add("META")
+                if (shift)
+                    tokens.add("SHIFT")
+                tokens.add(key.keyString)
+
+                return tokens.joinToString(separator = "+")
+            }
     }
+
+    var hotkey: Hotkey? = null
+        set(value) {
+            verbose("SwHotkeyView.hotkey.set($value)")
+            field = value
+            updateUI()
+        }
 
     init {
+        verbose("SwHotkeyView.init()")
         background = ResourcesCompat.getDrawable(context.resources,
             R.drawable.hotkey_button_selector, null)
-        updateUI()
-    }
-
-    fun set(hotkey: SwHotkey) = set(Hotkey.fromSwHotkey(hotkey))
-
-    fun set(hotkey: Hotkey) {
+        setTextColor(context.resources.getColor(R.color.dark_gray, null))
         this.hotkey = hotkey
-        updateUI()
     }
 
     private fun updateUI() {
         hotkey?.let {
             textSize = it.textSize.toFloat()
             setPadding(it.horizontalPadding, it.verticalPadding, it.horizontalPadding, it.verticalPadding)
-            text = it.displayName()
+            text = it.displayName
         }
     }
 }

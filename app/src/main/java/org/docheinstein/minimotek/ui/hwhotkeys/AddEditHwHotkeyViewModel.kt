@@ -12,7 +12,8 @@ import org.docheinstein.minimotek.database.hotkey.hw.HwHotkey
 import org.docheinstein.minimotek.database.hotkey.hw.HwHotkeyRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
 import org.docheinstein.minimotek.keys.MinimoteKeyType
-import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.error
+import org.docheinstein.minimotek.util.verbose
 import javax.inject.Inject
 
 
@@ -24,7 +25,7 @@ class AddEditHwHotkeyViewModel @Inject constructor(
 ) : ViewModel() {
 
     companion object {
-        private const val HW_HOTKEY_ID_STATE_KEY = "hwHotkeyId"
+        const val HW_HOTKEY_ID_STATE_KEY = "hwHotkeyId"
         const val HW_HOTKEY_ID_NONE = Long.MIN_VALUE
     }
 
@@ -35,10 +36,16 @@ class AddEditHwHotkeyViewModel @Inject constructor(
 
     private val hwHotkeyId: Long = savedStateHandle[HW_HOTKEY_ID_STATE_KEY] ?: HW_HOTKEY_ID_NONE
     val mode = if (hwHotkeyId == HW_HOTKEY_ID_NONE) Mode.ADD else Mode.EDIT
-    val hwHotkey = if (mode == Mode.EDIT) hwHotkeyRepository.load(hwHotkeyId).asLiveData() else null
+
+    var fetched = false
+    val hwHotkey = if (mode == Mode.EDIT) hwHotkeyRepository.observe(hwHotkeyId).asLiveData() else null
 
     init {
-        debug("AddEditHwHotkeyViewModel.init() for hwHotkeyId = $hwHotkeyId")
+        verbose("AddEditHwHotkeyViewModel.init() for hwHotkeyId = $hwHotkeyId")
+    }
+
+    override fun onCleared() {
+        verbose("AddEditHwHotkeyViewModel.onCleared()")
     }
 
     fun save(
@@ -51,7 +58,7 @@ class AddEditHwHotkeyViewModel @Inject constructor(
         key: MinimoteKeyType
     ): HwHotkey {
         val hwHotkey = HwHotkey(
-            id = if (mode == Mode.EDIT) hwHotkey?.value!!.id else AUTO_ID,
+            id = if (mode == Mode.ADD) AUTO_ID else hwHotkeyId,
             button = button,
             alt = alt,
             altgr = altgr,
@@ -60,6 +67,7 @@ class AddEditHwHotkeyViewModel @Inject constructor(
             shift = shift,
             key = key
         )
+
         ioScope.launch {
             hwHotkeyRepository.save(hwHotkey)
         }
@@ -68,8 +76,13 @@ class AddEditHwHotkeyViewModel @Inject constructor(
 
 
     fun delete() {
+        if (hwHotkeyId == HW_HOTKEY_ID_NONE) {
+            error("Cannot delete, invalid hwHotkeyId")
+            return
+        }
+
         ioScope.launch {
-            hwHotkeyRepository.delete(hwHotkey?.value!!)
+            hwHotkeyRepository.delete(hwHotkeyId)
         }
     }
 }

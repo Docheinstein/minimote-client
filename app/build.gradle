@@ -1,24 +1,34 @@
 plugins {
-    id 'com.android.application'
-    id 'androidx.navigation.safeargs'
+    // kotlin
     id 'kotlin-android'
     id 'kotlin-kapt'
+
+    // core
+    id 'com.android.application'
+
+    // navigation
+    id 'androidx.navigation.safeargs'
+
+    // hilt
     id 'dagger.hilt.android.plugin'
 }
+
+def keystoreProps = new Properties()
+keystoreProps.load(new FileInputStream(rootProject.file("keystore.properties")))
 
 android {
     signingConfigs {
         debug {
-            storeFile file('/home/stefano/.config/android/keystore.jks')
-            storePassword 'pampero'
-            keyAlias 'org.docheinstein'
-            keyPassword 'pampero'
+            storeFile file(keystoreProps["storeFile"])
+            storePassword keystoreProps["storePassword"]
+            keyAlias keystoreProps["keyAlias"]
+            keyPassword keystoreProps["keyPassword"]
         }
         release {
-            storeFile file('/home/stefano/.config/android/keystore.jks')
-            storePassword 'pampero'
-            keyAlias 'org.docheinstein'
-            keyPassword 'pampero'
+            storeFile file(keystoreProps["storeFile"])
+            storePassword keystoreProps["storePassword"]
+            keyAlias keystoreProps["keyAlias"]
+            keyPassword keystoreProps["keyPassword"]
         }
     }
     compileSdkVersion 31
@@ -30,7 +40,6 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
 
@@ -56,24 +65,33 @@ android {
 }
 
 dependencies {
-
+    // kotlin
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    // core
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.1'
+
+    // material
     implementation 'com.google.android.material:material:1.5.0'
+
+    // constraint layout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
-    implementation 'androidx.navigation:navigation-fragment:2.4.1'
-    implementation 'androidx.navigation:navigation-ui:2.4.1'
+    
+    // view model / live data
     implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
+
+    // navigation
     implementation 'androidx.navigation:navigation-fragment-ktx:2.4.1'
     implementation 'androidx.navigation:navigation-ui-ktx:2.4.1'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+
+    // ktor
     implementation "io.ktor:ktor-network:1.6.7"
 
     // preferences
     implementation "androidx.preference:preference-ktx:1.2.0"
-
 
     // room
     implementation "androidx.room:room-runtime:2.4.1"
@@ -84,7 +102,5 @@ dependencies {
     // hilt
     implementation "com.google.dagger:hilt-android:2.38.1"
     kapt "com.google.dagger:hilt-compiler:2.38.1"
-
     implementation 'androidx.hilt:hilt-navigation-fragment:1.0.0'
-
 }

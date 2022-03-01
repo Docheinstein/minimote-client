@@ -3,35 +3,39 @@ package org.docheinstein.minimotek.database.hotkey.hw
 import kotlinx.coroutines.flow.Flow
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.info
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
 class HwHotkeyRepository @Inject constructor(private val hwHotkeyDao: HwHotkeyDao) {
-    val hwHotkeys: Flow<List<HwHotkey>> = hwHotkeyDao.loadAll()
-
-    fun load(id: Long): Flow<HwHotkey> {
-        return hwHotkeyDao.load(id)
+    fun observe(id: Long): Flow<HwHotkey> {
+        debug("HwHotkeyRepository.observe()")
+        return hwHotkeyDao.observe(id)
     }
 
-    fun loadAll(): Flow<List<HwHotkey>> {
-        return hwHotkeyDao.loadAll()
+    fun observeAll(): Flow<List<HwHotkey>> {
+        debug("HwHotkeyRepository.observeAll()")
+        return hwHotkeyDao.observeAll()
     }
 
-    suspend fun get(button: ButtonType): HwHotkey? {
-        debug("Getting hw hotkey by button $button")
+    suspend fun get(id: Long): HwHotkey? {
+        debug("HwHotkeyRepository.get($id)")
+        return hwHotkeyDao.get(id)
+    }
+
+    suspend fun getByButton(button: ButtonType): HwHotkey? {
+        debug("HwHotkeyRepository.getByButton($button)")
         return hwHotkeyDao.getByButton(button)
     }
 
     suspend fun save(hwHotkey: HwHotkey) {
-        info("Saving hwHotkey $hwHotkey")
+        debug("HwHotkeyRepository.save($hwHotkey)")
         hwHotkeyDao.save(hwHotkey)
     }
 
-    suspend fun delete(hwHotkey: HwHotkey) {
-        info("Deleting hwHotkey $hwHotkey")
-        hwHotkeyDao.delete(hwHotkey)
+    suspend fun delete(id: Long) {
+        debug("HwHotkeyRepository.delete($id)")
+        hwHotkeyDao.delete(id)
     }
 }

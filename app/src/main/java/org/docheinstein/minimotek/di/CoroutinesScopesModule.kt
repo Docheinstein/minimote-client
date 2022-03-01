@@ -6,9 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import org.docheinstein.minimotek.util.debug
 import javax.inject.Qualifier
 import javax.inject.Singleton
 
@@ -28,20 +26,12 @@ object CoroutinesScopesModule {
     @Singleton
     @DefaultGlobalScope
     @Provides
-    fun providesDefaultGlobalCoroutineScope(
-        @DefaultDispatcher defaultDispatcher: CoroutineDispatcher
-    ): CoroutineScope {
-        debug("providesDefaultGlobalCoroutineScope")
-        return CoroutineScope(SupervisorJob() + defaultDispatcher)
-    }
+    fun providesDefaultGlobalCoroutineScope(@DefaultDispatcher defaultDispatcher: CoroutineDispatcher)
+        = CoroutineScope(SupervisorJob() + defaultDispatcher)
 
     @Singleton
     @IOGlobalScope
     @Provides
-    fun providesIOGLobalCoroutineScope(
-            @IODispatcher ioDispatcher: CoroutineDispatcher
-    ): CoroutineScope {
-        debug("providesIOGLobalCoroutineScope")
-        return CoroutineScope(SupervisorJob() + ioDispatcher)
-    }
+    fun providesIOGlobalCoroutineScope(@IODispatcher ioDispatcher: CoroutineDispatcher)
+         = CoroutineScope(SupervisorJob() + ioDispatcher)
 }

@@ -8,7 +8,7 @@
     <fragment
             android:id="@+id/nav_servers"
             android:name="org.docheinstein.minimotek.ui.servers.ServersFragment"
-            android:label="@string/servers"
+            android:label="@string/drawer_servers"
             tools:layout="@layout/server_list" >
         <action
             android:id="@+id/action_add_edit_server"
@@ -25,7 +25,7 @@
     <fragment
             android:id="@+id/nav_hw_hotkeys"
             android:name="org.docheinstein.minimotek.ui.hwhotkeys.HwHotkeysFragment"
-            android:label="@string/hwhotkeys"
+            android:label="@string/drawer_hwhotkeys"
             tools:layout="@layout/hw_hotkey_list" >
         <action
             android:id="@+id/action_add_edit_hw_hotkey"
@@ -77,9 +77,9 @@
     </fragment>
 
     <fragment
-    android:id="@+id/nav_settings"
-    android:name="org.docheinstein.minimotek.ui.settings.SettingsFragment"
-    android:label="@string/settings" />
+        android:id="@+id/nav_settings"
+        android:name="org.docheinstein.minimotek.ui.settings.SettingsFragment"
+        android:label="@string/drawer_settings" />
 
     <action
         android:id="@+id/action_settings"
@@ -102,12 +102,16 @@
         app:enterAnim="@anim/nav_enter_anim"
         app:exitAnim="@anim/nav_exit_anim" />
 
+    <!-- Nested graph is necessary in order to use hiltNavGraphViewModels() for obtain a
+         shared ViewModel with a lifecycle restricted to a nav graph
+         (instead of androidViewModels() which gives a ViewModel with a lifecycle bound to the activity)
+     -->
     <navigation android:id="@+id/nav_sw_hotkeys"
             app:startDestination="@id/nav_sw_hotkeys_inner">
         <fragment
                 android:id="@+id/nav_sw_hotkeys_inner"
                 android:name="org.docheinstein.minimotek.ui.swhotkeys.SwHotkeysFragment"
-                android:label="@string/hotkeys"
+                android:label="@string/drawer_swhotkeys"
                 tools:layout="@layout/hotkeys">
             <action
                     android:id="@+id/action_add_edit_sw_hotkey"
@@ -120,7 +124,7 @@
                 android:name="org.docheinstein.minimotek.ui.swhotkeys.AddEditSwHotkeyFragment"
                 android:label="{title}">
             <argument
-                    android:name="hotkeyId"
+                    android:name="swHotkeyId"
                     app:argType="long" />
             <argument
                     android:name="title"

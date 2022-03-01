@@ -4,10 +4,9 @@ import androidx.lifecycle.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.docheinstein.minimotek.database.server.Server
 import org.docheinstein.minimotek.database.server.ServerRepository
 import org.docheinstein.minimotek.di.IOGlobalScope
-import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import javax.inject.Inject
 
 @HiltViewModel
@@ -16,15 +15,19 @@ class ServersViewModel @Inject constructor(
     private val serverRepository: ServerRepository
 ) : ViewModel() {
 
-    val servers = serverRepository.servers.asLiveData()
+    val servers = serverRepository.observeAll().asLiveData()
 
     init {
-        debug("ServersViewModel.init(), current servers size is ${servers.value?.size}")
+        verbose("ServersViewModel.init()")
     }
 
-    fun delete(server: Server) {
+    override fun onCleared() {
+        verbose("ServersViewModel.onCleared()")
+    }
+
+    fun delete(id: Long) {
         ioScope.launch {
-            serverRepository.delete(server)
+            serverRepository.delete(id)
         }
     }
 }

@@ -1,54 +1,46 @@
 package org.docheinstein.minimotek.database.hotkey.sw
 
-import androidx.room.Transaction
 import kotlinx.coroutines.flow.Flow
 import org.docheinstein.minimotek.orientation.Orientation
-import org.docheinstein.minimotek.util.info
+import org.docheinstein.minimotek.util.debug
 import javax.inject.Inject
 import javax.inject.Singleton
 
 
 @Singleton
 class SwHotkeyRepository @Inject constructor(private val swHotkeyDao: SwHotkeyDao) {
-    val hotkeys: Flow<List<SwHotkey>> = swHotkeyDao.loadAll()
-    val landscapeHotkeys: Flow<List<SwHotkey>> = swHotkeyDao.loadAllForOrientation(Orientation.Landscape)
-    val portraitHotkeys: Flow<List<SwHotkey>> = swHotkeyDao.loadAllForOrientation(Orientation.Portrait)
+    fun observeAll(orientation: Orientation? = null): Flow<List<SwHotkey>> {
+        if (orientation == null) {
+            debug("SwHotkeyRepository.observeAll()")
+            return swHotkeyDao.observeAll()
+        }
 
-    fun load(id: Long): Flow<SwHotkey> {
-        return swHotkeyDao.load(id)
+        debug("SwHotkeyRepository.observeAllForOrientation($orientation)")
+        return swHotkeyDao.observeAllForOrientation(orientation)
     }
 
     suspend fun getAll(orientation: Orientation? = null): List<SwHotkey> {
-        return if (orientation == null)
-            swHotkeyDao.getAll()
-        else
-            swHotkeyDao.getAllForOrientation(orientation)
+        if (orientation == null) {
+            debug("SwHotkeyRepository.getAll()")
+            return swHotkeyDao.getAll()
+        }
+
+        debug("SwHotkeyRepository.getAllForOrientation($orientation)")
+        return swHotkeyDao.getAllForOrientation(orientation)
     }
 
-    suspend fun updatePosition(id: Long, x: Int, y: Int) {
-        info("Updating hotkey position $id")
-        swHotkeyDao.updatePosition(id, x, y)
-    }
     suspend fun save(hotkey: SwHotkey) {
-        info("Saving hotkey $hotkey")
+        debug("SwHotkeyRepository.save($hotkey)")
         swHotkeyDao.save(hotkey)
     }
 
     suspend fun delete(hotkey: SwHotkey) {
-        info("Deleting hotkey $hotkey")
+        debug("SwHotkeyRepository.delete($hotkey)")
         swHotkeyDao.delete(hotkey)
     }
 
-    suspend fun clear(orientation: Orientation? = null) {
-        info("Clearing hotkeys for orientation $orientation")
-        if (orientation == null)
-            swHotkeyDao.clear()
-        else
-            swHotkeyDao.clearForOrientation(orientation)
-    }
-
-    suspend fun replaceForOrientation(orientation: Orientation, hotkeys: List<SwHotkey>) {
-        info("Replacing hotkeys for orientation $orientation")
-        swHotkeyDao.replaceForOrientation(orientation, hotkeys)
+    suspend fun replaceAllForOrientation(orientation: Orientation, hotkeys: List<SwHotkey>) {
+        debug("SwHotkeyRepository.replaceAllForOrientation($orientation, ${hotkeys.size} hotkeys)")
+        swHotkeyDao.replaceAllForOrientation(orientation, hotkeys)
     }
 }

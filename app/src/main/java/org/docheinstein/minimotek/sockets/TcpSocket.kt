@@ -1,15 +1,19 @@
-package org.docheinstein.minimotek.net
+package org.docheinstein.minimotek.sockets
 
 import io.ktor.network.selector.*
 import io.ktor.network.sockets.*
-import io.ktor.util.network.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.docheinstein.minimotek.extensions.toBinaryString
+import org.docheinstein.minimotek.util.toBinaryString
 import org.docheinstein.minimotek.util.debug
 
+/**
+ * TCP socket.
+ * Actually this is a wrapper of ktor's TCP socket ([Socket]).
+ */
+// https://ktor.io/docs/servers-raw-sockets.html
 class TcpSocket(
     val remoteAddress: String,
     val remotePort: Int
@@ -18,6 +22,9 @@ class TcpSocket(
     private var output: ByteWriteChannel? = null
     private val builder = aSocket(ActorSelectorManager(Dispatchers.IO)).tcp()
     private val mutex = Mutex()
+
+    val isOpen: Boolean
+        get() = socket?.isClosed == false
 
     suspend fun connect(configure: SocketOptions.TCPClientSocketOptions.() -> Unit = {}) {
         debug("Going to create TCP socket...")
@@ -44,9 +51,5 @@ class TcpSocket(
             socket?.close()
             socket = null
         }
-    }
-
-    fun isOpen(): Boolean {
-        return socket?.isClosed == false
     }
 }

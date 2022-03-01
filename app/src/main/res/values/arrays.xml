@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string-array name="buttons" >
+        <item>VolumeUp</item>
+        <item>VolumeDown</item>
+    </string-array>
+
     <string-array name="keys" >
         <item>A</item>
         <item>B</item>

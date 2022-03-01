@@ -1,200 +1,130 @@
 <resources>
+    <!-- Commons -->
     <string name="app_name">Minimote</string>
 
-    <!-- MISC -->
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="name">Name</string>
+    <string name="display_name">Display name</string>
+
     <string name="delete">Delete</string>
     <string name="save">Save</string>
     <string name="clear">Clear</string>
     <string name="import_">Import</string>
     <string name="add">Add</string>
     <string name="edit">Edit</string>
+    <string name="default_">Default</string>
+    <string name="browse">Browse</string>
 
-    <string name="ok">OK</string>
-    <string name="cancel">Cancel</string>
-
-    <string name="address">Address</string>
-    <string name="port">Port</string>
-    <string name="hostname">Hostname</string>
-    <string name="name">Name</string>
-
-    <string name="display_name">Display name</string>
-
-    <!-- Edit hotkey -->
-    <string name="edit_hotkey_preview">Preview</string>
-    <string name="edit_hotkey_modifiers">Modifiers</string>
-    <string name="edit_hotkey_key">Key</string>
-
-    <string name="edit_hotkey_ctrl">CTRL</string>
-    <string name="edit_hotkey_alt">ALT</string>
-    <string name="edit_hotkey_altgr">ALT GR</string>
-    <string name="edit_hotkey_shift">SHIFT</string>
-    <string name="edit_hotkey_meta">META</string>
-
-    <string name="edit_hotkey_style">Style</string>
-
-    <string name="edit_hotkey_hotkey_name">Display name</string>
-    <string name="edit_hotkey_text_size">Text size</string>
-    <string name="edit_hotkey_padding">Padding</string>
-
-    <!-- Hw hotkey -->
-    <string name="edit_hwhotkey_button">Button</string>
-    <string name="edit_hwhotkey_modifiers">Modifiers</string>
-    <string name="edit_hwhotkey_key">Key</string>
-
-    <string name="hwhotkey_item_label_placeholder">UP</string>
-
-    <!-- Server -->
-    <string name="server_address_placeholder">192.168.1.102</string>
-    <string name="server_port_placeholder">50500</string>
-    <string name="server_connection_params">Connection</string>
-    <string name="server_style_params">Style</string>
-
-<!--    <string name="edit_server_display_name">Display name</string>-->
-<!--    <string name="edit_server_address">@string/address</string>-->
-<!--    <string name="edit_server_port">@string/port</string>-->
-<!--    <string name="edit_server_hostname">@string/hostname</string>-->
-<!--    <string name="edit_server_hostname_placeholder">arch-linux</string>-->
-<!--    <string name="edit_server_connect_automatically">Connect automatically</string>-->
-
-    <!-- Discover -->
-    <string name="discover_port_placeholder">50500</string>
-
-
-    <!-- Server list item -->
-    <string name="server_list_item_display_name_placeholder">arch-linux</string>
-    <string name="server_list_item_address_placeholder">192.168.1.102</string>
-
-    <!-- Servers -->
-    <string name="servers_discovering">Discovering…</string>
-
-    <!-- Add server dialog -->
-    <string name="add_server_dialog_title">Add server</string>
-
-    <!-- Add server failed (address) -->
-    <string name="add_server_failed_address_dialog_title">Invalid address</string>
-    <string name="add_server_failed_address_dialog_message">Please provide a valid IPv4 address</string>
-
-    <!-- Add server failed (port) -->
-    <string name="add_server_failed_port_dialog_title">Invalid port</string>
-    <string name="add_server_failed_port_dialog_message">Please provide a valid port</string>
-
-    <!-- Discovery dialog -->
-    <string name="start_discovery_dialog_title">Start discovery?</string>
-    <string name="start_discovery_dialog_message">Enter the discovery port</string>
-
-    <!-- Connection failed dialog -->
-    <string name="connection_failed_dialog_title">Connection failed</string>
-    <string name="connection_failed_dialog_message">Cannot establish connection with %s</string>
-
-    <!-- Drawer -->
-    <string name="settings">Settings</string>
-    <string name="servers">Servers</string>
-    <string name="hotkeys">Graphical hotkeys</string>
-    <string name="hwhotkeys">Physical hotkeys</string>
-
-    <!-- Settings -->
-    <string name="settings_automatically_show_touchpad_buttons">Show touchpad buttons automatically</string>
-    <string name="settings_automatically_show_hotkeys">Show hotkeys automatically</string>
-    <string name="settings_automatically_show_keyboard">Show keyboard automatically</string>
-
-    <string name="settings_touchpad_color">Touchpad color</string>
-    <string name="settings_buttons_container_color">Touchpad buttons container color</string>
-    <string name="settings_touchpad_button_unpressed_color">Touchpad button color</string>
-    <string name="settings_touchpad_button_pressed_color">Touchpad button color: pressed</string>
-    <string name="settings_touchpad_button_border_color">Touchpad button border color</string>
-
-    <string name="settings_hotkeys_overlay_color">Hotkeys overlay color</string>
-    <string name="settings_hotkeys_overlay_border_color">Hotkeys overlay border color</string>
-
-    <string name="settings_hotkey_unpressed_color">Hotkey color</string>
-    <string name="settings_hotkey_pressed_color">Hotkey color: pressed</string>
-    <string name="settings_hotkey_border_color">Hotkey border color</string>
-    <string name="settings_hotkey_text_color">Hotkey text color</string>
-
-    <string name="settings_button_hotkeys_color">Open hotkeys button color</string>
-    <string name="settings_button_keyboard_color">Open keyboard button color</string>
-
-    <!-- Content description -->
-    <string name="nav_header_description">Header</string>
-    <string name="discover_servers_button_description">Discover servers</string>
-    <string name="add_server_button_description">Add server</string>
-    <string name="hotkeys_button_description">Show hotkeys</string>
-    <string name="keyboard_button_description">Show keyboard</string>
-
-
-    <string name="add_edit_server_invalid_address">Invalid address</string>
-    <string name="add_edit_server_invalid_port">Invalid port</string>
-
-    <string name="server_list_item_context_menu_title">Choose an action</string>
-    <string name="server_list_item_context_menu_delete">Delete</string>
-    <string name="server_list_item_context_menu_edit">Edit</string>
-
-    <string name="toolbar_title_add_server">Add server</string>
-    <string name="toolbar_title_edit_server">Edit server</string>
-
-
-    <string name="toolbar_title_add_hotkey">Add hotkey</string>
-    <string name="toolbar_title_edit_hotkey">Edit hotkey</string>
-
-
-    <string name="toolbar_title_add_hw_hotkey">Add hotkey</string>
-    <string name="toolbar_title_edit_hw_hotkey">Edit hotkey</string>
-
-
-    <string name="delete_server_confirmation_title">Remove server?</string>
-    <string name="delete_server_confirmation_message">Do you really want to remove the server?</string>
-
-
-    <string name="discover_title">Discovery</string>
-    <string name="discover_discovering">Discovering…</string>
-    <string name="discover_completed">Discover completed</string>
-    <string name="discover_helper">Click on a server to add it</string>
-    <string name="discover_failed">Discover failed</string>
-
-    <string name="server_saved">%1$s has been saved</string>
-    <string name="server_added">%1$s has been added</string>
-    <string name="server_removed">%1$s has been removed</string>
-
-        <!-- Add server failed (address) -->
-    <string name="connection_error_dialog_title">Connection failed</string>
-    <string name="connection_error_dialog_message">Failed to establish connection with %1$s:%2$d</string>
+    <string name="saved">%1$s has been saved</string>
+    <string name="added">%1$s has been added</string>
+    <string name="removed">%1$s has been removed</string>
 
     <string name="connecting">Connecting…</string>
-
-    <string name="hw_hotkey_list_item_context_menu_title">Choose an action</string>
-
-    <string name="delete_hw_hotkey_confirmation_title">Remove physical hotkey?</string>
-    <string name="delete_hw_hotkey_confirmation_message">Do you really want to remove the physical hotkey?</string>
-
-<!--    <string name="hw_hotkey_added">%1$s has been added</string>-->
-    <string name="hw_hotkey_saved">%1$s has been saved</string>
-    <string name="hw_hotkey_removed">%1$s has been removed</string>
-
-
-    <string name="sw_hotkeys_saved">%1$s hotkeys have been saved</string>
-
-    <string name="sw_hotkeys_clear_confirmation_title">Clear hotkeys?</string>
-    <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys for %1$s mode?</string>
-
-    <string name="sw_hotkeys_import_confirmation_title">Import hotkeys?</string>
-    <string name="sw_hotkeys_import_confirmation_message">Do you really want to clear the hotkeys for %1$s mode and import them from %2$s mode?</string>
-
-    <string name="sw_hotkeys_edit_different_orientation_confirmation_title">Are you sure?</string>
-    <string name="sw_hotkeys_edit_different_orientation_confirmation_message">You are saving the hotkey for %1$s mode but it was intended for %2$s mode, would you proceed?</string>
-
-    <string name="portrait">Portrait</string>
-    <string name="landscape">Landscape</string>
 
     <string name="key">Key</string>
     <string name="style">Style</string>
     <string name="button">Button</string>
     <string name="modifiers">Modifiers</string>
     <string name="preview">Preview</string>
+    <string name="icon">Icon</string>
+
     <string name="text_size">Text size</string>
     <string name="vertical_padding">Vertical padding</string>
     <string name="horizontal_padding">Horizontal padding</string>
-    <string name="icon">Icon</string>
-    <string name="browse">Browse</string>
+
     <string name="connection">Connection</string>
-    <string name="default_">Default</string>
+
+    <!-- Drawer -->
+    <string name="drawer_settings">Settings</string>
+    <string name="drawer_servers">Servers</string>
+    <string name="drawer_swhotkeys">Graphical hotkeys</string>
+    <string name="drawer_hwhotkeys">Physical hotkeys</string>
+
+    <!-- Toolbar titles -->
+    <string name="toolbar_title_add_server">Add server</string>
+    <string name="toolbar_title_edit_server">Edit server</string>
+
+    <string name="toolbar_title_add_sw_hotkey">Add hotkey</string>
+    <string name="toolbar_title_edit_sw_hotkey">Edit hotkey</string>
+
+    <string name="toolbar_title_add_hw_hotkey">Add hotkey</string>
+    <string name="toolbar_title_edit_hw_hotkey">Edit hotkey</string>
+
+    <!-- Context menu -->
+    <string name="choose_an_action">Choose an action</string>
+
+    <!-- Server -->
+    <string name="address">Address</string>
+    <string name="port">Port</string>
+    <string name="hostname">Hostname</string>
+
+    <!-- Add/Edit server -->
+    <string name="add_edit_server_invalid_address_dialog_title">Invalid address</string>
+    <string name="add_edit_server_invalid_address_dialog_message">Please provide a valid IPv4 address</string>
+
+    <string name="add_edit_server_invalid_port_dialog_title">Invalid port</string>
+    <string name="add_edit_server_invalid_port_dialog_message">Please provide a valid port</string>
+
+    <string name="add_edit_server_invalid_address_form_message">Invalid address</string>
+    <string name="add_edit_server_invalid_port_form_message">Invalid port</string>
+
+    <!-- Delete server confirmation dialog -->
+    <string name="delete_server_confirmation_dialog_title">Remove server?</string>
+    <string name="delete_server_confirmation_dialog_message">Do you really want to remove the server %1$s?</string>
+
+    <!-- Icon pick failed dialog -->
+    <string name="icon_picker_failed_dialog_title">Failed to choose icon</string>
+    <string name="icon_picker_failed_dialog_message">No application available for choose an icon, please install a file browser</string>
+
+    <!-- Settings -->
+    <string name="settings_automatically_show_touchpad_buttons">Show touchpad buttons automatically</string>
+    <string name="settings_automatically_show_hotkeys">Show hotkeys automatically</string>
+    <string name="settings_automatically_show_keyboard">Show keyboard automatically</string>
+
+    <!-- Modifiers -->
+    <string name="ctrl">CTRL</string>
+    <string name="alt">ALT</string>
+    <string name="altgr">ALT GR</string>
+    <string name="shift">SHIFT</string>
+    <string name="meta">META</string>
+
+    <!-- Discover -->
+    <string name="discover_discovering">Discovering…</string>
+    <string name="discover_completed">Discover completed</string>
+    <string name="discover_failed_dialog_title">Discover failed</string>
+    <string name="discover_failed_dialog_message">Discover failed: %1$s</string>
+
+    <!-- Connection failed dialog -->
+    <string name="connection_error_dialog_title">Connection failed</string>
+    <string name="connection_error_dialog_message">Failed to establish connection with %1$s:%2$d</string>
+
+    <!-- Delete hw hotkey confirmation dialog -->
+    <string name="delete_hw_hotkey_confirmation_title">Remove physical hotkey?</string>
+    <string name="delete_hw_hotkey_confirmation_message">Do you really want to remove the physical hotkey %1$s?</string>
+
+    <!-- Sw hotkeys saved -->
+    <string name="sw_hotkeys_saved">%1$s hotkeys have been saved</string>
+
+    <!-- Clear sw hotkeys confirmation dialog -->
+    <string name="sw_hotkeys_clear_confirmation_title">Clear hotkeys?</string>
+    <string name="sw_hotkeys_clear_confirmation_message">Do you really want to remove all the hotkeys for %1$s mode?</string>
+
+    <!-- Import sw hotkeys confirmation dialog -->
+    <string name="sw_hotkeys_import_confirmation_title">Import hotkeys?</string>
+    <string name="sw_hotkeys_import_confirmation_message">Do you really want to clear the hotkeys for %1$s mode and import them from %2$s mode?</string>
+
+    <!-- Orientations -->
+    <string name="portrait">Portrait</string>
+    <string name="landscape">Landscape</string>
+
+    <!-- Content description -->
+    <string name="nav_header_desc">Header</string>
+    <string name="discover_servers_button_desc">Discover servers</string>
+    <string name="add_server_button_desc">Add server</string>
+    <string name="hotkeys_button_desc">Show hotkeys</string>
+    <string name="keyboard_button_desc">Show keyboard</string>
+    <string name="touchpad_left_button_desc">Touchpad left</string>
+    <string name="touchpad_right_button_desc">Touchpad right</string>
 </resources>

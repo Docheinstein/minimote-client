@@ -10,12 +10,22 @@ import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.databinding.AddEditHwHotkeyBinding
-import org.docheinstein.minimotek.extensions.setSelection
+import org.docheinstein.minimotek.util.setSelection
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.keys.MinimoteKeyType
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.warn
+import org.docheinstein.minimotek.util.error
 
+/**
+ * Fragment that handles the addition of a new hardware hotkey or the editing of an existing one.
+ * The mode of the fragment depends on the parameter "hwHotkeyId" used to create this fragment.
+ *
+ *  The actions that can be performed on this screen are:
+ * - Save the hardware hotkey
+ * - Delete the hardware hotkey (only in EDIT mode)
+ */
 
 @AndroidEntryPoint
 class AddEditHwHotkeyFragment : Fragment() {
@@ -24,32 +34,40 @@ class AddEditHwHotkeyFragment : Fragment() {
     private lateinit var binding: AddEditHwHotkeyBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("AddEditHwHotkeyFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
+        verbose("AddEditHwHotkeyFragment.onCreateView()")
         binding = AddEditHwHotkeyBinding.inflate(inflater, container, false)
 
-        // Fetch server details (only the first time)
-        if (viewModel.hwHotkey?.value == null &&
-            viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT
-        ) {
+        // Fetch hw hotkey (only in EDIT mode and only the first time)
+        if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.EDIT && !viewModel.fetched) {
             viewModel.hwHotkey?.observe(viewLifecycleOwner) { hwHotkey ->
-                debug("LiveData sent update for hwHotkey $hwHotkey, eventually updating UI")
-                if (hwHotkey != null) {
-                    debug("Fetched hwHotkey is valid")
-                    binding.button.setSelection(hwHotkey.button.keyString)
-                    binding.alt.isChecked = hwHotkey.alt
-                    binding.altgr.isChecked = hwHotkey.altgr
-                    binding.ctrl.isChecked = hwHotkey.ctrl
-                    binding.meta.isChecked = hwHotkey.meta
-                    binding.shift.isChecked = hwHotkey.shift
-                    binding.key.setSelection(hwHotkey.key.keyString)
-                } else {
-                    warn("Invalid server")
+                debug("Hardware hotkey update received in UI: $hwHotkey")
+
+                if (hwHotkey == null) {
+                    error("Invalid hw hotkey")
+                    return@observe
                 }
+
+                if (viewModel.fetched) {
+                    warn("Already fetched, ignoring update")
+                    return@observe
+                }
+
+                viewModel.fetched = true
+
+                binding.button.setSelection(hwHotkey.button.keyString)
+                binding.alt.isChecked = hwHotkey.alt
+                binding.altgr.isChecked = hwHotkey.altgr
+                binding.ctrl.isChecked = hwHotkey.ctrl
+                binding.meta.isChecked = hwHotkey.meta
+                binding.shift.isChecked = hwHotkey.shift
+                binding.key.setSelection(hwHotkey.key.keyString)
             }
         }
 
@@ -57,38 +75,38 @@ class AddEditHwHotkeyFragment : Fragment() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.save_delete, menu)
-        if (viewModel.mode == AddEditHwHotkeyViewModel.Mode.ADD) {
-            menu.removeItem(R.id.delete_menu_item)
+        when (viewModel.mode) {
+            AddEditHwHotkeyViewModel.Mode.ADD -> inflater.inflate(R.menu.save, menu)
+            AddEditHwHotkeyViewModel.Mode.EDIT -> inflater.inflate(R.menu.save_delete, menu)
         }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.save_menu_item -> {
-                handleSaveButton()
+                handleSaveAction()
                 return true
             }
             R.id.delete_menu_item -> {
-                handleDeleteButton()
+                handleDeleteAction()
                 return true
             }
         }
         return super.onOptionsItemSelected(item)
     }
 
-    private fun handleSaveButton() {
-        debug("Handling save button")
+    private fun handleSaveAction() {
+        verbose("AddEditHwHotkeyFragment.handleSaveAction()")
 
         val key = MinimoteKeyType.byKeyString(binding.key.selectedItem.toString())
         if (key == null) {
-            warn("Invalid key for keyString ${binding.key.selectedItem}")
+            error("Invalid key for keyString ${binding.key.selectedItem}")
             return
         }
 
         val button = ButtonType.byKeyString(binding.button.selectedItem.toString())
         if (button == null) {
-            warn("Invalid button for keyString ${binding.button.selectedItem}")
+            error("Invalid button for keyString ${binding.button.selectedItem}")
             return
         }
 
@@ -104,23 +122,25 @@ class AddEditHwHotkeyFragment : Fragment() {
 
         Snackbar.make(
             requireParentFragment().requireView(),
-            getString(R.string.server_saved, hwHotkey.button.keyString),
+            getString(R.string.saved, hwHotkey.button.keyString),
             Snackbar.LENGTH_LONG
         ).show()
 
         findNavController().navigateUp()
     }
 
-    private fun handleDeleteButton() {
+    private fun handleDeleteAction() {
+        verbose("AddEditHwHotkeyFragment.handleDeleteAction()")
+
         AlertDialog.Builder(requireActivity())
             .setTitle(R.string.delete_hw_hotkey_confirmation_title)
-            .setMessage(R.string.delete_hw_hotkey_confirmation_message)
+            .setMessage(getString(R.string.delete_hw_hotkey_confirmation_message, viewModel.hwHotkey?.value?.button?.name ?: ""))
             .setPositiveButton(R.string.ok) { _, _ ->
-                // actually delete
+                // Actually delete
                 viewModel.delete()
                 Snackbar.make(
                     requireParentFragment().requireView(),
-                    getString(R.string.hw_hotkey_removed, viewModel.hwHotkey?.value?.button?.name),
+                    getString(R.string.removed, viewModel.hwHotkey?.value?.button?.name ?: ""),
                     Snackbar.LENGTH_LONG
                 ).show()
                 findNavController().navigateUp()

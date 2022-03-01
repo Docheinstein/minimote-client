@@ -17,4 +17,7 @@
         <!-- Other texts: e.g. menu items -->
         <item name="android:textColor">@color/darkest_gray</item>
     </style>
+
+   <style name="StandardDialog" parent="Base.ThemeOverlay.AppCompat.Dialog.Alert">
+    </style>
 </resources>

@@ -15,16 +15,26 @@ import org.docheinstein.minimotek.R
 import org.docheinstein.minimotek.buttons.ButtonType
 import org.docheinstein.minimotek.database.hotkey.hw.HwHotkey
 import org.docheinstein.minimotek.databinding.*
-import org.docheinstein.minimotek.ui.controller.base.SelectableListAdapter
+import org.docheinstein.minimotek.ui.base.SelectableListAdapter
 import org.docheinstein.minimotek.util.debug
+import org.docheinstein.minimotek.util.verbose
+import org.docheinstein.minimotek.util.warn
 
+/**
+ * Fragment representing the hardware hotkey list
+ * (hotkeys mapped to physical buttons, e.g. VolumeUp/VolumeDown).
+ * The actions that can be performed on this screen are:
+ * - Add a hardware hotkey (opens AddEdit screen)
+ * - Edit a hardware hotkey (opens AddEdit screen)
+ * - Delete a hardware hotkey
+ */
 
 @AndroidEntryPoint
 class HwHotkeysFragment : Fragment() {
+
     private val viewModel: HwHotkeysViewModel by viewModels()
     private lateinit var binding: HwHotkeyListBinding
     private lateinit var adapter: HwHotkeyListAdapter
-
 
     private class HwHotkeyDiffCallback : DiffUtil.ItemCallback<HwHotkey>() {
         override fun areItemsTheSame(oldItem: HwHotkey, newItem: HwHotkey): Boolean {
@@ -32,14 +42,15 @@ class HwHotkeysFragment : Fragment() {
         }
 
         override fun areContentsTheSame(oldItem: HwHotkey, newItem: HwHotkey): Boolean {
-            return oldItem.button == newItem.button // UI based equality
+             // UI based equality
+            return oldItem.button == newItem.button
         }
     }
 
     class HwHotkeyListAdapter : SelectableListAdapter<HwHotkey, HwHotkeyListAdapter.ViewHolder>(HwHotkeyDiffCallback()) {
-        class ViewHolder(
-            val binding: HwHotkeyListItemBinding
-        ) : RecyclerView.ViewHolder(binding.root), View.OnCreateContextMenuListener {
+        class ViewHolder(val binding: HwHotkeyListItemBinding) :
+                RecyclerView.ViewHolder(binding.root), View.OnCreateContextMenuListener {
+
             init {
                 binding.root.setOnCreateContextMenuListener(this)
             }
@@ -52,7 +63,7 @@ class HwHotkeysFragment : Fragment() {
                 if (view != null && menu != null) {
                     val menuInflater = MenuInflater(view.context)
                     menuInflater.inflate(R.menu.edit_delete, menu)
-                    menu.setHeaderTitle(view.context.getString(R.string.hw_hotkey_list_item_context_menu_title))
+                    menu.setHeaderTitle(view.context.getString(R.string.choose_an_action))
                 }
             }
         }
@@ -68,8 +79,10 @@ class HwHotkeysFragment : Fragment() {
         override fun doBindViewHolder(holder: ViewHolder, position: Int) {
             val hwHotkey = getItem(position)
 
+            // Text
             holder.binding.label.text = hwHotkey.button.name
 
+            // Icon
             val icon = when (hwHotkey.button) {
                 ButtonType.VolumeDown -> { R.drawable.volume_down }
                 ButtonType.VolumeUp -> { R.drawable.volume_up }
@@ -77,6 +90,7 @@ class HwHotkeysFragment : Fragment() {
 
             holder.binding.icon.setImageResource(icon)
 
+            // Click listener: open AddEditHwhotkey
             holder.binding.root.setOnClickListener {
                 debug("Click on hwHotkey $hwHotkey")
                  holder.itemView.findNavController().navigate(
@@ -89,24 +103,24 @@ class HwHotkeysFragment : Fragment() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        verbose("HwHotkeysFragment.onCreate()")
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        debug("HwHotkeysFragment.onCreateView()")
+        verbose("HwHotkeysFragment.onCreateView()")
 
         binding = HwHotkeyListBinding.inflate(inflater, container, false)
 
-
-        // Server list
+        // Hardware hotkeys adapter
         adapter = HwHotkeyListAdapter()
         binding.hwHotkeyList.adapter = adapter
 
-        // Observe hw hotkeys list changes
+        // Observe hardware hotkeys changes
         viewModel.hwHotkeys.observe(viewLifecycleOwner) { hwHotkeys ->
-            debug("Server list update detected (new size = ${hwHotkeys.size}, changing UI accordingly)")
+            debug("Hardware hotkeys update received in UI (size = ${hwHotkeys.size})")
             adapter.submitList(hwHotkeys)
         }
 
@@ -120,7 +134,7 @@ class HwHotkeysFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.add_menu_item -> {
-                handleAddHwHotkeyButton()
+                handleAddAction()
                 return true
             }
         }
@@ -128,49 +142,67 @@ class HwHotkeysFragment : Fragment() {
     }
 
     override fun onContextItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.edit_menu_item -> {
-                val hwHotkey = adapter.selected()
-                debug("Going to edit hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
-                if (hwHotkey != null) {
-                    findNavController().navigate(
-                        HwHotkeysFragmentDirections.actionAddEditHwHotkey(
-                            hwHotkey.id,
-                            getString(R.string.toolbar_title_edit_hw_hotkey)
-                        )
-                    )
-                }
+                handleEditAction()
+                return true
             }
             R.id.delete_menu_item -> {
-                val hwHotkey = adapter.selected()
-                debug("Going to delete hwHotkey at position ${adapter.selection}: ${hwHotkey?.id}")
-                if (hwHotkey != null) {
-                    AlertDialog.Builder(requireActivity())
-                        .setTitle(R.string.delete_hw_hotkey_confirmation_title)
-                        .setMessage(R.string.delete_hw_hotkey_confirmation_message)
-                        .setPositiveButton(R.string.ok) { _, _ ->
-                            // actually delete
-                            viewModel.delete(hwHotkey)
-                            Snackbar.make(
-                                requireParentFragment().requireView(),
-                                getString(R.string.hw_hotkey_removed, hwHotkey.button.name),
-                                Snackbar.LENGTH_LONG
-                            ).show()
-                        }
-                        .setNegativeButton(R.string.cancel, null)
-                        .show()
-                }
+                handleDeleteAction()
+                return true
             }
         }
         return super.onContextItemSelected(item)
     }
 
-    private fun handleAddHwHotkeyButton() {
+    private fun handleAddAction() {
+        verbose("HwHotkeysFragment.handleAddAction()")
+
         findNavController().navigate(
             HwHotkeysFragmentDirections.actionAddEditHwHotkey(
                 AddEditHwHotkeyViewModel.HW_HOTKEY_ID_NONE,
                 getString(R.string.toolbar_title_add_hw_hotkey)
             )
         )
+    }
+
+    private fun handleEditAction() {
+        verbose("HwHotkeysFragment.handleEditAction()")
+
+        val hwHotkey = adapter.selectedItem
+        debug("Going to edit hardware hotkey at position ${adapter.selectedPosition}: ${hwHotkey?.id}")
+        if (hwHotkey != null) {
+            findNavController().navigate(
+                HwHotkeysFragmentDirections.actionAddEditHwHotkey(
+                    hwHotkey.id,
+                    getString(R.string.toolbar_title_edit_hw_hotkey)
+                )
+            )
+        } else {
+            warn("No hotkey selected, cannot edit")
+        }
+    }
+
+    private fun handleDeleteAction() {
+        verbose("HwHotkeysFragment.handleDeleteAction()")
+
+        val hwHotkey = adapter.selectedItem
+        debug("Going to delete hardware hotkey at position ${adapter.selectedPosition}: ${hwHotkey?.id}")
+        if (hwHotkey != null) {
+            AlertDialog.Builder(requireActivity())
+                .setTitle(R.string.delete_hw_hotkey_confirmation_title)
+                .setMessage(getString(R.string.delete_hw_hotkey_confirmation_message, hwHotkey.button.name))
+                .setPositiveButton(R.string.ok) { _, _ ->
+                    // Actually delete
+                    viewModel.delete(hwHotkey.id)
+                    Snackbar.make(
+                        requireParentFragment().requireView(),
+                        getString(R.string.removed, hwHotkey.button.name),
+                        Snackbar.LENGTH_LONG
+                    ).show()
+                }
+                .setNegativeButton(R.string.cancel, null)
+                .show()
+        }
     }
 }

@@ -7,10 +7,16 @@ import org.docheinstein.minimotek.buttons.ButtonType
 @Dao
 interface HwHotkeyDao {
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
-    fun load(id: Long): Flow<HwHotkey>
+    fun observe(id: Long): Flow<HwHotkey>
 
     @Query("SELECT * FROM $TABLE_NAME")
-    fun loadAll(): Flow<List<HwHotkey>>
+    fun observeAll(): Flow<List<HwHotkey>>
+
+    @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
+    suspend fun get(id: Long): HwHotkey?
+
+    @Query("SELECT * FROM $TABLE_NAME")
+    suspend fun getAll(): List<HwHotkey>
 
     @Query("SELECT * FROM $TABLE_NAME WHERE $COLUMN_BUTTON = :button")
     suspend fun getByButton(button: ButtonType): HwHotkey?
@@ -18,6 +24,6 @@ interface HwHotkeyDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun save(hwHotkey: HwHotkey): Long
 
-    @Delete
-    suspend fun delete(hwHotkey: HwHotkey): Int
+    @Query("DELETE FROM $TABLE_NAME WHERE $COLUMN_ID = :id")
+    suspend fun delete(id: Long): Int
 }

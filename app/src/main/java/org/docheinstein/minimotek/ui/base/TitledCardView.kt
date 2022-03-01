@@ -2,22 +2,21 @@ package org.docheinstein.minimotek.ui.base
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.cardview.widget.CardView
-import androidx.core.content.res.getIntegerOrThrow
 import org.docheinstein.minimotek.R
-import org.docheinstein.minimotek.databinding.SliderBinding
 import org.docheinstein.minimotek.databinding.TitledCardBinding
-import org.docheinstein.minimotek.extensions.setOnSeekbarProgressListener
+import org.docheinstein.minimotek.util.verbose
 import org.docheinstein.minimotek.util.debug
-import org.docheinstein.minimotek.util.error
-import org.docheinstein.minimotek.util.warn
-import java.lang.Exception
 
+
+/**
+ * Layout consisting of [CardView] with a title.
+ * Views nested in this view will be placed under the title,
+ * in the "content area" of the card.
+ */
 
 class TitledCardView @JvmOverloads constructor(
     context: Context,
@@ -27,29 +26,12 @@ class TitledCardView @JvmOverloads constructor(
 
     private val binding: TitledCardBinding
 
-    var scaling: Int = 0
-        set(value) {
-            debug("SliderView.scaling setter")
-            field = value
-            updateUI()
-        }
-
-    var progress: Int = 0
-        set(value) {
-            debug("SliderView.progress setter")
-            field = value
-            updateUI()
-        }
-
-    val progressScaled: Int
-        get() = progress * scaling
-
     init {
-        debug("TitledCardView()")
+        verbose("TitledCardView.init()")
         binding = TitledCardBinding.inflate(LayoutInflater.from(context), this)
 
         // https://developer.android.com/training/custom-views/create-view#customattr
-        debug("Retrieving custom attributes")
+        debug("Retrieving custom attributes for TitledCardView")
         context.theme.obtainStyledAttributes(
             attrs,
             R.styleable.TitledCard, 0, 0).apply {
@@ -64,18 +46,21 @@ class TitledCardView @JvmOverloads constructor(
         }
     }
 
+    /*
+     * This is pretty hackish but it's the best way I've found to add XML inflated views
+     * to the nested LinearLayout (R.id.content) instead of add them to the CardView layout.
+     * Nested view must be wrapped in a LinearLayout anyway because the LinearLayout params otherwise
+     * are lost for some reason (probably because the CardView extends FrameLayout
+     * and therefore the params specific for LinearLayout are dropped somewhere).
+     */
     override fun addView(child: View?, index: Int, params: ViewGroup.LayoutParams?) {
         debug("TitledCardView.addView called for view: ${child?.id}")
         if (child?.id == R.id.content) {
-            debug("Adding to root")
+            debug("Adding view to root")
             super.addView(child, index, params)
         } else {
-            debug("Adding to root")
+            debug("Adding view to content")
             binding.content.addView(child, index, params)
         }
-    }
-
-    private fun updateUI() {
-        debug("Updating TitledCardView UI")
     }
 }
