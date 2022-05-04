@@ -28,7 +28,7 @@
                 android:background="@color/controller_widgets_bar"
                 android:orientation="horizontal">
 
-            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
+            <org.docheinstein.minimote.ui.controller.ControllerWidgetView
                     android:id="@+id/keyboard_widget"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/controller_widget_size"
@@ -39,7 +39,7 @@
                     widget:highlight_color="@color/controller_widget_highlighted"
                     widget:unhighlight_color="@color/controller_widget_unhighlighted" />
 
-            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
+            <org.docheinstein.minimote.ui.controller.ControllerWidgetView
                     android:id="@+id/touchpad_buttons_widget"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/controller_widget_size"
@@ -50,7 +50,7 @@
                     widget:highlight_color="@color/controller_widget_highlighted"
                     widget:unhighlight_color="@color/controller_widget_unhighlighted" />
 
-            <org.docheinstein.minimotek.ui.controller.ControllerWidgetView
+            <org.docheinstein.minimote.ui.controller.ControllerWidgetView
                     android:id="@+id/hotkeys_widget"
                     android:layout_width="wrap_content"
                     android:layout_height="@dimen/controller_widget_size"
@@ -74,7 +74,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-        <org.docheinstein.minimotek.ui.controller.TouchpadAreaView
+        <org.docheinstein.minimote.ui.controller.TouchpadAreaView
                 android:id="@+id/touchpad_area"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
@@ -138,7 +138,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <org.docheinstein.minimotek.ui.controller.KeyboardEditText
+    <org.docheinstein.minimote.ui.controller.KeyboardEditText
             android:id="@+id/keyboard_text"
             style="@style/Widget.AppCompat.EditText"
             android:layout_width="match_parent"

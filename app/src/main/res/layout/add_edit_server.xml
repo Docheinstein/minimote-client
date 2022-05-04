@@ -15,7 +15,7 @@
             android:padding="@dimen/card_padding"
             android:orientation="vertical">
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -56,9 +56,9 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -92,7 +92,7 @@
                            android:gravity="center_vertical"
                            android:orientation="horizontal">
 
-                       <org.docheinstein.minimotek.ui.base.IconView
+                       <org.docheinstein.minimote.ui.base.IconView
                                android:id="@+id/icon"
                                android:layout_width="48dp"
                                android:layout_height="48dp"
@@ -139,7 +139,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
     </LinearLayout>
 </ScrollView>

@@ -13,7 +13,7 @@
             android:padding="@dimen/card_padding"
             android:orientation="vertical">
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -33,9 +33,9 @@
                        android:layout_height="@dimen/spinner_height"
                        android:entries="@array/buttons" />
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -78,9 +78,9 @@
                         android:layout_height="wrap_content"
                         android:text="@string/shift" />
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -100,6 +100,6 @@
                         android:layout_height="@dimen/spinner_height"
                         android:entries="@array/keys" />
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
     </LinearLayout>
 </ScrollView>

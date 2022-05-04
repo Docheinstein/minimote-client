@@ -7,7 +7,7 @@
 
     <fragment
             android:id="@+id/nav_servers"
-            android:name="org.docheinstein.minimotek.ui.servers.ServersFragment"
+            android:name="org.docheinstein.minimote.ui.servers.ServersFragment"
             android:label="@string/drawer_servers"
             tools:layout="@layout/server_list" >
         <action
@@ -24,7 +24,7 @@
 
     <fragment
             android:id="@+id/nav_hw_hotkeys"
-            android:name="org.docheinstein.minimotek.ui.hwhotkeys.HwHotkeysFragment"
+            android:name="org.docheinstein.minimote.ui.hwhotkeys.HwHotkeysFragment"
             android:label="@string/drawer_hwhotkeys"
             tools:layout="@layout/hw_hotkey_list" >
         <action
@@ -36,7 +36,7 @@
 
     <fragment
         android:id="@+id/nav_add_edit_hw_hotkey"
-        android:name="org.docheinstein.minimotek.ui.hwhotkeys.AddEditHwHotkeyFragment"
+        android:name="org.docheinstein.minimote.ui.hwhotkeys.AddEditHwHotkeyFragment"
         android:label="{title}">
         <argument
             android:name="hwHotkeyId"
@@ -49,7 +49,7 @@
 
     <fragment
             android:id="@+id/nav_add_edit_server"
-            android:name="org.docheinstein.minimotek.ui.servers.AddEditServerFragment"
+            android:name="org.docheinstein.minimote.ui.servers.AddEditServerFragment"
             android:label="{title}"
             tools:layout="@layout/add_edit_server">
         <argument
@@ -62,7 +62,7 @@
 
     <fragment
             android:id="@+id/nav_controller"
-            android:name="org.docheinstein.minimotek.ui.controller.ControllerFragment"
+            android:name="org.docheinstein.minimote.ui.controller.ControllerFragment"
             android:label="{title}"
             tools:layout="@layout/controller">
         <argument
@@ -78,7 +78,7 @@
 
     <fragment
         android:id="@+id/nav_settings"
-        android:name="org.docheinstein.minimotek.ui.settings.SettingsFragment"
+        android:name="org.docheinstein.minimote.ui.settings.SettingsFragment"
         android:label="@string/drawer_settings" />
 
     <action
@@ -110,7 +110,7 @@
             app:startDestination="@id/nav_sw_hotkeys_inner">
         <fragment
                 android:id="@+id/nav_sw_hotkeys_inner"
-                android:name="org.docheinstein.minimotek.ui.swhotkeys.SwHotkeysFragment"
+                android:name="org.docheinstein.minimote.ui.swhotkeys.SwHotkeysFragment"
                 android:label="@string/drawer_swhotkeys"
                 tools:layout="@layout/hotkeys">
             <action
@@ -121,7 +121,7 @@
         </fragment>
         <fragment
                 android:id="@+id/nav_add_edit_sw_hotkey"
-                android:name="org.docheinstein.minimotek.ui.swhotkeys.AddEditSwHotkeyFragment"
+                android:name="org.docheinstein.minimote.ui.swhotkeys.AddEditSwHotkeyFragment"
                 android:label="{title}">
             <argument
                     android:name="swHotkeyId"

@@ -15,7 +15,7 @@
             android:orientation="vertical"
             android:padding="@dimen/card_padding">
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -59,9 +59,9 @@
                         android:text="@string/shift" />
             </LinearLayout>
 
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="@dimen/card_spacing"
@@ -81,9 +81,9 @@
                        android:layout_height="@dimen/spinner_height"
                        android:entries="@array/keys" />
            </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/card_spacing"
@@ -123,7 +123,7 @@
                             android:text="@string/text_size"
                             android:textSize="16sp" />
 
-                    <org.docheinstein.minimotek.ui.base.SliderView
+                    <org.docheinstein.minimote.ui.base.SliderView
                             android:id="@+id/text_size"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -146,7 +146,7 @@
                             android:text="@string/horizontal_padding"
                             android:textSize="16sp" />
 
-                    <org.docheinstein.minimotek.ui.base.SliderView
+                    <org.docheinstein.minimote.ui.base.SliderView
                             android:id="@+id/horizontal_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -169,7 +169,7 @@
                             android:text="@string/vertical_padding"
                             android:textSize="16sp" />
 
-                    <org.docheinstein.minimotek.ui.base.SliderView
+                    <org.docheinstein.minimote.ui.base.SliderView
                             android:id="@+id/vertical_padding"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
@@ -179,10 +179,10 @@
                             slider:scaling="4" />
                 </LinearLayout>
             </LinearLayout>
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
 
 
-        <org.docheinstein.minimotek.ui.base.TitledCardView
+        <org.docheinstein.minimote.ui.base.TitledCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/card_spacing"
@@ -195,7 +195,7 @@
                     android:layout_height="match_parent"
                     android:orientation="vertical">
 
-                <org.docheinstein.minimotek.ui.swhotkeys.SwHotkeyView
+                <org.docheinstein.minimote.ui.swhotkeys.SwHotkeyView
                         android:id="@+id/preview"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -209,6 +209,6 @@
                         tools:textSize="40sp" />
             </LinearLayout>
 
-        </org.docheinstein.minimotek.ui.base.TitledCardView>
+        </org.docheinstein.minimote.ui.base.TitledCardView>
     </LinearLayout>
 </ScrollView>
