@@ -166,6 +166,7 @@ class SliderView @JvmOverloads constructor(
 
         verbose("SliderView.onRestoreInstanceState()")
 
+        // TODO: progress = 0 should be legal
         if (savedState.progress > 0) {
             debug("Restored progress = ${savedState.progress}")
             progress = savedState.progress

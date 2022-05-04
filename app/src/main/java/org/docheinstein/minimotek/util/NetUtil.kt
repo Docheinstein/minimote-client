@@ -2,7 +2,6 @@ package org.docheinstein.minimotek.util
 
 import io.ktor.util.network.*
 import java.net.InetSocketAddress
-
 // https://stackoverflow.com/questions/5284147/validating-ipv4-addresses-with-regexp
 private val IP_REGEX = Regex("^(?:(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])\\.){3}(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9][0-9]|[0-9])$")
 

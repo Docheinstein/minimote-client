@@ -66,9 +66,9 @@ object MinimotePacketFactory {
     }
 
     fun newWrite(c: Char): MinimotePacket {
-        // | CHAR (8 bite) |
-        val payload = ByteArray(1)
-        payload.set8(c.code)
+        // | UNICODE (4 byte) |
+        val payload = ByteArray(4)
+        payload.set32(c.code)
         return MinimotePacket(MinimotePacketType.Write, payload)
     }
 
