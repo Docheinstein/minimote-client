@@ -116,10 +116,10 @@ class IconView @JvmOverloads constructor(
         }
 
 
-        override fun writeToParcel(out: Parcel?, flags: Int) {
+        override fun writeToParcel(out: Parcel, flags: Int) {
             debug("SavedState.writeToParcel, saving uri = $uri")
             super.writeToParcel(out, flags)
-            out?.writeString(uri?.toString())
+            out.writeString(uri?.toString())
         }
 
         companion object {

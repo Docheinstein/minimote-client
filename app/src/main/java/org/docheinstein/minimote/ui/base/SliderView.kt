@@ -135,10 +135,10 @@ class SliderView @JvmOverloads constructor(
             verbose("SavedState(superState: Parcelable?)")
         }
 
-        override fun writeToParcel(out: Parcel?, flags: Int) {
+        override fun writeToParcel(out: Parcel, flags: Int) {
             debug("SavedState.writeToParcel")
             super.writeToParcel(out, flags)
-            out?.writeInt(progress)
+            out.writeInt(progress)
         }
 
         companion object {

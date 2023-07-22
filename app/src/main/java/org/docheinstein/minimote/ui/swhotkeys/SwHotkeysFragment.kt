@@ -94,8 +94,8 @@ class SwHotkeysFragment : Fragment() {
         // (otherwise other fragments sharing these icons ends up with
         // an icon with the same enabled/disabled state of the icons in
         // this fragment, which doesn't make sense).
-        clearButton.icon.mutate()
-        saveButton.icon.mutate()
+        clearButton.icon?.mutate()
+        saveButton.icon?.mutate()
 
         // Observe pending changes
         viewModel.hasPendingChanges().observe(viewLifecycleOwner) { yes ->
@@ -304,6 +304,6 @@ class SwHotkeysFragment : Fragment() {
 
     private fun setMenuItemEnabled(menuItem: MenuItem, enabled: Boolean) {
         menuItem.isEnabled = enabled
-        menuItem.icon.alpha = if (enabled) 255 else 127
+        menuItem.icon?.alpha = if (enabled) 255 else 127
     }
 }

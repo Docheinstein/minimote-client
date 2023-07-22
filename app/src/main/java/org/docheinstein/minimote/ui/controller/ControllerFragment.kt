@@ -141,10 +141,10 @@ class ControllerFragment : Fragment(), TouchpadAreaView.TouchpadListener, Keyboa
                     // Fade out the splash overlay
                     if (binding.splashOverlay.isVisible) {
                         binding.splashOverlay.animate().alpha(0.0f).setListener(object : Animator.AnimatorListener {
-                            override fun onAnimationStart(animation: Animator?) {}
-                            override fun onAnimationCancel(animation: Animator?) {}
-                            override fun onAnimationRepeat(animation: Animator?) {}
-                            override fun onAnimationEnd(animation: Animator?) {
+                            override fun onAnimationStart(animation: Animator) {}
+                            override fun onAnimationCancel(animation: Animator) {}
+                            override fun onAnimationRepeat(animation: Animator) {}
+                            override fun onAnimationEnd(animation: Animator) {
                                 // Hide the overlay after the fade
                                 // so that it won't consume touch events anymore
                                 binding.splashOverlay.isVisible = false
